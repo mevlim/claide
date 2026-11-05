@@ -57,7 +57,7 @@ export const DEFAULT_SETTINGS = {
   apiKey: '',
   tts: true,
   voiceURI: '',
-  rate: 1.0,
+  rate: 0.95,
   pitch: 1.0,
   autoListen: true,
   textSpeed: 45,

@@ -72,52 +72,98 @@ function loadVoices() {
   const sel = $('#voiceSel'); if (sel) fillVoiceSelect(sel);
 }
 if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+// Оценка «естественности» голоса: нейросетевые голоса браузера звучат намного живее системных.
+const FEMALE = /milena|irina|svetlana|dariya|darya|alena|alyona|anna|ekaterina|katya|elena|female|жен|natalia|polina|alice|алис|vera|marina/i;
+const MALE = /pavel|dmitry|yuri|maxim|male|муж|artem|filipp/i;
+function voiceScore(v) {
+  let s = 0;
+  if (/^ru/i.test(v.lang)) s += 1000;
+  if (/natural|neural|online/i.test(v.name)) s += 300; // Edge: «Microsoft Svetlana Online (Natural)»
+  if (/premium|enhanced|улучш/i.test(v.name)) s += 250; // Safari/macOS: «Milena (Premium)»
+  if (/google/i.test(v.name)) s += 150; // Chrome: «Google русский»
+  if (v.localService === false) s += 40;
+  if (FEMALE.test(v.name)) s += 60; else if (MALE.test(v.name)) s -= 80;
+  return s;
+}
+const voiceTier = (v) => { const s = voiceScore(v) - 1000; return s >= 250 ? 'natural' : s >= 150 ? 'good' : 'basic'; };
 function pickVoice() {
   if (!voices.length) return null;
   const byURI = voices.find((v) => v.voiceURI === settings.voiceURI);
   if (byURI) return byURI;
-  const ru = voices.filter((v) => /^ru/i.test(v.lang));
-  const fem = /milena|irina|svetlana|dariya|alena|anna|ekaterina|elena|female|жен|google русский|natalia|polina/i;
-  return ru.find((v) => fem.test(v.name)) || ru[0] || null;
+  const ru = voices.filter((v) => /^ru/i.test(v.lang)).sort((x, y) => voiceScore(y) - voiceScore(x));
+  return ru[0] || null;
 }
 function fillVoiceSelect(sel) {
-  const ru = voices.filter((v) => /^ru/i.test(v.lang)), other = voices.filter((v) => !/^ru/i.test(v.lang));
-  sel.innerHTML = '<option value="">Автовыбор (русский)</option>' +
-    ru.map((v) => `<option value="${esc(v.voiceURI)}">${esc(v.name)} — ${v.lang}</option>`).join('') +
+  const sorted = [...voices].sort((x, y) => voiceScore(y) - voiceScore(x));
+  const ru = sorted.filter((v) => /^ru/i.test(v.lang)), other = sorted.filter((v) => !/^ru/i.test(v.lang));
+  const mark = { natural: '★ естественный', good: '◆ хороший', basic: 'простой' };
+  const best = ru[0];
+  sel.innerHTML = `<option value="">Автовыбор${best ? ' — ' + esc(best.name) : ''}</option>` +
+    ru.map((v) => `<option value="${esc(v.voiceURI)}">${mark[voiceTier(v)]} · ${esc(v.name)}</option>`).join('') +
     (other.length ? '<optgroup label="Другие языки">' + other.map((v) => `<option value="${esc(v.voiceURI)}">${esc(v.name)} — ${v.lang}</option>`).join('') + '</optgroup>' : '');
   sel.value = settings.voiceURI || '';
 }
+function voiceAdvice() {
+  const v = pickVoice();
+  if (!window.speechSynthesis) return 'Синтез речи недоступен в этом браузере.';
+  if (!v) return 'В системе нет русского голоса. Лучше всего звучат голоса Microsoft Natural в браузере Edge.';
+  const t = voiceTier(v);
+  if (t === 'natural') return `Сейчас звучит естественный голос «${v.name}».`;
+  const tip = 'Самые живые голоса: в Edge — «Microsoft Svetlana/Dariya Online (Natural)»; на Mac и iPhone — скачайте «Milena (Premium)» в Настройках → Универсальный доступ → Устный контент; в Chrome — «Google русский».';
+  return (t === 'good' ? `Сейчас: «${v.name}». ` : `Сейчас простой системный голос «${v.name}», он звучит механически. `) + tip;
+}
+// Подготовка текста к произнесению: убираем ремарки, ставим паузы там, где их сделал бы человек.
+function speakable(text) {
+  return text
+    .replace(/\*[^*]*\*/g, ' ')
+    .replace(/[«»"„“”]/g, '')
+    .replace(/\s+[—–-]\s+/g, ', ')
+    .replace(/…|\.{3}/g, '... ')
+    .replace(/\(([^)]*)\)/g, ', $1, ')
+    .replace(/\s+([,.!?])/g, '$1')
+    .replace(/,\s*,/g, ',')
+    .replace(/\.\.\.\s*,/g, '...')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 const tts = {
-  queue: [], speaking: false, spokenUpTo: 0, onIdle: null,
+  queue: [], speaking: false, spokenUpTo: 0, pending: '', chunks: 0, onIdle: null,
   enabled: () => settings.tts && !!window.speechSynthesis,
-  reset() { this.queue = []; this.spokenUpTo = 0; try { speechSynthesis.cancel(); } catch {} this.speaking = false; updateTalking(); },
+  reset() { this.queue = []; this.spokenUpTo = 0; this.pending = ''; this.chunks = 0; try { speechSynthesis.cancel(); } catch {} this.speaking = false; updateTalking(); },
   push(text) {
-    const clean = text.replace(/\*[^*]*\*/g, ' ').replace(/[«»"]/g, '').replace(/\s+/g, ' ').trim();
+    const clean = speakable(text);
     if (!clean || !/[\p{L}\p{N}]/u.test(clean)) return;
     this.queue.push(clean); this.pump();
   },
   pump() {
     if (this.speaking || !this.queue.length) { if (!this.speaking && !this.queue.length) this.onIdle?.(); return; }
-    const u = new SpeechSynthesisUtterance(this.queue.shift());
+    const text = this.queue.shift();
+    const u = new SpeechSynthesisUtterance(text);
     const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'ru-RU';
-    u.rate = +settings.rate || 1; u.pitch = +settings.pitch || 1;
+    // лёгкие колебания темпа и интонации между фразами — меньше «дикторской» монотонности
+    const jitter = 1 + (Math.random() - 0.5) * 0.06;
+    u.rate = (+settings.rate || 1) * jitter;
+    u.pitch = (+settings.pitch || 1) * (/\?\s*$/.test(text) ? 1.04 : 1) * (1 + (Math.random() - 0.5) * 0.04);
     let finished = false;
-    const done = () => { if (finished) return; finished = true; clearTimeout(guard); this.speaking = false; updateTalking(); this.pump(); };
-    // страховка: некоторые браузеры не присылают onend
+    const done = () => { if (finished) return; finished = true; clearTimeout(guard); this.speaking = false; updateTalking(); setTimeout(() => this.pump(), 120); };
     const guard = setTimeout(done, 2500 + (u.text.length * 95) / (u.rate || 1));
     u.onstart = () => { this.speaking = true; updateTalking(); };
     u.onend = u.onerror = done;
     this.speaking = true;
     speechSynthesis.speak(u);
   },
-  // отдаёт в синтез законченные предложения из текста
+  // Первую фразу отдаём сразу (быстрый старт), дальше склеиваем короткие предложения,
+  // чтобы голос не «спотыкался» паузами после каждого.
   feed(display, final) {
     if (!this.enabled()) return;
     const tail = display.slice(this.spokenUpTo);
     const re = /[^.!?…]*[.!?…]+["»)]*\s+/g;
     let m, used = 0;
-    while ((m = re.exec(tail))) { this.push(m[0]); used = re.lastIndex; }
-    if (final) { this.push(tail.slice(used)); used = tail.length; }
+    while ((m = re.exec(tail))) {
+      this.pending += m[0]; used = re.lastIndex;
+      if (this.chunks === 0 || this.pending.length >= 70) { this.push(this.pending); this.pending = ''; this.chunks++; }
+    }
+    if (final) { this.pending += tail.slice(used); used = tail.length; if (this.pending.trim()) this.push(this.pending); this.pending = ''; }
     this.spokenUpTo += used;
   },
   busy() { return this.speaking || this.queue.length > 0; },
@@ -418,7 +464,7 @@ function openSettings(tab = 'chars') {
   });
   const vs = $('#voiceSel', root); fillVoiceSelect(vs);
   $('#testVoice', root).onclick = () => { tts.reset(); const was = settings.tts; settings.tts = true; tts.push(`Здравствуй, ${settings.userName}. Меня зовут ${settings.mentorName}. Так звучит мой голос.`); settings.tts = was; };
-  $('#voiceNote', root).textContent = (window.speechSynthesis ? '' : 'Синтез речи недоступен в этом браузере. ') + (SR ? 'Голосовой ввод: кнопка микрофона, пробел (удерживать) или режим «живой».' : 'Голосовой ввод работает в Chrome, Edge и Safari.');
+  const setAdvice = () => ($('#voiceNote', root).textContent = voiceAdvice() + ' ' + (SR ? 'Голосовой ввод: кнопка микрофона, пробел (удерживать) или режим «живой».' : 'Голосовой ввод работает в Chrome, Edge и Safari.')); setAdvice(); vs.addEventListener('change', setAdvice);
   const updateKeyStatus = () => { $('#keyStatus', root).textContent = serverHasKey ? 'Сервер уже настроен ключом из ANTHROPIC_API_KEY — поле ниже можно оставить пустым.' : settings.apiKey ? 'Ключ сохранён в этом браузере и передаётся только вашему локальному серверу.' : 'Сервер запущен без ключа. Вставьте ключ из console.anthropic.com или задайте ANTHROPIC_API_KEY в .env.'; };
   updateKeyStatus();
   $('#newTalk', root).onclick = () => { if (confirm('Начать новый вечер? Разговор очистится, память о вас останется.')) { history = []; saveHistory(); closeModal(); if (started) playLine(greeting(!!settings.notes.trim())); } };

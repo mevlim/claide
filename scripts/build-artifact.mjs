@@ -74,6 +74,7 @@ app = rep(app, "$('#newTalk', root).onclick = () => { if (confirm('Начать 
 app = rep(app, "if (started) playLine(greeting(!!settings.notes.trim())); } };", "if (started) playLine(greeting(!!settings.notes.trim())); });", 'newTalk2');
 app = rep(app, "$('#wipeAll', root).onclick = () => { if (confirm('Стереть разговор, память и все настройки?')) { localStorage.removeItem(LS_HISTORY); localStorage.removeItem(LS_SETTINGS); location.reload(); } };",
   "$('#wipeAll', root).onclick = twice($('#wipeAll', root), () => { try { localStorage.removeItem(LS_HISTORY); localStorage.removeItem(LS_SETTINGS); } catch {} location.reload(); });", 'wipe');
+app = rep(app, "'Голосовой ввод работает в Chrome, Edge и Safari.'", "''", 'srnote');
 app = rep(app, "const updateKeyStatus = () => {", "const updateKeyStatus = () => {}; const _unused = () => {", 'keystatus');
 
 // HTML
@@ -91,7 +92,7 @@ body = body.slice(0, c0) + `<div class="tabpane" data-pane="conn">
 body = rep(body, '<button class="tab" data-tab="conn">Подключение</button>', '<button class="tab" data-tab="conn">Модель</button>', 'tab');
 const fonts = html.match(/<link href="https:\/\/fonts\.googleapis\.com[^>]+>/)[0];
 const icon = '';
-const css = read('public/style.css') + `\n#micBtn, #liveBtn { display: none !important; }\n:root { color-scheme: dark; }\nbody { background: #07060b; }\n`;
+const css = read('public/style.css') + `\n#micBtn, #liveBtn, label:has(> input[data-k="autoListen"]) { display: none !important; }\n:root { color-scheme: dark; }\nbody { background: #07060b; }\n`;
 
 const page = `<title>Кабинет у камина</title>
 <meta name="description" content="Визуальная новелла-наставник: разговоры об учёбе и жизни у камина.">
