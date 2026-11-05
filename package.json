@@ -1,0 +1,16 @@
+{
+  "name": "mentor-vn",
+  "version": "1.0.0",
+  "description": "Визуальная новелла-наставник: пиксель-арт кабинет, чат и голосовой разговор на Claude",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.5.0"
+  }
+}

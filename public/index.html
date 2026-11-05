@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Кабинет у камина</title>
+  <meta name="description" content="Визуальная новелла-наставник: разговоры об учёбе и жизни у камина.">
+  <meta name="theme-color" content="#0d0b13">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%230d0b13'/%3E%3Cpath d='M7 3h2v1h1v2h1v3h-1v2H9v1H7v-1H6V9H5V6h1V4h1z' fill='%23f38c2e'/%3E%3Cpath d='M7 7h2v3H7z' fill='%23ffd36e'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="scene" aria-label="Кабинет: наставница за столом у камина"></canvas>
+  </div>
+
+  <!-- Верхняя панель -->
+  <nav id="hud" class="hidden-until-start">
+    <button class="hud-btn" data-action="log" title="Журнал разговора (L)"><span class="ico">✎</span><span class="lbl">Журнал</span></button>
+    <button class="hud-btn" data-action="memory" title="Что наставница помнит"><span class="ico">❦</span><span class="lbl">Память</span></button>
+    <button class="hud-btn" data-action="settings" title="Настройки (S)"><span class="ico">⚙</span><span class="lbl">Настройки</span></button>
+    <button class="hud-btn" data-action="sound" title="Звуки камина и дождя"><span class="ico" id="soundIco">♪</span><span class="lbl">Звук</span></button>
+    <button class="hud-btn" data-action="hide" title="Скрыть интерфейс (H)"><span class="ico">◐</span><span class="lbl">Скрыть</span></button>
+  </nav>
+
+  <!-- Окно диалога -->
+  <section id="dialog" class="hidden-until-start" aria-live="polite">
+    <div class="namebox"><span id="speaker">Беатрис</span></div>
+    <div class="frame">
+      <div id="text" class="text"></div>
+      <div id="more" class="more" aria-hidden="true">▼</div>
+      <form id="inputRow" class="input-row" autocomplete="off">
+        <button type="button" id="micBtn" class="icon-btn" title="Сказать голосом (удерживайте пробел вне поля ввода)" aria-label="Голосовой ввод">
+          <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path d="M6 1h4v1h1v6h-1v1H6V8H5V2h1z"/><path d="M3 6h1v2h1v1h1v1h4V9h1V8h1V6h1v2h-1v1h-1v1h-1v1H9v2h2v1H5v-1h2v-2H6v-1H5V9H4V8H3z"/></svg>
+        </button>
+        <textarea id="input" rows="1" placeholder="Скажите что-нибудь…" aria-label="Ваше сообщение"></textarea>
+        <button type="button" id="liveBtn" class="icon-btn pill" title="Живой разговор: слушать автоматически после каждой реплики" aria-pressed="false">живой</button>
+        <button type="submit" id="sendBtn" class="icon-btn send" title="Отправить (Enter)" aria-label="Отправить">
+          <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><path d="M2 2h2v1h2v1h2v1h2v1h2v1h2v2h-2v1h-2v1H8v1H6v1H4v1H2v-5h6V7H2z"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Титульный экран -->
+  <section id="title">
+    <div class="title-inner">
+      <div class="title-ornament">✦ ✦ ✦</div>
+      <h1>Кабинет у камина</h1>
+      <p class="subtitle">вечерние беседы с наставницей</p>
+      <div class="title-buttons">
+        <button id="startBtn" class="vn-btn primary">Войти</button>
+        <button id="titleSettingsBtn" class="vn-btn">Настройки</button>
+      </div>
+      <p class="hint" id="titleHint"></p>
+    </div>
+  </section>
+
+  <!-- Модальные окна -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header><h2 id="modalTitle"></h2><button class="close" data-close aria-label="Закрыть">✕</button></header>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <template id="settingsTpl">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="chars">Персонажи</button>
+      <button class="tab" data-tab="style">Манера речи</button>
+      <button class="tab" data-tab="voice">Голос и звук</button>
+      <button class="tab" data-tab="mem">Память</button>
+      <button class="tab" data-tab="conn">Подключение</button>
+    </div>
+
+    <div class="tabpane active" data-pane="chars">
+      <div class="grid2">
+        <label>Имя наставницы<input data-k="mentorName" maxlength="40"></label>
+        <label>Кто она вам<input data-k="mentorTitle" maxlength="40" placeholder="наставница"></label>
+      </div>
+      <label>Её история и характер<textarea data-k="persona" rows="4" maxlength="2000"></textarea></label>
+      <div class="grid3">
+        <label>Ваше имя<input data-k="userName" maxlength="40"></label>
+        <label>Обращаться ко мне
+          <select data-k="userGender"><option value="f">в женском роде</option><option value="m">в мужском роде</option><option value="n">нейтрально</option></select>
+        </label>
+        <label>Форма обращения
+          <select data-k="address"><option value="ty">на «ты»</option><option value="vy">на «вы»</option></select>
+        </label>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="style">
+      <div class="preset-grid" id="presetGrid"></div>
+      <label>Свой стиль речи (добавляется к выбранному)<textarea data-k="customStyle" rows="3" maxlength="1500" placeholder="Например: говорит цитатами из Чехова; называет меня «дорогая»; любит морские метафоры…"></textarea></label>
+      <div class="grid2">
+        <label>Длина реплик
+          <select data-k="length"><option value="short">Коротко</option><option value="medium">Средне</option><option value="long">Подробно</option></select>
+        </label>
+        <label class="check"><input type="checkbox" data-k="stageDirections"> Ремарки о действиях (*улыбается*)</label>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="voice">
+      <label class="check"><input type="checkbox" data-k="tts"> Озвучивать реплики наставницы</label>
+      <div class="grid2">
+        <label>Голос<select data-k="voiceURI" id="voiceSel"></select></label>
+        <div class="row-end"><button type="button" class="vn-btn small" id="testVoice">Проверить голос</button></div>
+      </div>
+      <div class="grid2">
+        <label>Скорость речи <output data-o="rate"></output><input type="range" data-k="rate" min="0.6" max="1.6" step="0.05"></label>
+        <label>Высота голоса <output data-o="pitch"></output><input type="range" data-k="pitch" min="0.5" max="1.6" step="0.05"></label>
+      </div>
+      <label class="check"><input type="checkbox" data-k="autoListen"> В живом режиме слушать сразу после ответа</label>
+      <label>Скорость текста <output data-o="textSpeed"></output><input type="range" data-k="textSpeed" min="15" max="120" step="5"></label>
+      <div class="grid2">
+        <label class="check"><input type="checkbox" data-k="ambient"> Звуки камина и дождя</label>
+        <label>Громкость <output data-o="ambientVolume"></output><input type="range" data-k="ambientVolume" min="0" max="1" step="0.05"></label>
+      </div>
+      <p class="note" id="voiceNote"></p>
+    </div>
+
+    <div class="tabpane" data-pane="mem">
+      <label>Что наставница о вас знает (можно править)<textarea data-k="notes" rows="8" maxlength="6000" placeholder="Например: учусь на 2 курсе филфака; сессия в январе; хочу писать каждый день по 30 минут…"></textarea></label>
+      <label class="check"><input type="checkbox" data-k="autoMemory"> Наставница сама запоминает важное из разговора</label>
+      <div class="btn-row">
+        <button type="button" class="vn-btn small" id="newTalk">Новый вечер (очистить разговор)</button>
+        <button type="button" class="vn-btn small danger" id="wipeAll">Стереть всё</button>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="conn">
+      <p class="note" id="keyStatus"></p>
+      <label>API-ключ Anthropic (хранится только в этом браузере)<input type="password" data-k="apiKey" placeholder="sk-ant-…" autocomplete="off"></label>
+      <div class="grid2">
+        <label>Модель
+          <select data-k="model"><option value="claude-opus-5-5">Claude Opus 5.5 — глубже</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 — быстрее</option><option value="claude-haiku-5-5">Claude Haiku 5.5 — самая быстрая</option></select>
+        </label>
+        <label>Вдумчивость
+          <select data-k="effort"><option value="low">Низкая — быстрые ответы</option><option value="medium">Средняя</option><option value="high">Высокая — медленнее</option></select>
+        </label>
+      </div>
+    </div>
+  </template>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
