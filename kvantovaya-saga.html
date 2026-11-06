@@ -8,6 +8,11 @@
   --bg:#ece2cc; --panel:#fbf6ea; --ink:#2b2236; --muted:#6a5f74; --line:#d6c7aa; --frame:#2b2236; --shadow:#c9b994;
   --acc:#5b34b8; --on-acc:#ffffff; --gold:#9a6200; --gold-soft:#f5e3b6; --hp:#c42a35; --hp-soft:#f6d8d4; --ok:#24703f; --ok-soft:#dbeedd; --xp:#2c5fd0;
   --s-int:#2c5fd0; --s-str:#c42a35; --s-agi:#24804a; --s-vit:#bf600a; --s-wil:#7340c4; --s-cha:#b8317a; --s-cre:#0f7c83; --s-cur:#8c6a00;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M16 3 L29 16 L16 29 L3 16Z' fill='none' stroke='%23cdb98f' stroke-width='1' opacity='.5'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%23c2a874' opacity='.55'/%3E%3Crect x='0' y='0' width='2' height='2' fill='%23c2a874' opacity='.35'/%3E%3C/svg%3E"); --pattern-size:32px 32px;
+  --glow:radial-gradient(ellipse 80% 45% at 50% -8%,rgba(255,236,190,.95),transparent 70%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(214,170,120,.25),transparent 70%);
+  --hill:#d6c39d; --hill-op:.55;
+  --sky1:#9cc4e8; --sky2:#c4dcef; --sky3:#f3dcc0; --sky4:#f6c493; --star:#ffffff; --star-op:0; --sun:#ffd166; --sunglow:#ffe8a8; --sun-op:1; --moon:#f3f0d8; --moon2:#cfc9a8; --moon-op:0;
+  --cloud:#ffffff; --cloud-op:.9; --mtn1:#b3a4cc; --snow:#f7f3ff; --tower:#8e7ea8; --window:#ffd166; --mtn2:#7da07a; --tree:#4f7d4f; --trunk:#6a4326; --ground:#9a7a4f; --ground2:#7c5f3b; --grass:#79b863; --grass2:#5e9a4c;
   --display:"Press Start 2P","Courier New",monospace;
   --body:"Golos Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -15,15 +20,24 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0f1229; --panel:#1a1f48; --ink:#eef0ff; --muted:#a9addb; --line:#353d7c; --frame:#e6e8ff; --shadow:#070818;
   --acc:#b09aff; --on-acc:#14163a; --gold:#ffd166; --gold-soft:#3b3522; --hp:#ff6b75; --hp-soft:#46233b; --ok:#7fe0a2; --ok-soft:#1d3d3a; --xp:#82b2ff;
-  --s-int:#82b2ff; --s-str:#ff7c84; --s-agi:#72dd97; --s-vit:#ffae60; --s-wil:#c6a3ff; --s-cha:#ff8fca; --s-cre:#62d8de; --s-cur:#ffd166; color-scheme:dark}}
+  --s-int:#82b2ff; --s-str:#ff7c84; --s-agi:#72dd97; --s-vit:#ffae60; --s-wil:#c6a3ff; --s-cha:#ff8fca; --s-cre:#62d8de; --s-cur:#ffd166; --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect x='7' y='11' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='31' y='5' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='52' y='19' width='2' height='2' fill='%23ffffff' opacity='.7'/%3E%3Crect x='78' y='8' width='1' height='1' fill='%23ffe9a8' opacity='.7'/%3E%3Crect x='95' y='30' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='14' y='44' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='40' y='57' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='66' y='40' width='1' height='1' fill='%23ffffff' opacity='.4'/%3E%3Crect x='88' y='62' width='2' height='2' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='110' y='49' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='23' y='79' width='1' height='1' fill='%23ffe9a8' opacity='.6'/%3E%3Crect x='58' y='90' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='81' y='101' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='104' y='84' width='1' height='1' fill='%23c9d4ff' opacity='.5'/%3E%3Crect x='5' y='104' width='2' height='2' fill='%23ffffff' opacity='.5'/%3E%3Crect x='36' y='113' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='117' y='115' width='1' height='1' fill='%23ffe9a8' opacity='.5'/%3E%3Crect x='70' y='73' width='1' height='1' fill='%23ffffff' opacity='.6'/%3E%3C/svg%3E"); --pattern-size:120px 120px;
+  --glow:radial-gradient(ellipse 75% 40% at 50% 108%,rgba(122,80,230,.38),transparent 70%),radial-gradient(ellipse 50% 35% at 0% 0%,rgba(70,120,255,.2),transparent 70%);
+  --hill:#161a3e; --hill-op:1;
+  --sky1:#0a0d24; --sky2:#141a40; --sky3:#232a5e; --sky4:#3b2f6e; --star:#eef0ff; --star-op:1; --sun-op:0; --moon-op:1; --cloud:#5d66a8; --cloud-op:.3;
+  --mtn1:#283066; --snow:#7d8ad0; --tower:#171a3d; --window:#ffd98a; --mtn2:#18233f; --tree:#10192e; --trunk:#0d1220; --ground:#251f36; --ground2:#1a1628; --grass:#2e5a4c; --grass2:#22443a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1229; --panel:#1a1f48; --ink:#eef0ff; --muted:#a9addb; --line:#353d7c; --frame:#e6e8ff; --shadow:#070818;
   --acc:#b09aff; --on-acc:#14163a; --gold:#ffd166; --gold-soft:#3b3522; --hp:#ff6b75; --hp-soft:#46233b; --ok:#7fe0a2; --ok-soft:#1d3d3a; --xp:#82b2ff;
-  --s-int:#82b2ff; --s-str:#ff7c84; --s-agi:#72dd97; --s-vit:#ffae60; --s-wil:#c6a3ff; --s-cha:#ff8fca; --s-cre:#62d8de; --s-cur:#ffd166; color-scheme:dark}
+  --s-int:#82b2ff; --s-str:#ff7c84; --s-agi:#72dd97; --s-vit:#ffae60; --s-wil:#c6a3ff; --s-cha:#ff8fca; --s-cre:#62d8de; --s-cur:#ffd166; --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect x='7' y='11' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='31' y='5' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='52' y='19' width='2' height='2' fill='%23ffffff' opacity='.7'/%3E%3Crect x='78' y='8' width='1' height='1' fill='%23ffe9a8' opacity='.7'/%3E%3Crect x='95' y='30' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='14' y='44' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='40' y='57' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='66' y='40' width='1' height='1' fill='%23ffffff' opacity='.4'/%3E%3Crect x='88' y='62' width='2' height='2' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='110' y='49' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='23' y='79' width='1' height='1' fill='%23ffe9a8' opacity='.6'/%3E%3Crect x='58' y='90' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='81' y='101' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='104' y='84' width='1' height='1' fill='%23c9d4ff' opacity='.5'/%3E%3Crect x='5' y='104' width='2' height='2' fill='%23ffffff' opacity='.5'/%3E%3Crect x='36' y='113' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='117' y='115' width='1' height='1' fill='%23ffe9a8' opacity='.5'/%3E%3Crect x='70' y='73' width='1' height='1' fill='%23ffffff' opacity='.6'/%3E%3C/svg%3E"); --pattern-size:120px 120px;
+  --glow:radial-gradient(ellipse 75% 40% at 50% 108%,rgba(122,80,230,.38),transparent 70%),radial-gradient(ellipse 50% 35% at 0% 0%,rgba(70,120,255,.2),transparent 70%);
+  --hill:#161a3e; --hill-op:1;
+  --sky1:#0a0d24; --sky2:#141a40; --sky3:#232a5e; --sky4:#3b2f6e; --star:#eef0ff; --star-op:1; --sun-op:0; --moon-op:1; --cloud:#5d66a8; --cloud-op:.3;
+  --mtn1:#283066; --snow:#7d8ad0; --tower:#171a3d; --window:#ffd98a; --mtn2:#18233f; --tree:#10192e; --trunk:#0d1220; --ground:#251f36; --ground2:#1a1628; --grass:#2e5a4c; --grass2:#22443a; color-scheme:dark}
 :root[data-theme="light"]{color-scheme:light}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background-color:var(--bg);background-image:radial-gradient(var(--line) 1px,transparent 1.3px);background-size:20px 20px;color:var(--ink);font:400 15px/1.45 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px;font-variant-numeric:tabular-nums}
+body{background-color:var(--bg);background-image:var(--glow),var(--pattern);background-size:100% 100%,100% 100%,var(--pattern-size);background-attachment:fixed,fixed,scroll;color:var(--ink);font:400 15px/1.45 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px;font-variant-numeric:tabular-nums}
+body::after{content:"";position:fixed;left:0;right:0;bottom:0;height:120px;z-index:-1;pointer-events:none;background:var(--hill);opacity:var(--hill-op);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='120' viewBox='0 0 600 120'%3E%3Cpath d='M0 120 V40 H8 V40 H16 V48 H24 V48 H32 V48 H40 V40 H48 V40 H56 V40 H64 V48 H72 V56 H80 V56 H88 V48 H96 V40 H104 V32 H112 V32 H120 V40 H128 V40 H136 V48 H144 V48 H152 V48 H160 V56 H168 V72 H176 V80 H184 V96 H192 V96 H200 V96 H208 V80 H216 V80 H224 V80 H232 V80 H240 V80 H248 V72 H256 V64 H264 V56 H272 V56 H280 V64 H288 V72 H296 V80 H304 V80 H312 V64 H320 V56 H328 V48 H336 V48 H344 V48 H352 V40 H360 V32 H368 V24 H376 V16 H384 V24 H392 V32 H400 V48 H408 V56 H416 V56 H424 V56 H432 V56 H440 V64 H448 V72 H456 V72 H464 V72 H472 V64 H480 V56 H488 V56 H496 V64 H504 V72 H512 V80 H520 V88 H528 V88 H536 V88 H544 V88 H552 V88 H560 V96 H568 V88 H576 V80 H584 V64 H592 V48 H600 V120 Z' fill='%23000'/%3E%3C/svg%3E") left bottom/600px 120px repeat-x;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='120' viewBox='0 0 600 120'%3E%3Cpath d='M0 120 V40 H8 V40 H16 V48 H24 V48 H32 V48 H40 V40 H48 V40 H56 V40 H64 V48 H72 V56 H80 V56 H88 V48 H96 V40 H104 V32 H112 V32 H120 V40 H128 V40 H136 V48 H144 V48 H152 V48 H160 V56 H168 V72 H176 V80 H184 V96 H192 V96 H200 V96 H208 V80 H216 V80 H224 V80 H232 V80 H240 V80 H248 V72 H256 V64 H264 V56 H272 V56 H280 V64 H288 V72 H296 V80 H304 V80 H312 V64 H320 V56 H328 V48 H336 V48 H344 V48 H352 V40 H360 V32 H368 V24 H376 V16 H384 V24 H392 V32 H400 V48 H408 V56 H416 V56 H424 V56 H432 V56 H440 V64 H448 V72 H456 V72 H464 V72 H472 V64 H480 V56 H488 V56 H496 V64 H504 V72 H512 V80 H520 V88 H528 V88 H536 V88 H544 V88 H552 V88 H560 V96 H568 V88 H576 V80 H584 V64 H592 V48 H600 V120 Z' fill='%23000'/%3E%3C/svg%3E") left bottom/600px 120px repeat-x}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -37,7 +51,7 @@ h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
 .h{font:400 12px/1.5 var(--display)}
 .small{font-size:13px;color:var(--muted)}
 /* header */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 0;margin-inline:-4px;padding-inline:4px;border-bottom:3px solid var(--frame)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding-block:12px 0;margin-inline:-4px;padding-inline:4px;border-bottom:3px solid var(--frame)}
 .toprow{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center}
 .brand{font:400 12px/1.6 var(--display);color:var(--acc)}
 .who{display:flex;gap:10px;align-items:center;min-width:0}
@@ -142,7 +156,7 @@ h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
 .opt[aria-pressed="true"]{background:var(--frame);color:var(--bg)}
 .opt[aria-pressed="true"] .chip{--c:var(--bg)}
 /* side */
-.hc{display:flex;gap:16px;align-items:flex-end}
+.hc{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .mini8{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin:12px 0 8px}
 .m8{display:grid;grid-template-columns:34px minmax(0,1fr) 22px;gap:6px;align-items:center}
 .m8 .ab{font-size:8px;color:var(--c)}
@@ -206,7 +220,7 @@ textarea.tnote{font:400 14px/1.4 var(--body);min-height:72px;resize:vertical}
 /* hero page */
 .herotop{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
 @media (max-width:860px){.herotop{grid-template-columns:minmax(0,1fr)}}
-.heroid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.heroid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
 .heroname{font:400 clamp(14px,2.6vw,19px)/1.5 var(--display)}
 .radar{display:block;width:100%;max-width:400px;margin:4px auto 0;height:auto;grid-column:1/-1}
 .radar text{font:700 12px var(--mono);fill:var(--ink)}
@@ -304,6 +318,12 @@ textarea{min-height:90px;font:500 12px var(--mono)}
 .dots i.on{background:var(--gold);border-color:var(--gold)}
 .divider{border-top:2px dashed var(--line);margin:4px 0}
 .scroll{display:grid;gap:8px}
+.stage{position:relative;width:100%;aspect-ratio:120/72;max-width:100%;border:3px solid var(--frame);border-radius:7px;overflow:hidden;box-shadow:inset 0 0 0 2px var(--panel),3px 3px 0 var(--shadow);background:var(--sky2)}
+.stage .scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage .sprite{position:absolute;left:50%;bottom:3%;height:84%;width:auto;transform:translateX(-50%);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.25))}
+.stage.sm{width:150px;flex:none}
+.stage .fireflies{animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:480px){.sprite.huge{width:200px}.bosswin .boss{grid-template-columns:80px minmax(0,1fr)}.beast{width:80px}.sprite.huge{width:160px}.card{grid-template-columns:64px minmax(0,1fr)}.slot{width:64px;height:64px}.ico{width:44px}.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
 </style>
@@ -964,14 +984,14 @@ const HERO2_HALF=[
  "......hhhhhhhHhhhhhh",
  "......hhhhhhHshhhHss",
  "......hhhhHsssssHsss",
- "......hhhhssssssssss",
+ "......hhhhsHHHssssss",
  "......hhhhseeeeessss",
  "......hhhhsswiiissss",
- "......hhhhssiIIissss",
- "......hhhhssiiiissss",
- "......hhhhssssssssss",
- "......hhhhsccssssssN",
- "......hhhhssssssssss",
+ "......hhhhswiIIissss",
+ "......hhhhswiiiissss",
+ "......hhhhsseeeessss",
+ "......hHhhsccssssssN",
+ "......hjhhssssssssss",
  ".......hhhsssssssssM",
  ".......hhhHsssssssss",
  ".......hhhHHssssssss",
@@ -990,16 +1010,16 @@ const HERO2_HALF=[
  "...llsssslllbbbbbbby",
  "...llssslllooooooooa",
  "...llllllloooooooooa",
- "..lllllllloooooooooa",
- "..lllllllooooooooooa",
- "..lllllllooooooooooa",
- "..lllllloooooooooooa",
+ "..llllllllooFooooooa",
+ "..lllllllooFooFooooa",
+ "..llllllloFoooFooooa",
+ "..lllllloFoooFoooooa",
  "...lllllaaaaaaaaaaaa",
  "....lll......pppp...",
  ".............pppp...",
  ".............pppp...",
  ".............pppp...",
- "............ttttt...",
+ "............bbbbb...",
  "............ttttt...",
  "............ttttt...",
  "...........tttttt...",
@@ -1018,13 +1038,14 @@ const ITEM2={
  cur:{x:40,y:31,r:["...bbb...","..b...b..","...bbb...",".yyyyyyy.",".yfffffy.",".yfffffy.",".yfffffy.",".yfffffy.",".yyyyyyy.","..yyyyy.."]}};
 const SH=(base)=>[`color-mix(in srgb,${base} 60%,#120a1a)`,base,`color-mix(in srgb,${base} 68%,#ffffff)`];
 const HERO2_CACHE={};
-const GRP={h:'h',H:'h',j:'h',s:'s',N:'s',c:'s',e:'s',w:'s',i:'s',I:'s',M:'s',o:'o',a:'o',y:'o',b:'o',g:'h'};
+const GRP={h:'h',H:'h',j:'h',s:'s',N:'s',F:'o',c:'s',e:'s',w:'s',i:'s',I:'s',M:'s',o:'o',a:'o',y:'o',b:'o',g:'h'};
 const HAIRG=['h','H','j','y','g'];
 function heroArt(sxp,cls,crop){
  const o=STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0)),has=k=>(sxp[k]||0)>0;
  const k1=has(o[0].k)?o[0].k:'',k2=has(o[1].k)?o[1].k:'',key=k1+'|'+k2+'|'+cls+'|'+(crop?1:0);
  if(HERO2_CACHE[key])return HERO2_CACHE[key];
- const c1=k1?SN[k1].col:'#8a8296',c2=k2?SN[k2].col:'#c9a36a';
+ const ART_COL={int:'#2c5fd0',str:'#c42a35',agi:'#24804a',vit:'#c9650e',wil:'#7340c4',cha:'#b8317a',cre:'#0f7c83',cur:'#b08a10'};
+ const c1=k1?ART_COL[k1]:'#8a8296',c2=k2?ART_COL[k2]:'#c9a36a';
  const M={h:['#3d2218','#6b3d26','#a8673d'],s:['#d29a76','#f3cba6','#ffe3c9'],o:SH(c1),a:SH(c2),l:SH(`color-mix(in srgb,${c2} 70%,#1d1424)`),x:SH(c1),
   y:['#a87418','#e8b33a','#ffe08a'],b:['#432a17','#6a4326','#8f5f3a'],p:['#241f38','#3d3656','#575078'],t:['#321f12','#5a3a22','#7d5434'],
   m:['#7d88a0','#c9d1e0','#f4f8ff'],r:['#8e2230','#d6404e','#ff8a96'],n:['#2b6b3a','#3f9a5a','#7fd08e'],f:['#e0a020','#ffd166','#fff6c4'],q:['#c9bfa8','#f4efe0','#ffffff'],v:['#7fb0c8','#cfeaff','#ffffff']};
@@ -1037,7 +1058,7 @@ function heroArt(sxp,cls,crop){
  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(G[y][x]==='.'&&[at(x-1,y),at(x+1,y),at(x,y-1),at(x,y+1)].some(c=>c!=='.'&&c!=='k'))G[y][x]='k';
  let out='';
  for(let y=0;y<H;y++){let x=0;while(x<W){const col=colorAt(x,y);if(!col){x++;continue}let n=1;while(x+n<W&&colorAt(x+n,y)===col)n++;out+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${col}"/>`;x+=n}}
- function colorAt(x,y){const c=G[y][x];if(c==='.')return null;if(c==='M')return FIX.m2;if(c==='j')return M.h[2];if(FIX[c])return FIX[c];const m=M[c];if(!m)return null;
+ function colorAt(x,y){const c=G[y][x];if(c==='.')return null;if(c==='M')return FIX.m2;if(c==='j')return M.h[2];if(c==='F')return M.o[0];if(FIX[c])return FIX[c];const m=M[c];if(!m)return null;
   const grp=GRP[c]||c,same=ch=>(GRP[ch]||ch)===grp;
   if(c==='s'&&HAIRG.includes(at(x,y-1)))return m[0];
   if(!same(at(x,y+1))||!same(at(x+1,y)))return m[0];
@@ -1047,6 +1068,49 @@ function heroArt(sxp,cls,crop){
 }
 
 const topStats=sxp=>STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
+/* ---------- Задник: пиксельный пейзаж за героиней. Днём рассвет, ночью звёзды (цвета из темы) ---------- */
+let STAGE_CACHE=null;
+function stageSVG(){
+ if(STAGE_CACHE)return STAGE_CACHE;
+ const W=120,H=72,SKY=58;
+ const R=(x,y,w,h,f,ex)=>`<rect x="${x}" y="${y}" width="${w+.02}" height="${h+.02}" style="fill:${f}${ex||''}"/>`;
+ const rnd=s=>(hash(s)%10000)/10000;
+ const noise=(x,s)=>{const i=Math.floor(x),f=x-i,u=f*f*(3-2*f);return rnd(s+i)*(1-u)+rnd(s+(i+1))*u};
+ let o=`<defs>${[1,2,3].map(i=>`<pattern id="stg-d${i}" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" style="fill:var(--sky${i})"/><rect width="1" height="1" style="fill:var(--sky${i+1})"/><rect x="1" y="1" width="1" height="1" style="fill:var(--sky${i+1})"/></pattern>`).join('')}</defs>`;
+ /* небо полосами с дизерингом на стыках */
+ const bands=[[0,16,'var(--sky1)'],[16,4,'url(#stg-d1)'],[20,10,'var(--sky2)'],[30,4,'url(#stg-d2)'],[34,8,'var(--sky3)'],[42,4,'url(#stg-d3)'],[46,SKY-46,'var(--sky4)']];
+ bands.forEach(b=>{o+=`<rect x="0" y="${b[0]}" width="${W}" height="${b[1]+.02}" style="fill:${b[2]}"/>`});
+ /* звёзды */
+ let st='';for(let i=0;i<46;i++){const x=Math.floor(rnd('sx'+i)*W),y=Math.floor(rnd('sy'+i)*36),big=rnd('sb'+i)>.86;
+  st+=big?R(x-1,y,3,1,'var(--star)')+R(x,y-1,1,3,'var(--star)'):R(x,y,1,1,'var(--star)')}
+ o+=`<g style="opacity:var(--star-op)">${st}</g>`;
+ /* солнце и луна */
+ const disc=(cx,cy,r,f)=>{let s='';for(let y=-r;y<=r;y++){const w=Math.round(Math.sqrt(r*r-y*y));s+=R(cx-w,cy+y,2*w+1,1,f)}return s};
+ o+=`<g style="opacity:var(--sun-op)">${disc(94,20,9,'var(--sunglow)')}${disc(94,20,6,'var(--sun)')}</g>`;
+ o+=`<g style="opacity:var(--moon-op)">${disc(94,9,6,'var(--moon)')}${disc(97,7,5,'var(--sky1)')}${R(90,11,2,1,'var(--moon2)')}${R(91,13,1,1,'var(--moon2)')}</g>`;
+ /* облака */
+ const cloud=(x,y,s)=>R(x+2*s,y,6*s,1,'var(--cloud)')+R(x,y+1,11*s,2,'var(--cloud)')+R(x+3*s,y-1,3*s,1,'var(--cloud)');
+ o+=`<g style="opacity:var(--cloud-op)">${cloud(10,14,1)}${cloud(60,8,1)}${cloud(38,24,1)}</g>`;
+ /* дальние горы со снежными шапками */
+ for(let x=0;x<W;x++){const y=Math.round(30+noise(x/11,'m1')*16+noise(x/4,'m1b')*3);o+=R(x,y,1,SKY-y+6,'var(--mtn1)');if(y<36)o+=R(x,y,1,Math.min(3,36-y),'var(--snow)')}
+ /* башня на дальнем хребте */
+ o+=R(16,20,6,22,'var(--tower)')+R(15,18,8,3,'var(--tower)')+R(15,17,1,1,'var(--tower)')+R(17,17,1,1,'var(--tower)')+R(19,17,1,1,'var(--tower)')+R(21,17,1,1,'var(--tower)')+R(18,12,2,5,'var(--tower)')+R(18,25,2,3,'var(--window)')+R(18,32,2,2,'var(--window)');
+ /* ближние холмы */
+ for(let x=0;x<W;x++){const y=Math.round(44+noise(x/8,'m2')*9);o+=R(x,y,1,SKY-y+6,'var(--mtn2)')}
+ /* деревья на холмах */
+ [6,12,27,33,86,104,111].forEach((x,i)=>{const y=Math.round(44+noise(x/8,'m2')*9)-1,h=4+(i%3);o+=R(x,y-h,3,h,'var(--tree)')+R(x+1,y-h-2,1,2,'var(--tree)')+R(x+1,y,1,2,'var(--trunk)')});
+ /* земля */
+ o+=R(0,SKY,W,H-SKY,'var(--ground)')+R(0,SKY,W,1,'var(--grass)')+R(0,SKY+1,W,1,'var(--grass2)');
+ for(let i=0;i<40;i++){const x=Math.floor(rnd('g'+i)*W);o+=R(x,SKY-1,1,1,'var(--grass)');if(i%3===0)o+=R(x+1,SKY-2,1,2,'var(--grass)')}
+ for(let i=0;i<18;i++){const x=Math.floor(rnd('st'+i)*W),y=SKY+3+Math.floor(rnd('sty'+i)*(H-SKY-4));o+=R(x,y,2,1,'var(--ground2)')}
+ /* площадка под героиней */
+ o+=R(42,SKY+6,36,2,'var(--ground2)')+R(46,SKY+8,28,1,'var(--ground2)')+R(40,SKY+5,40,1,'var(--grass2)');
+ /* светлячки */
+ let ff='';for(let i=0;i<12;i++){const x=Math.floor(rnd('f'+i)*W),y=40+Math.floor(rnd('fy'+i)*16);ff+=R(x,y,1,1,'var(--window)')}
+ o+=`<g style="opacity:var(--star-op)"><g class="fireflies">${ff}</g></g>`;
+ return STAGE_CACHE=`<svg class="scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`;
+}
+
 function heroClass(sxp){
  if(!sxp||!Object.values(sxp).some(v=>v>0))return 'Начинающая искательница';
  const o=topStats(sxp);return (sxp[o[1].k]||0)>0?o[1].adj+' '+o[0].cls.toLowerCase():o[0].cls;
@@ -1096,7 +1160,7 @@ function oathPanel(r,isToday){
   <div class="small">${foot}</div></section>`;
 }
 function heroCard(C){
- return `<section class="win pad"><div class="hc">${heroArt(C.sxp,'sprite big')}<div><div class="h">${esc(heroClass(C.sxp))}</div><div class="small">Ур. ${C.lvl+1} · ${esc(RANKS[C.lvl][0])} · ${RANKS[C.lvl][1]}</div></div></div>
+ return `<section class="win pad"><div class="hc"><div class="stage sm">${stageSVG()}${heroArt(C.sxp,'sprite')}</div><div><div class="h">${esc(heroClass(C.sxp))}</div><div class="small">Ур. ${C.lvl+1} · ${esc(RANKS[C.lvl][0])} · ${RANKS[C.lvl][1]}</div></div></div>
   <div class="mini8">${STATS.map(s=>{const xp=C.sxp[s.k]||0,l=C.sl[s.k],a=needXP(l),b=needXP(l+1);return `<div class="m8" style="--c:${s.col}" title="${esc(s.name)}: ${xp} опыта"><span class="px ab">${s.ab}</span><div class="bar sm"><i style="width:${(xp-a)/(b-a)*100}%"></i></div><span class="px lv">${l}</span></div>`}).join('')}</div>
   <button class="linkbtn" data-act="tab" data-v="hero">Характеристики и таланты</button></section>`;
 }
@@ -1260,7 +1324,7 @@ function heroView(C){
    <div class="talent ${open?'on':''}"><b>${open?'★':'☆'} ${esc(t[0])}</b><small>${open?esc(t[1]):`С ${TAL_LVL} уровня: ${esc(t[1].charAt(0).toLowerCase()+t[1].slice(1))}`}</small></div></div>`}).join('');
  return `<div class="page">
   <div class="herotop">
-   <section class="win pad heroid">${heroArt(sxp,'sprite huge')}<div><div class="small">Персонаж</div><h1 class="heroname">${esc(heroClass(sxp))}</h1>
+   <section class="win pad heroid"><div class="stage big">${stageSVG()}${heroArt(sxp,'sprite')}</div><div><div class="small">Персонаж</div><h1 class="heroname">${esc(heroClass(sxp))}</h1>
     <div class="small">Уровень ${C.lvl+1} · ${esc(r[0])} (${r[1]})</div>
     <div class="chips"><span class="chip hp">${C.hp}/${C.maxHp} ♥</span><span class="chip gd">${fmt(C.balance)} зол.</span><span class="chip" style="--c:var(--xp)">${C.totalXP} XP</span></div>
     <p class="hook" style="margin-top:10px">Класс складывается из двух самых прокачанных характеристик, а в руках у героини появляется предмет главной. Делай разное, и она будет меняться.</p></div>
