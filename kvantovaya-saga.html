@@ -64,9 +64,9 @@ h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
 .themebtn{flex:none;width:40px;height:40px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--ink);border:2px solid var(--frame);border-radius:7px;padding:0}
 /* sprite */
 .sprite{display:block;flex:none;height:auto}
-.sprite.mini{width:40px}
-.sprite.big{width:104px;filter:drop-shadow(3px 3px 0 var(--shadow))}
-.sprite.huge{width:208px;max-width:100%;filter:drop-shadow(5px 5px 0 var(--shadow))}
+.sprite.mini{width:44px;border:2px solid var(--frame);border-radius:6px;background:var(--panel)}
+.sprite.big{width:120px;filter:drop-shadow(3px 3px 0 var(--shadow))}
+.sprite.huge{width:260px;max-width:100%;filter:drop-shadow(5px 5px 0 var(--shadow))}
 .coin{width:1em;height:1em;display:inline-block;vertical-align:-.12em;margin-right:.3em}
 .gico{width:26px;height:26px;flex:none}
 .ghead{display:flex;gap:10px;align-items:center}
@@ -305,7 +305,7 @@ textarea{min-height:90px;font:500 12px var(--mono)}
 .divider{border-top:2px dashed var(--line);margin:4px 0}
 .scroll{display:grid;gap:8px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
-@media (max-width:480px){.bosswin .boss{grid-template-columns:80px minmax(0,1fr)}.beast{width:80px}.sprite.huge{width:160px}.card{grid-template-columns:64px minmax(0,1fr)}.slot{width:64px;height:64px}.ico{width:44px}.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.sprite.huge{width:200px}.bosswin .boss{grid-template-columns:80px minmax(0,1fr)}.beast{width:80px}.sprite.huge{width:160px}.card{grid-template-columns:64px minmax(0,1fr)}.slot{width:64px;height:64px}.ico{width:44px}.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 <div class="wrap"><div id="app"></div></div>
@@ -903,66 +903,6 @@ function pix(rows,pal,cls,label,vb){
  return `<svg class="${cls||''}" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>${o}</svg>`;
 }
 const OUT='#1d1424';
-/* Героиня 24×32 (зеркальная), холст 32×36 со снаряжением */
-const HERO=mir([
- "........kkkk",
- "......kkhhhh",
- ".....khhhhjj",
- "....khhhhjjh",
- "....khhhhhhh",
- "...khhhhhhhh",
- "...khhHhhhHh",
- "...khHhssHhs",
- "...khHssssss",
- "...khHswkkss",
- "...khHsskkss",
- "...khHcsssss",
- "...khhSsssss",
- "....khhSsssm",
- "....khhkSsss",
- ".....khhkkss",
- "....kkoooayy",
- "...koOoooooa",
- "..kOOoooooya",
- "..ksOoooooay",
- ".ksSOooooooy",
- ".ksSOoooooya",
- ".kssbbbbbbbB",
- ".kk.kOooooOo",
- "....kOooooOo",
- "....kOOoooOo",
- "....kkkkkkkk",
- ".....kpPpk..",
- ".....kpPpk..",
- ".....ktTtk..",
- "....kttTttk.",
- "....kkkkkkk."]);
-const ITEM_ART={
- int:{x:25,y:17,r:["kkkkkk","kxxxyk","kxyxxk","kxxxxk","kxxyxk","kxxxxk","kppppk","kkkkkk"]},
- str:{x:27,y:3,r:["..k..",".kmk.",".kmk.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.","kyyyk",".kgk.",".kgk.",".kyk.","..k.."]},
- agi:{x:4,y:32,r:[".kkkkkkkkkkkkkkkkkkkkkk.","krrrrrrrrrrrrrrrrrrrrrrk",".kkkkkkkkkkkkkkkkkkkkkk.","...kmk............kmk..."]},
- vit:{x:25,y:16,r:["..kk..",".kggk.","..kk..",".kwwk.","kwrrrk","krlrrk","krrrrk","krrrRk",".kRRk.","..kk.."]},
- wil:{x:0,y:16,r:["kkkkkk","kxxyxk","kxxyxk","kyyyyk","kxxyxk","kxxyxk",".kxyk.",".kxyk.","..kk.."]},
- cha:{x:25,y:15,r:[".kkkk.","krrrrk","krlrrk","krrrRk",".kRRk.","..ke..","..ke..",".kek..","..ke..","..ke.."]},
- cre:{x:26,y:9,r:["..k.",".kxk",".kxk","kwk.","kgk.","kgk.","kgk.","kgk.","kgk.","kgk.","kgk.",".k.."]},
- cur:{x:25,y:15,r:["..kk..",".k..k.","kkkkkk","kylyyk","kllllk","kylyyk","kkkkkk",".kyyk.","..kk.."]}};
-function heroArt(sxp,cls){
- const o=STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0)),has=k=>(sxp[k]||0)>0;
- const c1=has(o[0].k)?o[0].col:'var(--muted)',c2=has(o[1].k)?o[1].col:'#e0a82e';
- const pal={k:OUT,h:'#6b3d26',H:'#4a2a1e',j:'#a2643a',s:'#f3cba6',S:'#d9a07c',w:'#ffffff',c:'#ef9a8e',m:'#b8565a',
-  o:c1,O:`color-mix(in srgb,${c1} 62%,#000)`,a:c2,y:'#e8b33a',b:'#6a4326',B:'#f0c75e',p:'#3d3656',P:'#2a2440',t:'#6a4326',T:'#432a17'};
- const W=32,H=36,grid=Array.from({length:H},()=>Array(W).fill('.'));
- HERO.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')grid[y][x+4]=c}));
- let extra='';
- if(has(o[0].k)){const it=ITEM_ART[o[0].k],ip={k:OUT,x:o[0].col,y:'#e8b33a',p:'#f4efe0',m:'#dfe6f2',M:'#9aa6bd',g:'#6a4326',w:'#cfeaff',r:'#d6404e',R:'#9c2632',l:'#ffd9a8',e:'#3f9a5a'};
-  it.r.forEach((r,y)=>[...r].forEach((c,x)=>{const gy=it.y+y,gx=it.x+x;if(c!=='.'&&grid[gy]&&gx<W){grid[gy][gx]='#'+c}}));
-  Object.keys(ip).forEach(k=>{pal['#'+k]=ip[k]})}
- return pixGrid(grid,pal,cls);
-}
-function pixGrid(grid,pal,cls){let o='';
- grid.forEach((row,y)=>{let x=0;while(x<row.length){const c=row[x];if(!pal[c]){x++;continue}let n=1;while(row[x+n]===c)n++;o+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${pal[c]}"/>`;x+=n}});
- return `<svg class="${cls||''}" viewBox="0 0 ${grid[0].length} ${grid.length}" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`}
-
 /* Бестиарий: босс недели меняется по кругу */
 const BEASTS=[
  {id:'entropy',name:'Энтропия',title:'Пожирательница порядка',lore:'Растёт из немытой посуды, брошенных дел и недописанных конспектов.',
@@ -1008,6 +948,104 @@ const iconArt=(id,cls)=>{const it=ICONS[id]||ICONS.chest;return pix(it.r,Object.
 const RARITY=[[100,'Обычный','var(--muted)'],[250,'Необычный','var(--s-agi)'],[500,'Редкий','var(--s-int)'],[900,'Эпический','var(--s-wil)'],[1e9,'Легендарный','var(--gold)']];
 const rarityOf=c=>RARITY.find(r=>c<r[0]);
 
+/* ---------- Героиня 40×56: рисуется заливками материалов, контур и светотень считаются автоматически ---------- */
+const HERO2_HALF=[
+ "....................",
+ "..............hhhhhh",
+ "...........hhhhhhhhh",
+ ".........hhhhhhhhhhh",
+ "........hhhhhjhhhhhh",
+ ".......hhhhhjjhhhhhh",
+ ".......hhhhjjhhhhhhh",
+ "......hhhhhhhhhhHhhh",
+ "......hhhhhhhhhHhhhh",
+ "......hyyyyyyyyyyyyg",
+ "......hhhhhhhhhhhhhh",
+ "......hhhhhhhHhhhhhh",
+ "......hhhhhhHshhhHss",
+ "......hhhhHsssssHsss",
+ "......hhhhssssssssss",
+ "......hhhhseeeeessss",
+ "......hhhhsswiiissss",
+ "......hhhhssiIIissss",
+ "......hhhhssiiiissss",
+ "......hhhhssssssssss",
+ "......hhhhsccssssssN",
+ "......hhhhssssssssss",
+ ".......hhhsssssssssM",
+ ".......hhhHsssssssss",
+ ".......hhhHHssssssss",
+ "......hhhhHHHHssssss",
+ "......hhhhHHHHHHHsss",
+ "......hhhhHHHHHHHsss",
+ ".....llhhhhooooooaas",
+ "....lllhhhhoooooooay",
+ "....lloohhhoooooooyy",
+ "....loooohhooooooooa",
+ "....looooohooooooooa",
+ "...llooooolooooooooa",
+ "...lloooollooooooooa",
+ "...lloooollooooooooa",
+ "...llaaaallloooooooa",
+ "...llsssslllbbbbbbby",
+ "...llssslllooooooooa",
+ "...llllllloooooooooa",
+ "..lllllllloooooooooa",
+ "..lllllllooooooooooa",
+ "..lllllllooooooooooa",
+ "..lllllloooooooooooa",
+ "...lllllaaaaaaaaaaaa",
+ "....lll......pppp...",
+ ".............pppp...",
+ ".............pppp...",
+ ".............pppp...",
+ "............ttttt...",
+ "............ttttt...",
+ "............ttttt...",
+ "...........tttttt...",
+ "...........tttttt..."];
+if(HERO2_HALF.some(r=>r.length!==20))console.error('hero row');
+const HERO2=HERO2_HALF.map(r=>{r=(r+'....................').slice(0,20);return r+[...r].reverse().join('')});
+const HERO2_FIX=[[24,16,'w'],[27,16,'i']];
+const ITEM2={
+ int:{x:41,y:31,r:["xxxxxxxxx.","xyyxxxxxxq","xyxxxxxxxq","xxxxyyyxxq","xxxxyxyxxq","xxxxyyyxxq","xxxxxxxxxq","xyxxxxxxxq","xyyxxxxxxq","xxxxxxxxxq","qqqqqqqqq."]},
+ str:{x:36,y:8,r:["....m....","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","..ymmmy..","yyyyyyyyy","...bbb...","...bbb...","...bbb...","...bbb...","..yyyyy.."]},
+ agi:{x:6,y:54,r:[".rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr.","rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr","....mmm..................................mmm.","....mmm..................................mmm."]},
+ vit:{x:41,y:30,r:["..bbbb..","..bbbb..","...vv...","...vv...","..vvvv..",".rrrrrr.","rrrrrrrr","rrrrrrrr","rrrrrrrr","rrrrrrrr",".rrrrrr.","..rrrr.."]},
+ wil:{x:2,y:29,r:["xxxxxxxxxx","xxxxyyxxxx","xxxxyyxxxx","xyyyyyyyyx","xyyyyyyyyx","xxxxyyxxxx","xxxxyyxxxx","xxxxyyxxxx",".xxxyyxxx.",".xxxyyxxx.","..xxyyxx..","...xyyx...","....xx...."]},
+ cha:{x:40,y:26,r:[".rr..rr.","rrrrrrrr","rrrrrrrr",".rrrrrr.","..rrrr..","...nn...","...nn.nn","...nnnn.","...nn...","..nn....","..nn...."]},
+ cre:{x:40,y:18,r:["..x..",".xxx.",".xxx.",".xxx.",".xxx.",".mmm.",".mmm.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb."]},
+ cur:{x:40,y:31,r:["...bbb...","..b...b..","...bbb...",".yyyyyyy.",".yfffffy.",".yfffffy.",".yfffffy.",".yfffffy.",".yyyyyyy.","..yyyyy.."]}};
+const SH=(base)=>[`color-mix(in srgb,${base} 60%,#120a1a)`,base,`color-mix(in srgb,${base} 68%,#ffffff)`];
+const HERO2_CACHE={};
+const GRP={h:'h',H:'h',j:'h',s:'s',N:'s',c:'s',e:'s',w:'s',i:'s',I:'s',M:'s',o:'o',a:'o',y:'o',b:'o',g:'h'};
+const HAIRG=['h','H','j','y','g'];
+function heroArt(sxp,cls,crop){
+ const o=STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0)),has=k=>(sxp[k]||0)>0;
+ const k1=has(o[0].k)?o[0].k:'',k2=has(o[1].k)?o[1].k:'',key=k1+'|'+k2+'|'+cls+'|'+(crop?1:0);
+ if(HERO2_CACHE[key])return HERO2_CACHE[key];
+ const c1=k1?SN[k1].col:'#8a8296',c2=k2?SN[k2].col:'#c9a36a';
+ const M={h:['#3d2218','#6b3d26','#a8673d'],s:['#d29a76','#f3cba6','#ffe3c9'],o:SH(c1),a:SH(c2),l:SH(`color-mix(in srgb,${c2} 70%,#1d1424)`),x:SH(c1),
+  y:['#a87418','#e8b33a','#ffe08a'],b:['#432a17','#6a4326','#8f5f3a'],p:['#241f38','#3d3656','#575078'],t:['#321f12','#5a3a22','#7d5434'],
+  m:['#7d88a0','#c9d1e0','#f4f8ff'],r:['#8e2230','#d6404e','#ff8a96'],n:['#2b6b3a','#3f9a5a','#7fd08e'],f:['#e0a020','#ffd166','#fff6c4'],q:['#c9bfa8','#f4efe0','#ffffff'],v:['#7fb0c8','#cfeaff','#ffffff']};
+ const FIX={k:'#1d1424',e:'#1d1424',I:'#1d1424',w:'#ffffff',i:'#4a7fd0',H:'#3d2218',m2:'#b8565a',N:'#d29a76',c:'#f0a39a',g:'#e0405a'};
+ const W=56,H=60,G=Array.from({length:H},()=>Array(W).fill('.'));
+ HERO2.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')G[y][x+6]=c==='m'?'M':c}));
+ HERO2_FIX.forEach(([x,y,c])=>{G[y][x+6]=c});
+ if(k1){const it=ITEM2[k1];it.r.forEach((r,y)=>[...r].forEach((c,x)=>{const gy=it.y+y,gx=it.x+x;if(c!=='.'&&G[gy]&&gx<W)G[gy][gx]=c}))}
+ const at=(x,y)=>(G[y]&&G[y][x])||'.';
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(G[y][x]==='.'&&[at(x-1,y),at(x+1,y),at(x,y-1),at(x,y+1)].some(c=>c!=='.'&&c!=='k'))G[y][x]='k';
+ let out='';
+ for(let y=0;y<H;y++){let x=0;while(x<W){const col=colorAt(x,y);if(!col){x++;continue}let n=1;while(x+n<W&&colorAt(x+n,y)===col)n++;out+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${col}"/>`;x+=n}}
+ function colorAt(x,y){const c=G[y][x];if(c==='.')return null;if(c==='M')return FIX.m2;if(c==='j')return M.h[2];if(FIX[c])return FIX[c];const m=M[c];if(!m)return null;
+  const grp=GRP[c]||c,same=ch=>(GRP[ch]||ch)===grp;
+  if(c==='s'&&HAIRG.includes(at(x,y-1)))return m[0];
+  if(!same(at(x,y+1))||!same(at(x+1,y)))return m[0];
+  if(!same(at(x,y-1))||!same(at(x-1,y)))return m[2];
+  return m[1]}
+ return HERO2_CACHE[key]=`<svg class="${cls||''}" viewBox="${crop?'12 0 32 30':'0 0 '+W+' '+H}" shape-rendering="crispEdges" aria-hidden="true">${out}</svg>`;
+}
+
 const topStats=sxp=>STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
 function heroClass(sxp){
  if(!sxp||!Object.values(sxp).some(v=>v>0))return 'Начинающая искательница';
@@ -1028,7 +1066,7 @@ function header(C){
  const tabs=[['today','Сегодня'],['hero','Героиня'],['quests','Квесты'],['topics','Библиотека'],['journal','Летопись'],['ach','Трофеи'],['shop','Лавка'],['rules','Правила']];
  return `<header class="top"><div class="toprow">
   <div class="brand">Квантовая<br>сага</div>
-  <button class="who linkbtn" style="text-decoration:none;color:inherit" data-act="tab" data-v="hero">${heroArt(C.sxp,'sprite mini')}<span><b>${esc(heroClass(C.sxp))}</b><small>Ур. ${C.lvl+1} · ${esc(r[0])}</small></span></button>
+  <button class="who linkbtn" style="text-decoration:none;color:inherit" data-act="tab" data-v="hero">${heroArt(C.sxp,'sprite mini',1)}<span><b>${esc(heroClass(C.sxp))}</b><small>Ур. ${C.lvl+1} · ${esc(r[0])}</small></span></button>
   <div class="bars">
    <div class="barrow"><span class="px lab hpc">HP</span><div class="bar hp" role="progressbar" aria-label="Здоровье" aria-valuenow="${C.hp}" aria-valuemin="0" aria-valuemax="${C.maxHp}"><i style="width:${C.hp/C.maxHp*100}%"></i></div><span class="num">${C.hp}/${C.maxHp}</span></div>
    <div class="barrow"><span class="px lab" style="color:var(--xp)">XP</span><div class="bar" role="progressbar" aria-label="Опыт до следующего уровня" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="num">${C.totalXP}${nx?' / '+nx[2]:''}</span></div>
