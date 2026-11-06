@@ -1,0 +1,893 @@
+<title>Хроники Анны</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Commissioner:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: меню персонажа из ролевой игры. Слева героиня на астролябии, её характеристики и снаряжение; справа вкладки журнала. Задания Беатрис приходят письмами и разговором в стиле визуальной новеллы. Одна ночная тема намеренно. */
+:root{
+  --void:#0d0f1e; --panel:#161a30; --panel2:#1d2240; --line:#2c3360; --line2:#3a4278;
+  --text:#ece7da; --muted:#9a9dbd; --brass:#d8a85a; --brass-hi:#f3d48f; --quant:#69e2d2; --quant-dim:#2a6a6a;
+  --rose:#e98da0; --wine:#7d2f45; --good:#8fe29b; --bad:#ff8574;
+  --skin:#f1c9a5; --coat:#3b6f93; --hair:#4a2f22;
+  --display:"Philosopher","Palatino Linotype",Georgia,serif;
+  --body:"Commissioner",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --voice:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--void)}
+body{background:radial-gradient(1200px 600px at 15% -10%,#1f2550 0%,transparent 60%),radial-gradient(900px 500px at 110% 10%,#2a1c3d 0%,transparent 55%),var(--void);background-attachment:fixed;color:var(--text);font:400 15px/1.45 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 60px;font-variant-numeric:tabular-nums;min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--void)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--quant);outline-offset:2px;border-radius:6px}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:700}
+.sym{font-variant-emoji:text}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* HUD */
+.hud{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:linear-gradient(var(--void) 70%,transparent);padding-block:12px 10px;display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap}
+.lvbadge{width:52px;height:52px;flex:none;display:grid;place-items:center;position:relative}
+.lvbadge svg{position:absolute;inset:0}
+.lvbadge b{position:relative;font:700 19px/1 var(--display);color:var(--brass-hi)}
+.lvbadge small{position:absolute;bottom:-3px;font:700 9px var(--mono);letter-spacing:.12em;color:var(--brass);background:var(--void);padding:0 3px}
+.who{flex:1 1 220px;min-width:0}
+.who h1{font:700 20px/1.1 var(--display);letter-spacing:.01em}
+.who h1 span{color:var(--muted);font:400 14px var(--body);margin-left:6px}
+.xpbar{height:10px;margin-top:6px;border-radius:5px;background:#0a0c18;border:1px solid var(--line2);overflow:hidden;position:relative}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--quant-dim),var(--quant));border-radius:5px;transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 12px var(--quant)}
+.xpline{display:flex;justify-content:space-between;font:500 11.5px var(--mono);color:var(--muted);margin-top:3px}
+.purse{display:flex;gap:14px;align-items:center}
+.coin{display:flex;align-items:center;gap:6px;font:700 15px var(--mono);color:var(--brass-hi)}
+.coin i{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--brass-hi),var(--brass) 60%,#8a6324);box-shadow:0 0 8px #d8a85a66;display:inline-block}
+.streak{font:700 15px var(--mono);color:var(--rose);display:flex;gap:5px;align-items:center}
+.iconbtn{position:relative;width:42px;height:42px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);display:grid;place-items:center;padding:0;color:var(--text)}
+.iconbtn:hover{border-color:var(--brass)}
+.iconbtn .dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;border-radius:10px;background:var(--rose);color:#2a0f18;font:700 11px/19px var(--mono);padding:0 5px}
+.iconbtn.ring svg{animation:bell 2.4s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes bell{0%,80%,100%{transform:rotate(0)}84%{transform:rotate(14deg)}88%{transform:rotate(-12deg)}92%{transform:rotate(8deg)}96%{transform:rotate(-4deg)}}
+
+/* main grid */
+.main{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:20px;align-items:start;margin-top:6px}
+@media (max-width:920px){.main{grid-template-columns:minmax(0,1fr)}.hud{position:static}}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;position:relative}
+.panel.frame::before{content:"";position:absolute;inset:5px;border:1px solid #d8a85a22;border-radius:10px;pointer-events:none}
+.pad{padding:16px}
+.eyebrow{font:700 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
+.muted{color:var(--muted)}
+
+/* hero card */
+.herocard{overflow:hidden}
+.stage{position:relative;height:300px;display:grid;place-items:center;background:radial-gradient(circle at 50% 58%,#25306a 0%,#161a30 62%)}
+.stage svg.hero{width:min(260px,80%);height:auto;max-width:100%;overflow:visible}
+.ring{transform-origin:110px 150px;animation:spin 60s linear infinite}
+.ring2{transform-origin:110px 150px;animation:spin 90s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bob{animation:bob 3.2s ease-in-out infinite;transform-origin:110px 260px}
+@keyframes bob{50%{transform:translateY(-3px) scaleY(1.008)}}
+.shadow{animation:shadow 3.2s ease-in-out infinite;transform-origin:110px 262px}
+@keyframes shadow{50%{transform:scaleX(.92);opacity:.5}}
+.tail{transform-origin:139px 80px;animation:tail 3.2s ease-in-out infinite}
+@keyframes tail{50%{transform:rotate(7deg)}}
+.scarf{transform-origin:122px 140px;animation:tail 2.6s ease-in-out infinite}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.orb{transform-box:fill-box;transform-origin:center;animation:spin 2.4s linear infinite}
+.orb.b{animation-duration:3.4s;animation-direction:reverse}
+.armR{transform-origin:139px 148px;animation:armr 3.2s ease-in-out infinite}
+@keyframes armr{50%{transform:rotate(-4deg)}}
+.hero.jump .bob{animation:jump .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes jump{40%{transform:translateY(-22px)}}
+.hero.cheer .bob{animation:cheer 1.2s ease-in-out}
+@keyframes cheer{20%{transform:translateY(-26px) rotate(-4deg)}45%{transform:translateY(0) rotate(0)}65%{transform:translateY(-16px) rotate(4deg)}100%{transform:none}}
+.mote{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--quant);box-shadow:0 0 8px var(--quant);opacity:0;animation:mote 6s linear infinite}
+@keyframes mote{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-170px)}}
+.speech{position:absolute;left:12px;top:12px;max-width:62%;background:#0d0f1ecc;border:1px solid var(--line2);border-radius:10px 10px 10px 2px;padding:7px 10px;font-size:13px;line-height:1.3;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}}
+.gain{position:absolute;font:700 18px var(--mono);color:var(--quant);text-shadow:0 0 10px var(--quant);pointer-events:none;animation:gain 1.2s ease-out forwards}
+@keyframes gain{to{transform:translateY(-60px);opacity:0}}
+.classline{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:12px 16px 0}
+.classline b{font:700 17px var(--display);color:var(--brass-hi)}
+.classline span{font:500 12px var(--mono);color:var(--muted)}
+.bars{display:grid;gap:9px;padding:12px 16px 4px}
+.bar{display:grid;grid-template-columns:76px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:12.5px}
+.bar .track{height:8px;border-radius:4px;background:#0a0c18;border:1px solid var(--line);overflow:hidden}
+.bar .track i{display:block;height:100%;border-radius:4px;transition:width .5s}
+.bar output{font:500 11.5px var(--mono);color:var(--muted);text-align:right}
+.radarwrap{padding:4px 16px 4px}
+.radar{width:100%;max-width:340px;display:block;margin:0 auto;height:auto}
+.radar text{font:600 10.5px var(--body);fill:var(--muted)}
+.radar .lv{font:700 10px var(--mono);fill:var(--brass-hi)}
+.equip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:6px 16px 16px}
+.slot{aspect-ratio:1;max-width:100%;border-radius:10px;border:1px solid var(--line2);background:#0f1224;display:grid;place-items:center;position:relative}
+.slot svg{width:58%;height:58%}
+.slot.relic{border-color:var(--brass);box-shadow:inset 0 0 14px #d8a85a33}
+.slot .rg{font:400 26px/1 var(--display);color:var(--brass-hi)}
+.slot.empty .rg{color:var(--line2)}
+.slot:hover .tt,.slot:focus .tt{opacity:1}
+.tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#05060d;border:1px solid var(--line2);border-radius:6px;padding:4px 7px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:3}
+.equiphead{display:flex;justify-content:space-between;align-items:baseline;padding:4px 16px 0}
+
+/* tabs */
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);margin-bottom:16px}
+.tab{background:none;border:0;padding:10px 14px;font:700 15px var(--display);color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;min-height:44px;position:relative}
+.tab[aria-selected="true"]{color:var(--brass-hi);border-bottom-color:var(--brass)}
+.tab .pip{position:absolute;top:8px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--rose);box-shadow:0 0 8px var(--rose)}
+.sec{display:grid;gap:12px;margin-bottom:22px}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sechead h2{font:700 19px var(--display)}
+.sechead small{color:var(--muted);font-size:12.5px}
+
+/* Беатрис */
+.mentor{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;border-color:#d8a85a66;background:linear-gradient(135deg,#2a1d33,#1b1f3b 60%)}
+.mentor .ava{width:96px;height:96px;border-radius:50%;border:2px solid var(--brass);overflow:hidden;background:#3a2547;flex:none}
+.mentor .ava svg{width:100%;height:100%}
+.voice{font:italic 500 18px/1.35 var(--voice);color:#f6e9d4}
+.legend{display:grid;gap:10px;min-width:0}
+.legend h3{font:700 20px/1.2 var(--display);color:var(--brass-hi)}
+.legend .rarity{font:700 10.5px var(--mono);letter-spacing:.14em;color:var(--brass);text-transform:uppercase}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.steps li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start}
+.check{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line2);background:#0e1122;display:grid;place-items:center;padding:0;color:var(--void)}
+.check[aria-pressed="true"]{background:var(--quant);border-color:var(--quant);box-shadow:0 0 10px #69e2d266}
+.check.gold[aria-pressed="true"]{background:var(--brass);border-color:var(--brass)}
+.steps li span{padding-top:5px;font-size:14px}
+.steps li.done span{color:var(--muted);text-decoration:line-through;text-decoration-color:#9a9dbd88}
+.prog{height:6px;border-radius:3px;background:#0a0c18;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--brass),var(--brass-hi));transition:width .4s}
+.btn{border:1px solid var(--brass);background:linear-gradient(180deg,#e6b968,#b9873c);color:#24170a;font-weight:700;border-radius:10px;padding:9px 16px;min-height:44px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;color:var(--brass-hi)}
+.btn.teal{background:linear-gradient(180deg,#7ef0e0,#3fb4a6);border-color:var(--quant);color:#0b2422}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.letter{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1px dashed var(--brass);border-radius:12px;background:#d8a85a10;cursor:pointer;width:100%;text-align:left;animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 22px #d8a85a44}}
+.letter svg{flex:none}
+.letter b{font:700 16px var(--display);color:var(--brass-hi);display:block}
+
+/* quest cards */
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.q{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);align-content:start;position:relative}
+.q .kind{font:700 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;grid-column:1/-1;display:flex;justify-content:space-between;gap:8px}
+.q .kind em{font-style:normal;color:var(--muted);letter-spacing:.04em}
+.q.morning .kind{color:#ffcf8a}.q.evening .kind{color:#b9a4ff}.q.week .kind{color:var(--rose)}.q.board .kind{color:var(--quant)}.q.goal .kind{color:var(--good)}
+.q b{font-weight:600;font-size:15px;line-height:1.3}
+.q small{grid-column:1/-1;color:var(--muted);font-size:13px;line-height:1.35}
+.q .rw{font:700 13px var(--mono);color:var(--quant);white-space:nowrap;align-self:start}
+.q .foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:4px}
+.q.done{border-color:#8fe29b55;background:linear-gradient(180deg,#18301f55,var(--panel))}
+.q.done b{color:var(--muted)}
+.q.locked{opacity:.55}
+.skill-tag{font:600 11.5px var(--body);color:var(--muted);display:flex;gap:5px;align-items:center}
+.skill-tag i{font-style:normal;color:var(--brass-hi)}
+.qbtn{border:1px solid var(--line2);background:#0f1224;border-radius:9px;padding:7px 12px;font-weight:600;font-size:13.5px;min-height:40px}
+.qbtn:hover{border-color:var(--quant)}
+.qbtn[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:#0e2412}
+.gprog{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;font:500 12px var(--mono);color:var(--muted)}
+.gprog .prog i{background:var(--good)}
+
+/* skills */
+.skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.sk{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);display:grid;gap:8px;align-content:start}
+.skhead{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+.rune{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--brass);display:grid;place-items:center;font:700 19px var(--display);color:var(--brass-hi);background:radial-gradient(circle,#2b2f5a,#14172b)}
+.skhead b{font:700 16px var(--display);display:block}
+.skhead small{color:var(--muted);font-size:12px}
+.sklv{font:700 22px var(--display);color:var(--quant)}
+.perks{display:flex;flex-wrap:wrap;gap:6px}
+.perk{font-size:12px;border:1px solid var(--line2);border-radius:20px;padding:3px 9px;color:var(--muted)}
+.perk.on{border-color:var(--brass);color:var(--brass-hi);background:#d8a85a14}
+.feeds{font-size:12px;color:var(--muted)}
+
+/* diary */
+.daynav{display:flex;align-items:center;gap:8px}
+.daynav b{font:700 16px var(--display);min-width:0}
+.acts{display:grid;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.act{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line);min-height:60px}
+.act:last-child{border-bottom:0}
+.act .rune{width:34px;height:34px;font-size:15px}
+.act b{font-weight:600;display:block}
+.act small{color:var(--muted);font-size:12.5px;display:block;line-height:1.3}
+.cnt{display:flex;align-items:center;gap:4px}
+.cnt output{min-width:30px;text-align:center;font:700 17px var(--mono)}
+.step{width:40px;height:40px;border-radius:9px;border:1px solid var(--line2);background:#0f1224;font-size:19px;font-weight:700;line-height:1;padding:0}
+.step.plus{background:var(--quant);border-color:var(--quant);color:#0b2422}
+.step:disabled{opacity:.3;cursor:default}
+.step:not(:disabled):active{transform:scale(.93)}
+
+/* inventory, chronicle */
+.relics{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.relic{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+.relic .slot{width:52px}
+.relic b{display:block;font:700 15px var(--display)}
+.relic small{color:var(--muted);font-size:12.5px;line-height:1.3;display:block}
+.relic.lock b{color:var(--muted)}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.ware{padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);display:grid;gap:10px}
+.ware b{font-weight:600}
+.ware .coin{font-size:17px}
+.log{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.log li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:start;font-size:14px}
+.log li:last-child{border-bottom:0}
+.log time{font:500 11.5px var(--mono);color:var(--muted);white-space:nowrap;padding-top:2px}
+.ico{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--mono);border:1px solid currentColor}
+.k-xp{color:var(--quant)}.k-lv{color:var(--brass-hi)}.k-bea{color:var(--rose)}.k-quest{color:var(--good)}.k-info{color:var(--muted)}
+.settings{display:grid;gap:12px;padding:16px}
+.setrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.swatches{display:flex;gap:8px}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line2);padding:0}
+.sw[aria-pressed="true"]{border-color:var(--brass-hi);box-shadow:0 0 0 2px var(--void),0 0 0 4px var(--brass)}
+input[type=text]{background:#0f1224;border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-height:42px}
+.toggle{display:flex;gap:8px;align-items:center;min-height:40px}
+.toggle input{width:20px;height:20px;accent-color:var(--quant)}
+.empty{padding:18px;border:1px dashed var(--line2);border-radius:12px;color:var(--muted);text-align:center}
+
+/* toasts */
+#toasts{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));z-index:50;display:grid;gap:8px;width:min(340px,calc(100vw - 24px));pointer-events:none}
+.toast{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:#0b0d1ae8;border:1px solid var(--line2);box-shadow:0 10px 30px #0008;animation:tin .35s cubic-bezier(.2,1.4,.4,1);pointer-events:auto;backdrop-filter:blur(6px)}
+.toast.out{animation:tout .3s forwards}
+@keyframes tin{from{transform:translateX(30px);opacity:0}}
+@keyframes tout{to{transform:translateX(30px);opacity:0}}
+.toast .ico{width:32px;height:32px;font-size:14px}
+.toast b{display:block;font:700 13.5px var(--display);letter-spacing:.02em}
+.toast div span{font-size:13px;color:var(--muted);line-height:1.3;display:block}
+.toast.lv{border-color:var(--brass)}.toast.bea{border-color:var(--rose)}
+
+/* dialog (визуальная новелла) */
+#dlg{position:fixed;inset:0;z-index:40;background:#05060de0;display:flex;align-items:flex-end;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fadein .3s}
+.scene{width:min(760px,100%);display:grid;justify-items:center;gap:0}
+.scene .bust{width:min(250px,56vw);aspect-ratio:1;max-width:100%;margin-bottom:-24px;position:relative;z-index:1;animation:rise .5s cubic-bezier(.2,1.2,.4,1)}
+@keyframes rise{from{transform:translateY(30px);opacity:0}}
+.scene .bust svg{width:100%;height:100%}
+.box{width:100%;background:linear-gradient(180deg,#221a35f5,#141729f5);border:1px solid var(--brass);border-radius:16px;padding:22px 20px 16px;position:relative;box-shadow:0 0 40px #d8a85a22}
+.nameplate{position:absolute;top:-15px;left:20px;background:var(--wine);border:1px solid var(--brass);border-radius:8px;padding:3px 12px;font:700 14px var(--display);color:var(--brass-hi);letter-spacing:.04em}
+.box .voice{min-height:4.2em;font-size:20px}
+.box .voice em{color:var(--muted);font-size:16px}
+.box .next{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.box .hint{font:500 11px var(--mono);color:var(--muted);letter-spacing:.08em}
+.caret{display:inline-block;width:8px;height:8px;border-right:2px solid var(--brass);border-bottom:2px solid var(--brass);transform:rotate(45deg);margin-left:6px;animation:car 1s infinite}
+@keyframes car{50%{transform:translateY(3px) rotate(45deg)}}
+.reward{display:flex;gap:12px;align-items:center;background:#d8a85a14;border:1px solid #d8a85a66;border-radius:10px;padding:10px 12px;margin-top:10px}
+
+/* level up */
+#lvl{position:fixed;inset:0;z-index:45;display:grid;place-items:center;background:#05060dd9;padding-inline:16px;animation:fadein .3s}
+#lvl .inner{display:grid;justify-items:center;gap:10px;text-align:center;position:relative}
+#lvl .rays{position:absolute;width:520px;height:520px;max-width:100vw;left:50%;top:50%;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg,#d8a85a2a 0 8deg,transparent 8deg 22deg);border-radius:50%;mask:radial-gradient(circle,#000 20%,transparent 68%);-webkit-mask:radial-gradient(circle,#000 20%,transparent 68%);animation:spin 18s linear infinite}
+#lvl .big{font:700 clamp(46px,12vw,86px)/1 var(--display);color:var(--brass-hi);text-shadow:0 0 30px #d8a85a99;position:relative;animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+#lvl .eyebrow{position:relative;font-size:13px}
+#lvl p{position:relative;max-width:36ch;margin:0}
+#lvl .btn{position:relative;margin-top:8px}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);z-index:35;background:#0f1224f7;border-left:1px solid var(--line2);padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) 16px;overflow-y:auto;animation:slide .3s cubic-bezier(.2,1,.3,1)}
+@keyframes slide{from{transform:translateX(100%)}}
+#drawer .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
+@media (max-width:920px){.radarwrap,.equiphead,.equip{display:none}.herocard{padding-bottom:12px}}
+@media (max-width:480px){.stage{height:250px}.who h1{font-size:18px}.box .voice{font-size:18px}.mentor{grid-template-columns:64px minmax(0,1fr)}.mentor .ava{width:64px;height:64px}}
+</style>
+
+<div class="wrap">
+  <header class="hud" id="hud"></header>
+  <div class="main">
+    <aside class="panel frame herocard" id="heroPanel"></aside>
+    <main id="content"></main>
+  </div>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<div id="dlg" hidden></div>
+<div id="lvl" hidden></div>
+<div id="drawer" hidden></div>
+
+<script>
+"use strict";
+/* ================= Каталог ================= */
+const SKILLS={
+ physics:{n:'Физика',g:'ħ',d:'Лекции, задачи, допзанятия, опыты',perks:[[2,'Чутьё на размерности'],[4,'Взгляд Фейнмана'],[6,'Укротительница полей'],[9,'Квантовый скачок']]},
+ math:{n:'Математика',g:'∫',d:'Задачи, разбор ошибок, вычисления',perks:[[2,'Чистая выкладка'],[4,'Ловец ошибок'],[6,'Око интеграла'],[9,'Гёделева ясность']]},
+ body:{n:'Выносливость',g:'⇉',d:'Велосипед, скейт, спорт, пешие маршруты',perks:[[2,'Ветер в спицах'],[4,'Чистый олли'],[6,'Второе дыхание'],[9,'Неутомимая']]},
+ curiosity:{n:'Любопытство',g:'✧',d:'Новые места, музеи, лекции, открытия',perks:[[2,'Открытая дверь'],[4,'Картограф'],[6,'Коллекционер чудес'],[9,'Странница']]},
+ lang:{n:'Слово',g:'Я',d:'Чтение, стихи, языки, письма',perks:[[2,'Шёпот слов'],[4,'Звонкая строка'],[6,'Полиглот'],[9,'Голос барда']]},
+ craft:{n:'Ремесло',g:'✎︎',d:'Руками: рисунок, хлеб, опыты, музыка',perks:[[2,'Ловкие руки'],[4,'Глаз художника'],[6,'Мастерица'],[9,'Творец']]},
+ discipline:{n:'Воля',g:'◷',d:'Работа, режим, сон, помидоры',perks:[[2,'Ранняя пташка'],[4,'Железный режим'],[6,'Помидорная магия'],[9,'Стальная воля']]},
+ charisma:{n:'Обаяние',g:'♡︎',d:'Разговоры, звонки, объяснить другому',perks:[[2,'Тёплое слово'],[4,'Рассказчица'],[6,'Душа компании'],[9,'Сама наставница']]}
+};
+const SK_ORDER=['physics','math','curiosity','lang','charisma','craft','body','discipline'];
+const ACTIONS=[
+ {id:'lecture',n:'Лекция по физике',d:'За каждую просмотренную',pts:15,s:'physics',k:'count'},
+ {id:'phys',n:'Задача по физике',d:'За каждую решённую',pts:3,s:'physics',k:'count'},
+ {id:'math',n:'Задача по математике',d:'За каждую решённую',pts:3,s:'math',k:'count'},
+ {id:'sat',n:'Допзанятие по физике',d:'Субботнее. Большой опыт',pts:30,s:'physics',k:'toggle'},
+ {id:'mistakes',n:'Разбор ошибок',d:'Прошлась по задачам, где ошиблась',pts:6,s:'math',k:'toggle'},
+ {id:'work',n:'Поход на работу',d:'Сходила и отработала, как планировала',pts:20,s:'discipline',k:'toggle'},
+ {id:'worklecture',n:'Лекция на работе',d:'За каждую прослушанную',pts:8,s:'curiosity',k:'count'},
+ {id:'focus',n:'Помидор',d:'25 минут без телефона',pts:5,s:'discipline',k:'count'},
+ {id:'bike',n:'Поездка на велосипеде',d:'За каждую поездку',pts:10,s:'body',k:'count'},
+ {id:'skate',n:'Поездка на скейте',d:'За каждую поездку',pts:10,s:'body',k:'count'},
+ {id:'sport',n:'Спорт или зарядка',d:'От 20 минут',pts:8,s:'body',k:'toggle'},
+ {id:'read',n:'Чтение',d:'20 минут книги, не ленты',pts:6,s:'lang',k:'count'},
+ {id:'words',n:'Новое слово',d:'На незнакомом языке. За каждое',pts:1,s:'lang',k:'count'},
+ {id:'sleep',n:'Сон 7–9 часов',d:'Выспалась',pts:10,s:'discipline',k:'toggle'},
+ {id:'early',n:'Отбой до полуночи',d:'',pts:5,s:'discipline',k:'toggle'},
+ {id:'water',n:'Вода',d:'Полтора-два литра',pts:3,s:'discipline',k:'toggle'}
+];
+const ACT={};ACTIONS.forEach(a=>ACT[a.id]=a);
+const GOALS=[
+ {t:'Реши 5 задач по физике',b:12,s:'physics',p:[[['phys'],5]]},
+ {t:'Реши 5 задач по математике',b:12,s:'math',p:[[['math'],5]]},
+ {t:'Лекция по физике и 3 задачи к ней',b:15,s:'physics',p:[[['lecture'],1],[['phys'],3]]},
+ {t:'Прокатись на велосипеде или скейте',b:8,s:'body',p:[[['bike','skate'],1]]},
+ {t:'Два помидора без телефона',b:8,s:'discipline',p:[[['focus'],2]]},
+ {t:'Ляг спать до полуночи',b:8,s:'discipline',p:[[['early'],1]]},
+ {t:'10 задач: физика плюс математика',b:15,s:'math',p:[[['phys','math'],10]]},
+ {t:'Сходи на работу и реши 3 задачи',b:12,s:'discipline',p:[[['work'],1],[['phys','math'],3]]},
+ {t:'Лекция по физике и поездка',b:12,s:'body',p:[[['lecture'],1],[['bike','skate'],1]]},
+ {t:'Почитай и выучи 5 новых слов',b:10,s:'lang',p:[[['read'],1],[['words'],5]]},
+ {t:'Выспись и выпей воду',b:8,s:'discipline',p:[[['sleep'],1],[['water'],1]]}
+];
+const SAT_GOAL={t:'Допзанятие по физике',b:20,s:'physics',p:[[['sat'],1]]};
+const mkQ=(p,l)=>l.map((x,i)=>({id:p+i,kind:p,t:x[0],h:x[1],pts:x[2],s:x[3]}));
+const QM=mkQ('qm',[
+ ['Выйди на остановку раньше','Дойди пешком и рассмотри улицу, мимо которой обычно проезжаешь',10,'body'],
+ ['Необычный завтрак','Шакшука, мисо-суп, каша из киноа: то, чего ты не ела утром',10,'curiosity'],
+ ['Охота за цветом','Выбери цвет и сфотографируй по дороге 5 вещей этого цвета',10,'craft'],
+ ['Доброе утро на трёх языках','Узнай, как это звучит, и скажи кому-нибудь одно из них',8,'lang'],
+ ['Зарядка под чужую музыку','10 минут движения под жанр, который ты не слушаешь',10,'body'],
+ ['Новый поворот','Измени маршрут на работу хотя бы на одну улицу',8,'curiosity'],
+ ['Незнакомый чай','Пуэр, ройбос, матча, каркаде. Беатрис одобрит',8,'curiosity'],
+ ['Определи облака','Посмотри на небо 2 минуты и узнай, как называются сегодняшние облака',8,'physics'],
+ ['Вопрос коллеге','Спроси то, чего никогда не спрашивала. Например, о первой работе',10,'charisma'],
+ ['Как зовут это растение','Найди растение по дороге и узнай его название',10,'curiosity'],
+ ['Задача до завтрака','Одна задача по физике, пока телефон ещё спит',10,'physics'],
+ ['Комплимент незнакомцу','Искренний и короткий: баристе, водителю, охраннику',10,'charisma'],
+ ['Пять минут растяжки','Сразу после пробуждения, до телефона',8,'body'],
+ ['Строчка дня','Выпиши от руки одну строку из стихотворения и носи её с собой',8,'lang'],
+ ['Тень в полдень','Заметь, куда и какой длины падает твоя тень. Вечером сравни',8,'physics']]);
+const QE=mkQ('qe',[
+ ['Пешком от работы до библиотеки','Возьми книгу с полки, к которой раньше не подходила',15,'curiosity'],
+ ['Спорт на полчаса','Бег, турник, йога, танцы, лишь бы вспотеть',15,'body'],
+ ['Ужин страны, где ты не была','Грузия, Перу, Вьетнам, Марокко: простой рецепт',15,'craft'],
+ ['Рисунок за 10 минут','Чашка, рука, вид из окна. Красота не важна',10,'craft'],
+ ['Звонок из прошлого','Позвони тому, с кем давно не говорила',12,'charisma'],
+ ['Найди планету','Посмотри по карте неба, что видно сегодня, и найди глазами',12,'physics'],
+ ['Выучи фокус','С монетой или картами. Покажи кому-нибудь',12,'craft'],
+ ['Незнакомая улица','Прокатись на велосипеде или скейте там, где не была',15,'body'],
+ ['Письмо себе через год','Запечатай и поставь напоминание на эту дату',12,'lang'],
+ ['Час без экрана','Последний час перед сном без телефона и ноутбука',12,'discipline'],
+ ['Самолётик-рекордсмен','Сложи самолётик новой конструкции и измерь дальность',10,'physics'],
+ ['Объясни за две минуты','Расскажи кому-нибудь физическое явление. Поняли — засчитано',12,'charisma'],
+ ['Дверь, мимо которой ходишь','Зайди в кафе или магазин, мимо которого всегда проходишь',10,'curiosity'],
+ ['Звёздная прогулка','20 минут после заката. Посчитай, сколько звёзд видно',10,'physics'],
+ ['Сонет на ночь','Прочитай вслух один сонет Шекспира. Любой',10,'lang']]);
+const QW=mkQ('qw',[
+ ['Выучи 50 слов на незнакомом языке','Исландский, суахили, японский. По 7–8 слов в день',60,'lang'],
+ ['Выучи стихотворение наизусть','От 12 строк. В конце недели прочитай кому-нибудь вслух',50,'lang'],
+ ['Прочитай историю одного открытия','Пенициллин, рентген, радиоактивность. Перескажи за 3 минуты',40,'curiosity'],
+ ['Музей, где ты не была','Краеведческий, технический или маленький частный',60,'curiosity'],
+ ['Выучи чужой алфавит','Корейский хангыль учится за выходные. Или греческий',50,'lang'],
+ ['Научись жонглировать тремя мячами','Подойдут свёрнутые носки. Цель: 10 бросков подряд',60,'craft'],
+ ['Испеки хлеб с нуля','Мука, вода, соль, дрожжи и терпение',50,'craft'],
+ ['Найди на небе три созвездия','Выучи, как выглядят, и найди вживую',50,'physics'],
+ ['Сделай дома физический опыт','Электромагнит из гвоздя, радуга из стакана воды',50,'physics'],
+ ['Новый вид спорта','Скалодром, бадминтон, бассейн, ролики',60,'body'],
+ ['Сыграй мелодию на инструменте','Укулеле, синтезатор в приложении, губная гармошка. 8 тактов',50,'craft'],
+ ['Прочитай о жизни учёной','Лиза Мейтнер, Вера Рубин, Сесилия Пейн. Чего ей это стоило?',40,'lang'],
+ ['Пройди незнакомый район','Без цели. Найди там одну интересную деталь',40,'body']]);
+const QB=mkQ('qb',[
+ ['Ботанический сад','Найди самое странное растение и узнай, откуда оно',30,'curiosity'],
+ ['Планетарий или обсерватория','Спроси у лектора что-нибудь, чего нет в программе',35,'physics'],
+ ['Блошиный рынок','Купи вещь с историей дешевле 200 рублей',25,'curiosity'],
+ ['Встреть рассвет на улице','Термос с чаем обязателен',30,'discipline'],
+ ['Скалодром','В первый раз с инструктором',35,'body'],
+ ['Самое старое здание района','Узнай, кто его построил и что там было',25,'lang'],
+ ['Фотопрогулка «Физика вокруг»','20 кадров: отражения, тени, радуга в луже',30,'craft'],
+ ['Электричка до незнакомой станции','Погуляй там час и вернись',40,'curiosity'],
+ ['Новый трюк на скейте','На ступеньку выше того, что умеешь сейчас',40,'body'],
+ ['Квиз или вечер настолок','В антикафе, клубе или библиотеке',30,'charisma'],
+ ['Незнакомая кухня','Эфиопская, корейская, перуанская, узбекская',30,'curiosity'],
+ ['Запусти воздушного змея','Можно сделать самой из пакета и реек',30,'craft'],
+ ['День волонтёрства','Приют для животных, субботник, фонд',40,'charisma'],
+ ['Пешая экскурсия по городу','Бесплатные бывают почти везде',35,'lang'],
+ ['Дальний веломаршрут','Больше 15 км туда, где ещё не была',35,'body'],
+ ['День без телефона','С утра до вечера. Запиши, что заметила',40,'discipline'],
+ ['Мастер-класс руками','Керамика, каллиграфия, витраж',45,'craft'],
+ ['Открытая лекция','На тему не из школьной программы',30,'curiosity']]);
+const AQ={};[QM,QE,QW,QB].forEach(l=>l.forEach(x=>AQ[x.id]=x));
+
+/* Легендарные цепочки Беатрис: литература и история встречаются с физикой */
+const CHAINS=[
+ {id:'b0',t:'Звёзды Гамлета',xp:120,sk:['physics','lang'],
+  relic:['☉','Армиллярная сфера','Медные кольца неба. Тихо Браге одобрил бы'],
+  intro:['Анна, присядь. Чай ещё горячий.','Знаешь ли ты, что Розенкранц и Гильденстерн были не только у Шекспира? Эти фамилии стоят на гербе Тихо Браге, астронома, который без телескопа измерил небо точнее всех до него.','Гамлет пишет Офелии: «Не верь, что солнце ходит». Шекспир шутит, а у тебя есть физика. Давай разберёмся, кто же на самом деле ходит.'],
+  steps:['Прочитай о Тихо Браге и его обсерватории на острове Вен','Узнай, как его наблюдения помогли Кеплеру','Запиши первый закон Кеплера своими словами, без формул','Найди в «Гамлете» строки про солнце и звёзды и объясни, что там неверно с точки зрения физики','Выйди вечером и найди Марс или Юпитер. Тихо смотрел именно на них'],
+  outro:['«Не верь, что солнце ходит»… Теперь ты знаешь, кто ходит на самом деле. Ты читаешь Шекспира глазами астронома, и это редкий дар.','Возьми армиллярную сферу. Она стояла у меня на кафедре тридцать лет.']},
+ {id:'b1',t:'Письма Эмми Нётер',xp:130,sk:['physics','math'],
+  relic:['∮','Перо Нётер','Пишет только то, что сохраняется'],
+  intro:['Сегодня у меня для тебя письмо из Гёттингена 1918 года.','Эмми Нётер не пускали преподавать под своим именем: её лекции объявляли под фамилией Гильберта. А она доказала теорему, на которой стоит вся физика.','Симметрия рождает закон сохранения. Мне, гуманитарию, это кажется стихотворением. Проверь, так ли это.'],
+  steps:['Прочитай биографию Эмми Нётер','Пойми на пальцах: почему однородность времени даёт закон сохранения энергии','Реши 3 задачи на закон сохранения энергии','Найди, какая симметрия даёт закон сохранения импульса','Напиши мне от руки 5 предложений: что тебя в этом поразило'],
+  outro:['Твоё письмо я перечитала дважды. Ты пишешь о симметрии, как о красоте, и в этом ты права.','Перо теперь твоё. Пиши им только то, что сохраняется.']},
+ {id:'b2',t:'Выхожу один я на дорогу',xp:110,sk:['lang','physics'],
+  relic:['☾','Лунный фонарь','Светит голубым, как у Лермонтова'],
+  intro:['Лермонтов, 1841 год. «Спит земля в сиянье голубом».','Он написал это за несколько недель до гибели. Самое тихое его стихотворение.','Я хочу, чтобы ты выучила его, а потом объяснила мне, почему сиянье голубое. Поэт увидел, физик объяснит, а ты сделаешь и то и другое.'],
+  steps:['Выучи наизусть «Выхожу один я на дорогу» (хотя бы три строфы)','Узнай, что такое рэлеевское рассеяние','Объясни, почему лунный свет кажется голубоватым, хотя Луна отражает солнечный','Выйди ясной ночью и прочитай стихотворение вслух. Можно шёпотом'],
+  outro:['Ты прочла его под настоящим небом. Это и есть лучшая лекция о Лермонтове.','Вот фонарь. Пусть твои ночные дороги будут светлыми.']},
+ {id:'b3',t:'Маятник в Пантеоне',xp:130,sk:['physics','craft'],
+  relic:['⚲','Латунный отвес','Знает, куда вращается Земля'],
+  intro:['Париж, 1851 год. Под куполом Пантеона, где лежат великие французы, Леон Фуко подвесил шар на 67-метровой проволоке.','Люди смотрели, как плоскость качаний медленно поворачивается, и впервые видели вращение Земли своими глазами.','Своего Пантеона у тебя нет. Зато есть нитка, гайка и секундомер.'],
+  steps:['Прочитай историю маятника Фуко','Сделай маятник из нитки и гайки','Измерь период для трёх разных длин нити (по 10 качаний)','Посчитай по формуле T = 2π√(l/g) ускорение g. Насколько близко к 9,8?','Узнай, почему маятник Фуко на полюсе поворачивается за сутки, а в Москве медленнее'],
+  outro:['Ты своими руками измерила, с какой силой Земля зовёт всё к себе. Фуко гордился бы.','Отвес для тебя. Пусть он напоминает: истина видна тому, кто терпеливо смотрит.']},
+ {id:'b4',t:'Тень Эратосфена',xp:150,sk:['math','body','curiosity'],
+  relic:['⌖','Посох Эратосфена','Им можно измерить Землю'],
+  intro:['Александрия, III век до нашей эры. Хранитель величайшей библиотеки мира узнал, что в Сиене в полдень колодцы освещены до дна.','Он измерил тень от столба в своём городе и вычислил окружность Земли. С палкой, головой и верблюжьим караваном вместо линейки.','Начнём с библиотеки. Твоей, той, до которой ты ходишь пешком.'],
+  steps:['Дойди пешком до библиотеки и найди книгу об античной науке','Прочитай, как Эратосфен измерил Землю','В солнечный полдень измерь длину палки и её тени','Посчитай угол Солнца над горизонтом','Сравни с тем, что даёт твоя широта и дата. Подумай, откуда расхождение'],
+  outro:['Палка, тень и голова. Две тысячи лет прошло, а метод тот же. Ты повторила один из самых красивых опытов в истории.','Посох по праву твой.']},
+ {id:'b5',t:'Тайна «Франкенштейна»',xp:130,sk:['lang','physics','craft'],
+  relic:['ϟ','Вольтов столб','Медь, цинк и капля смелости'],
+  intro:['Женевское озеро, 1816-й, «год без лета». Восемнадцатилетняя Мэри Шелли сочиняет «Франкенштейна».','Вдохновение пришло из споров о гальванизме: лапки мёртвой лягушки дёргались от тока. Гальвани думал, что электричество живёт в теле. Вольта был уверен, что нет.','Кто из них был прав? Ответ ты соберёшь своими руками.'],
+  steps:['Прочитай предисловие Мэри Шелли к изданию 1831 года','Узнай, в чём был спор Гальвани и Вольты','Собери батарейку из лимонов или монет','Зажги от неё светодиод или измерь напряжение','Расскажи кому-нибудь, чем закончился спор (и почему правы оба)'],
+  outro:['Огонёк от лимона… Мэри Шелли пришла бы в восторг. И в ужас, пожалуй, тоже.','Держи столб Вольты. Только никого не оживляй.']},
+ {id:'b6',t:'Из пушки на Луну',xp:120,sk:['physics','math','lang'],
+  relic:['◐','Билет «Колумбиады»','Место у иллюминатора'],
+  intro:['Жюль Верн в 1865 году отправил трёх человек на Луну из гигантской пушки. Он считал всерьёз: у него был кузен-математик.','Многое он угадал. Место старта во Флориде, например. А многое было бы смертельно.','Проверь его расчёты, моя дорогая. Литература заслуживает строгого читателя.'],
+  steps:['Прочитай хотя бы одну главу «С Земли на Луну»','Узнай, что такое вторая космическая скорость и почему 11,2 км/с','Оцени перегрузку, если разогнаться до неё в стволе длиной 270 м','Найди, что Верн угадал верно, а что нет (хотя бы по 3 пункта)'],
+  outro:['Ты оказалась строже кузена Верна. И всё же без его мечты у нас было бы меньше инженеров.','Билет твой. Место у иллюминатора.']},
+ {id:'b7',t:'Шифр Тьюринга',xp:120,sk:['math','lang','charisma'],
+  relic:['⊕','Шифровальный диск','Две буквы сдвигаются, одна тайна остаётся'],
+  intro:['Блетчли-парк, 1940-й. Математики и лингвисты, шахматисты и любители кроссвордов взламывали «Энигму».','Среди них был Алан Тьюринг. Знаешь, что общего у поэзии и шифра? И там и там смысл прячется в форме.','Напиши мне письмо, которое я не смогу прочитать сразу.'],
+  steps:['Прочитай об Алане Тьюринге и Блетчли-парке','Разберись, как работает шифр Цезаря и почему его легко взломать','Посчитай частоты букв в любом русском абзаце: какая самая частая?','Зашифруй для меня записку шифром Виженера и отдай ключ отдельно'],
+  outro:['Твою записку я расшифровывала весь вечер, с чаем и карандашом. Чудесный вечер.','Диск теперь твой. Береги свои тайны.']},
+ {id:'b8',t:'Лаборатория Марии Кюри',xp:140,sk:['physics','curiosity','lang'],
+  relic:['✶','Мерцающая склянка','Светится в темноте (безопасно, обещаю)'],
+  intro:['Париж, сарай с протекающей крышей. Мария Склодовская-Кюри четыре года перемешивает тонны руды, чтобы получить десятую долю грамма радия.','Две Нобелевские премии, по физике и по химии. До сих пор её тетради хранят в свинцовых коробках.','Мне важно, чтобы ты знала её не по портрету, а по работе.'],
+  steps:['Прочитай о жизни Марии Кюри (не только о премиях)','Узнай, что такое период полураспада, и реши 2 задачи на него','Узнай, сколько радиоактивного калия-40 в банане и почему это не страшно','Найди, что такое зиверт, и сравни дозу от перелёта и от рентгена'],
+  outro:['Ты знаешь теперь, чего стоило ей каждое открытие. Это знание делает человека скромнее и смелее одновременно.','Склянка твоя. Пусть светится, когда трудно.']},
+ {id:'b9',t:'Небо Галилея',xp:150,sk:['physics','curiosity','discipline'],
+  relic:['☌','Подзорная труба','Двадцатикратная, как у Галилея'],
+  intro:['Падуя, 1610 год. Галилей направил трубу на Юпитер и увидел четыре звёздочки, которые меняли место каждую ночь.','Это были спутники. Значит, не всё вращается вокруг Земли. За такие наблюдения тогда судили.','Повтори его наблюдение. У тебя есть то, чего не было у него: настойчивость и бинокль.'],
+  steps:['Прочитай «Звёздный вестник» в пересказе или отрывках','Найди по карте неба, где сегодня Юпитер','Посмотри на него в бинокль или телескоп. Если увидишь спутники, зарисуй их','Повтори через 2–3 ночи и сравни рисунки','Расскажи мне, что изменилось и почему'],
+  outro:['Два рисунка, и спутники переместились. Ты увидела то же, что и Галилей, и поняла то же, что он. Я тобой горжусь.','Эта труба последняя в моей коллекции. Теперь твоя очередь собирать свою.']}
+];
+const CH={};CHAINS.forEach(c=>CH[c.id]=c);
+const BASE_GEAR=[['bike','Велосипед','Ветер в спицах'],['skate','Скейт','Олли уже близко'],['book','Тетрадь в клетку','Задачи и формулы'],['card','Читательский билет','Ключ от библиотеки']];
+const TITLES=[[1,'Подмастерье'],[3,'Искательница'],[5,'Квантовая странница'],[8,'Хранительница формул'],[12,'Астролог Академии'],[16,'Магистр естествознания'],[20,'Повелительница полей']];
+const REWARDS=[['r0','Серия сериала',30],['r1','Кофе или десерт вне дома',40],['r2','Час игр',50],['r3','Вечер без дел и без вины',120],['r4','Новая книга',250],['r5','Большая покупка себе',600]];
+const BEA_DAILY=['Доброе утро, Анна. Кто рано встаёт, тому… впрочем, ты сама знаешь. Задачи сами себя не решат.','Шекспир писал: «Мы знаем, кто мы есть, но не знаем, кем можем стать». Сегодня проверим.','Не гонись за количеством. Одна задача, понятая до конца, стоит пяти списанных.','Если устанешь, прокатись на велосипеде. Мысли догонят тебя на повороте.','Сегодня дождь обещают. Лучшая погода для лекции по физике и крепкого чая.','Ошибки — это черновики открытий. Не стирай их, разбирай.','Я в твои годы боялась формул. Ты смелее меня, поверь старой профессорше.','Новое место в неделю. Хотя бы новая улица. Ум, как и ноги, любит незнакомые дороги.','Ты помнишь, что субботнее допзанятие ценнее трёх обычных вечеров?','Прочти перед сном хоть страницу. Сон с книгой глубже.','Всё великое делали люди, которые просто не бросали. Ньютон тоже сидел над задачами.'];
+const BEA_LV=['Новый уровень, Анна. Я заметила, даже не открывая журнала.','Видишь? Шаг за шагом, как в хорошем романе: и героиня уже другая.','Растёшь. Только не забывай высыпаться, это я как наставница говорю.'];
+const EVENING_H=17;
+
+/* ================= Утилиты ================= */
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const dow=s=>(parse(s).getDay()+6)%7;
+const monday=s=>addDays(s,-dow(s));
+const today=()=>iso(new Date());
+const longDate=s=>parse(s).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const plural=(n,a,b,c)=>{const m=Math.abs(n)%100,k=m%10;if(m>10&&m<20)return c;if(k===1)return a;if(k>=2&&k<=4)return b;return c};
+const seeded=(arr,seed)=>arr.map(x=>[hash(seed+'|'+(x.id||x.t)),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const hourNow=()=>new Date().getHours();
+const timeStr=ts=>{const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+pad(d.getHours())+':'+pad(d.getMinutes())};
+
+/* ================= Состояние ================= */
+const LS='khroniki-anny-v1';
+function fresh(){return{v:1,name:'Анна',hair:'#4a2f22',sound:true,days:{},weeks:{},board:[],bea:{cur:null,steps:{},done:[],nextAt:null,met:false},buys:[],log:[],unread:0,seenEve:{},letterDay:null,updatedAt:0}}
+function normalize(o){const f=fresh();const r=Object.assign(f,o||{});r.bea=Object.assign(fresh().bea,r.bea||{});return r}
+let S=fresh();
+try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch(e){}
+let tab='quests',view=today(),drawerOpen=false;
+try{const t=localStorage.getItem(LS+'-tab');if(t)tab=t}catch(e){}
+
+let dbRef=null,saveT=null;
+function persist(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(dbRef){clearTimeout(saveT);saveT=setTimeout(pushRemote,800)}}
+async function pushRemote(){if(!dbRef)return;try{await dbRef.set({json:JSON.stringify(S),updatedAt:S.updatedAt})}catch(e){}}
+async function initRemote(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+    if(!db||!user)return;
+    const id=await user.id();if(!id)return;
+    const ref=db.collection('data/users/'+id).doc('rpg');
+    const snap=await ref.get();
+    dbRef=ref;
+    if(snap.exists){const d=snap.data();if(d&&d.json){const o=JSON.parse(d.json);if((o.updatedAt||0)>(S.updatedAt||0)){S=normalize(o);try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}renderAll()}else if((S.updatedAt||0)>(o.updatedAt||0))pushRemote()}}
+    else if(S.updatedAt)pushRemote();
+  }catch(e){}
+}
+
+/* ================= Расчёты (всё выводится из записей, поэтому любую отметку можно отменить) ================= */
+const charNeed=l=>120+60*(l-1);
+const skillNeed=l=>40+25*(l-1);
+function lvlOf(xp,needFn){let l=1,x=xp;while(x>=needFn(l)){x-=needFn(l);l++}return{l,into:x,need:needFn(l)}}
+function dayGoals(d){const order=seeded(GOALS,'g'+d);const g=order.slice(0,3);if(dow(d)===5)g[2]=SAT_GOAL;return g}
+function goalProg(g,a){let cur=0,max=0,ok=true;g.p.forEach(([ids,n])=>{const c=ids.reduce((s,i)=>s+(+a[i]||0),0);cur+=Math.min(c,n);max+=n;if(c<n)ok=false});return{cur,max,ok}}
+function morningQ(d){return QM[hash('m'+d)%QM.length]}
+function eveningQ(d){return QE[hash('e'+d)%QE.length]}
+function weekQs(m){const o=seeded(QW,'w'+m);return o.slice(0,2)}
+function boardOpen(){const done=new Set(S.board.map(b=>b.id));let open=seeded(QB,'board').filter(q=>!done.has(q.id));if(!open.length)open=seeded(QB,'board2');return open.slice(0,6)}
+function calc(){
+  const sk={};SK_ORDER.forEach(k=>sk[k]=0);let xp=0;const goalsMet={};const byDay={};
+  const add=(pts,s,d)=>{xp+=pts;sk[s]=(sk[s]||0)+pts;if(d)byDay[d]=(byDay[d]||0)+pts};
+  for(const[d,day]of Object.entries(S.days)){
+    const a=day.acts||{};
+    for(const[id,c]of Object.entries(a)){const A=ACT[id];if(A&&c>0)add(A.pts*c,A.s,d)}
+    for(const id of Object.keys(day.q||{})){if(day.q[id]&&AQ[id])add(AQ[id].pts,AQ[id].s,d)}
+    dayGoals(d).forEach((g,i)=>{if(goalProg(g,a).ok){add(g.b,g.s,d);goalsMet[d+'#'+i]=g}});
+  }
+  for(const[m,w]of Object.entries(S.weeks))for(const id of Object.keys(w)){if(w[id]&&AQ[id])add(AQ[id].pts,AQ[id].s,null)}
+  S.board.forEach(b=>{const q=AQ[b.id];if(q)add(q.pts,q.s,b.date)});
+  S.bea.done.forEach(b=>{const c=CH[b.id];if(!c)return;const per=Math.round(c.xp/c.sk.length);c.sk.forEach(s=>add(per,s,b.date))});
+  const spent=S.buys.reduce((s,b)=>s+b.cost,0);
+  return{xp,sk,coins:xp-spent,goalsMet,byDay};
+}
+function streak(byDay){let n=0,d=today();if(!(byDay[d]>=20))d=addDays(d,-1);while((byDay[d]||0)>=20){n++;d=addDays(d,-1)}return n}
+const titleOf=l=>{let t=TITLES[0][1];TITLES.forEach(([lv,n])=>{if(l>=lv)t=n});return t};
+const perksAt=(k,l)=>SKILLS[k].perks.filter(p=>l>=p[0]);
+
+/* ================= Звук ================= */
+let AC=null;
+function chime(notes,dur=.12){if(!S.sound)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();notes.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;const t=AC.currentTime+i*dur;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.08,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+dur*2.2);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur*2.4)})}catch(e){}}
+
+/* ================= Уведомления ================= */
+const KIND_ICON={xp:'+',lv:'★',bea:'Б',quest:'✓',info:'i'};
+function notify(kind,title,text,{log=true,sticky=false}={}){
+  const box=document.getElementById('toasts');
+  const el=document.createElement('div');el.className='toast '+kind;
+  el.innerHTML=`<span class="ico k-${kind}">${KIND_ICON[kind]||'•'}</span><div><b>${esc(title)}</b>${text?`<span>${esc(text)}</span>`:''}</div>`;
+  box.prepend(el);while(box.children.length>4)box.lastChild.remove();
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),320)},sticky?6500:3800);
+  el.onclick=()=>el.remove();
+  if(log){S.log.unshift({k:kind,t:title,x:text||'',ts:Date.now()});S.log=S.log.slice(0,150);if(!drawerOpen)S.unread=(S.unread||0)+1}
+}
+
+/* ================= Изменения с последствиями ================= */
+function act(mutator,{x,y}={}){
+  const before=calc();
+  mutator();
+  const after=calc();
+  persist();
+  const gained=after.xp-before.xp;
+  // цели дня
+  Object.keys(after.goalsMet).forEach(k=>{if(!before.goalsMet[k]){const g=after.goalsMet[k];notify('quest','Цель дня выполнена',g.t+' · +'+g.b+' опыта');chime([660,880,1100])}});
+  // навыки
+  const lvUps=[];
+  SK_ORDER.forEach(k=>{const a=lvlOf(before.sk[k],skillNeed).l,b=lvlOf(after.sk[k],skillNeed).l;if(b>a){notify('lv',SKILLS[k].n+': уровень '+b,'Навык вырос');perksAt(k,b).filter(p=>p[0]>a).forEach(p=>notify('lv','Новое умение: '+p[1],SKILLS[k].n));lvUps.push(k)}});
+  const la=lvlOf(before.xp,charNeed).l,lb=lvlOf(after.xp,charNeed).l;
+  renderAll();
+  if(gained>0){heroAnim('jump');floatGain('+'+gained,x,y);if(!lvUps.length&&lb===la)chime([523,784])}
+  if(lvUps.length&&lb===la)chime([523,659,784,1046],.1);
+  if(lb>la)setTimeout(()=>levelUp(lb,la),300);
+}
+function heroAnim(c){const h=document.querySelector('svg.hero');if(!h)return;h.classList.remove('jump','cheer');void h.getBoundingClientRect();h.classList.add(c);setTimeout(()=>h.classList.remove(c),1300)}
+function floatGain(t,x,y){const st=document.querySelector('.stage');if(!st)return;const r=st.getBoundingClientRect();const el=document.createElement('div');el.className='gain';el.textContent=t;el.style.left=(r.width/2+(Math.random()*60-30))+'px';el.style.top=(r.height*0.35)+'px';st.appendChild(el);setTimeout(()=>el.remove(),1200)}
+function levelUp(l,prev){
+  const t=titleOf(l),tp=titleOf(prev);
+  notify('lv','Уровень '+l+'!',t!==tp?'Новый титул: '+t:'Опыт растёт',{sticky:true});
+  chime([523,659,784,1046,1318],.13);heroAnim('cheer');
+  const el=document.getElementById('lvl');
+  el.innerHTML=`<div class="inner" role="dialog" aria-label="Новый уровень"><div class="rays"></div><div class="eyebrow">Новый уровень</div><div class="big">${l}</div>${t!==tp?`<p><b style="color:var(--brass-hi)">Новый титул: ${esc(t)}</b></p>`:''}<p class="voice">«${esc(BEA_LV[l%BEA_LV.length])}» — Беатрис</p><button class="btn" data-act="closelvl">Дальше</button></div>`;
+  el.hidden=false;el.querySelector('button').focus();
+}
+
+/* ================= Рисунки ================= */
+function heroSVG(){
+  const h=S.hair;
+  return `<svg class="hero" viewBox="0 0 220 280" aria-label="Анна, персонаж">
+  <g class="ring"><circle cx="110" cy="150" r="104" fill="none" stroke="#d8a85a" stroke-opacity=".35" stroke-width="1"/>
+   ${Array.from({length:36},(_,i)=>{const a=i*10*Math.PI/180,r1=i%3?98:94;return `<line x1="${110+Math.cos(a)*r1}" y1="${150+Math.sin(a)*r1}" x2="${110+Math.cos(a)*104}" y2="${150+Math.sin(a)*104}" stroke="#d8a85a" stroke-opacity=".5" stroke-width="1"/>`}).join('')}
+   <circle cx="110" cy="46" r="4" fill="#f3d48f"/></g>
+  <g class="ring2"><ellipse cx="110" cy="150" rx="88" ry="30" fill="none" stroke="#69e2d2" stroke-opacity=".25" stroke-dasharray="3 6"/><circle cx="198" cy="150" r="3" fill="#69e2d2"/></g>
+  <ellipse class="shadow" cx="110" cy="262" rx="44" ry="7" fill="#000" opacity=".45"/>
+  <g class="bob">
+   <g class="tail"><path d="M134 70 C162 76 166 112 150 138 C146 120 146 100 132 88 Z" fill="${h}"/></g>
+   <rect x="92" y="200" width="15" height="52" rx="7" fill="#262a4d"/><rect x="113" y="200" width="15" height="52" rx="7" fill="#262a4d"/>
+   <ellipse cx="98" cy="254" rx="12" ry="6" fill="#ece7da"/><ellipse cx="122" cy="254" rx="12" ry="6" fill="#ece7da"/>
+   <path d="M82 152 Q74 178 80 198" stroke="#3b6f93" stroke-width="13" stroke-linecap="round" fill="none"/>
+   <circle cx="80" cy="200" r="6.5" fill="#f1c9a5"/>
+   <path d="M80 140 Q110 128 140 140 L147 212 Q110 222 73 212 Z" fill="#3b6f93"/>
+   <path d="M110 136 L110 214" stroke="#0d0f1e" stroke-opacity=".25" stroke-width="2"/>
+   <path d="M88 144 L94 210" stroke="#d8a85a" stroke-width="3" stroke-opacity=".8"/>
+   <rect x="102" y="120" width="16" height="16" rx="5" fill="#f1c9a5"/>
+   <g class="scarf"><path d="M90 134 Q110 146 130 134 Q132 142 124 146 L128 176 L118 174 L116 148 Q104 150 92 142 Z" fill="#d8a85a"/></g>
+   <g class="armR"><path d="M138 152 Q156 148 160 132" stroke="#3b6f93" stroke-width="13" stroke-linecap="round" fill="none"/>
+    <circle cx="160" cy="128" r="6.5" fill="#f1c9a5"/>
+    <g transform="translate(166 108)"><circle r="5" fill="#69e2d2"/><circle r="11" fill="#69e2d2" opacity=".18"/>
+     <g class="orb"><ellipse rx="17" ry="6" fill="none" stroke="#69e2d2" stroke-opacity=".7"/><circle cx="17" cy="0" r="2.4" fill="#ece7da"/></g>
+     <g class="orb b" transform="rotate(60)"><ellipse rx="17" ry="6" fill="none" stroke="#69e2d2" stroke-opacity=".5"/><circle cx="-17" cy="0" r="2.2" fill="#ece7da"/></g></g></g>
+   <circle cx="110" cy="96" r="33" fill="#f1c9a5"/>
+   <path d="M76 98 C72 62 100 52 116 56 C138 58 150 76 144 100 C138 86 128 78 116 76 C108 86 92 92 80 94 Z" fill="${h}"/>
+   <path d="M78 96 Q76 112 82 122" stroke="${h}" stroke-width="7" stroke-linecap="round" fill="none"/>
+   <ellipse class="blink" cx="99" cy="101" rx="3.3" ry="4.4" fill="#1b1a2e"/><ellipse class="blink" cx="122" cy="101" rx="3.3" ry="4.4" fill="#1b1a2e"/>
+   <circle cx="100.2" cy="99.5" r="1.1" fill="#fff"/><circle cx="123.2" cy="99.5" r="1.1" fill="#fff"/>
+   <circle cx="92" cy="111" r="4.5" fill="#e98da0" opacity=".45"/><circle cx="129" cy="111" r="4.5" fill="#e98da0" opacity=".45"/>
+   <path d="M104 114 Q110.5 120 117 114" stroke="#7a3b3b" stroke-width="2" stroke-linecap="round" fill="none"/>
+   <circle cx="138" cy="70" r="5" fill="#d8a85a"/>
+  </g></svg>`;
+}
+function beaSVG(){
+  return `<svg viewBox="0 0 200 200" aria-hidden="true">
+  <circle cx="100" cy="100" r="98" fill="#3a2547"/>
+  <circle cx="100" cy="100" r="98" fill="url(#bg)" opacity=".6"/>
+  <defs><radialGradient id="bg" cx=".5" cy=".35"><stop offset="0" stop-color="#ffcf8a" stop-opacity=".45"/><stop offset="1" stop-color="#3a2547" stop-opacity="0"/></radialGradient></defs>
+  <path d="M30 200 Q36 140 100 132 Q164 140 170 200 Z" fill="#7d2f45"/>
+  <path d="M52 200 Q60 152 100 146 Q140 152 148 200 Z" fill="#5b2134" opacity=".6"/>
+  <path d="M60 168 Q100 186 140 168" stroke="#d8a85a" stroke-width="2" fill="none" stroke-dasharray="2 5"/>
+  <rect x="89" y="118" width="22" height="20" rx="6" fill="#ecd0b8"/>
+  <circle cx="100" cy="142" r="7" fill="#d8a85a"/><circle cx="100" cy="142" r="3.5" fill="#7d2f45"/>
+  <circle cx="100" cy="42" r="17" fill="#d9d6e3"/>
+  <path d="M96 30 L108 52" stroke="#a7a2b9" stroke-width="2"/>
+  <circle cx="100" cy="86" r="36" fill="#ecd0b8"/>
+  <path d="M63 88 C60 56 80 46 100 48 C122 46 142 58 137 90 C130 72 116 64 100 66 C84 64 70 72 63 88 Z" fill="#d9d6e3"/>
+  <path d="M64 86 Q62 100 68 108" stroke="#d9d6e3" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M136 86 Q138 100 132 108" stroke="#d9d6e3" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M80 80 Q87 76 94 79 M106 79 Q113 76 120 80" stroke="#8f8aa3" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <ellipse class="blink" cx="87" cy="90" rx="2.8" ry="3.4" fill="#2b2238"/><ellipse class="blink" cx="113" cy="90" rx="2.8" ry="3.4" fill="#2b2238"/>
+  <circle cx="87" cy="90" r="10" fill="#f3d48f" fill-opacity=".08" stroke="#d8a85a" stroke-width="2"/>
+  <circle cx="113" cy="90" r="10" fill="#f3d48f" fill-opacity=".08" stroke="#d8a85a" stroke-width="2"/>
+  <path d="M97 90 Q100 87 103 90" stroke="#d8a85a" stroke-width="2" fill="none"/>
+  <path d="M90 107 Q100 113 110 107" stroke="#8a4a4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="78" cy="102" r="4" fill="#e98da0" opacity=".35"/><circle cx="122" cy="102" r="4" fill="#e98da0" opacity=".35"/>
+  </svg>`;
+}
+const GEAR_ICON={
+ bike:'<svg viewBox="0 0 24 24" fill="none" stroke="#69e2d2" stroke-width="1.6" stroke-linecap="round"><circle cx="6" cy="16" r="4"/><circle cx="18" cy="16" r="4"/><path d="M6 16l4-8h5l3 8M10 8h-2M13 8l-3 8"/></svg>',
+ skate:'<svg viewBox="0 0 24 24" fill="none" stroke="#69e2d2" stroke-width="1.6" stroke-linecap="round"><path d="M3 11h18q0 3-3 3H6q-3 0-3-3z"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>',
+ book:'<svg viewBox="0 0 24 24" fill="none" stroke="#69e2d2" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 8h4M12 11h4" stroke-linecap="round"/></svg>',
+ card:'<svg viewBox="0 0 24 24" fill="none" stroke="#69e2d2" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M13 10h5M13 14h3"/></svg>'
+};
+const bellSVG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
+const envSVG='<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="9" width="32" height="22" rx="3" fill="#f3e3c3"/><path d="M4 11l16 12 16-12" fill="none" stroke="#b98a3e" stroke-width="2"/><circle cx="20" cy="23" r="5" fill="#7d2f45"/><text x="20" y="26.5" text-anchor="middle" font-family="Philosopher,serif" font-size="8" fill="#f3d48f">Б</text></svg>';
+
+/* ================= Отрисовка ================= */
+function renderHud(C){
+  const L=lvlOf(C.xp,charNeed),st=streak(C.byDay);
+  document.getElementById('hud').innerHTML=`
+  <div class="lvbadge" aria-label="Уровень ${L.l}"><svg viewBox="0 0 52 52"><polygon points="26,2 47,14 47,38 26,50 5,38 5,14" fill="#161a30" stroke="#d8a85a" stroke-width="2"/><polygon points="26,7 43,17 43,35 26,45 9,35 9,17" fill="none" stroke="#d8a85a" stroke-opacity=".35"/></svg><b>${L.l}</b><small>УР</small></div>
+  <div class="who"><h1>${esc(S.name)}<span>${esc(titleOf(L.l))}</span></h1>
+   <div class="xpbar" role="progressbar" aria-valuemin="0" aria-valuemax="${L.need}" aria-valuenow="${L.into}" aria-label="Опыт до следующего уровня"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></div>
+   <div class="xpline"><span>${L.into} / ${L.need} опыта</span><span>всего ${C.xp}</span></div></div>
+  <div class="purse"><span class="coin" title="Кванты: тратятся в лавке"><i></i>${C.coins}</span><span class="streak" title="Дни подряд от 20 опыта">✦ ${st} ${plural(st,'день','дня','дней')}</span>
+  <button class="iconbtn ${S.unread?'ring':''}" data-act="drawer" aria-label="Уведомления${S.unread?': '+S.unread+' новых':''}">${bellSVG}${S.unread?`<span class="dot">${S.unread>99?'99+':S.unread}</span>`:''}</button></div>`;
+}
+function radar(C){
+  const cx=170,cy=125,R=78,n=SK_ORDER.length;
+  const lv=SK_ORDER.map(k=>lvlOf(C.sk[k],skillNeed));
+  const maxL=Math.max(5,...lv.map(x=>x.l+x.into/x.need));
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
+  let g='';[.25,.5,.75,1].forEach(f=>{g+=`<polygon points="${SK_ORDER.map((_,i)=>pt(i,R*f).join(',')).join(' ')}" fill="none" stroke="#2c3360"/>`});
+  SK_ORDER.forEach((_,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2c3360"/>`});
+  const poly=SK_ORDER.map((k,i)=>pt(i,R*Math.max(.06,(lv[i].l-1+lv[i].into/lv[i].need)/ (maxL-1||1))).join(',')).join(' ');
+  let labels='';SK_ORDER.forEach((k,i)=>{const[x,y]=pt(i,R+20);const anc=Math.abs(x-cx)<8?'middle':x>cx?'start':'end';labels+=`<text x="${x}" y="${y+3}" text-anchor="${anc}">${SKILLS[k].n} <tspan class="lv">${lv[i].l}</tspan></text>`});
+  return `<svg class="radar" viewBox="0 0 340 250" role="img" aria-label="Навыки: ${SK_ORDER.map((k,i)=>SKILLS[k].n+' '+lv[i].l).join(', ')}">${g}<polygon points="${poly}" fill="#69e2d2" fill-opacity=".22" stroke="#69e2d2" stroke-width="2"/>${labels}</svg>`;
+}
+function renderHero(C){
+  const L=lvlOf(C.xp,charNeed),d=today(),day=S.days[d]||{};
+  const goals=dayGoals(d),gm=goals.filter((g,i)=>C.goalsMet[d+'#'+i]).length;
+  const todayXp=C.byDay[d]||0;
+  const relics=S.bea.done.map(b=>CH[b.id]).filter(Boolean);
+  const motes=Array.from({length:9},(_,i)=>`<span class="mote" style="left:${10+i*10}%;bottom:${10+(i*37)%30}%;animation-delay:${(i*0.7).toFixed(1)}s"></span>`).join('');
+  const speech=pickSpeech(C);
+  document.getElementById('heroPanel').innerHTML=`
+  <div class="stage">${motes}${heroSVG()}${speech?`<div class="speech">${esc(speech)}</div>`:''}</div>
+  <div class="classline"><b>${esc(titleOf(L.l))}</b><span>ур. ${L.l} · ${C.xp} опыта</span></div>
+  <div class="bars">
+   <div class="bar"><span>Сегодня</span><div class="track"><i style="width:${Math.min(100,todayXp/80*100)}%;background:var(--quant)"></i></div><output>${todayXp}/80</output></div>
+   <div class="bar"><span>Цели дня</span><div class="track"><i style="width:${gm/3*100}%;background:var(--good)"></i></div><output>${gm}/3</output></div>
+   <div class="bar"><span>Беатрис</span><div class="track"><i style="width:${relics.length/CHAINS.length*100}%;background:var(--brass)"></i></div><output>${relics.length}/${CHAINS.length}</output></div>
+  </div>
+  <div class="radarwrap">${radar(C)}</div>
+  <div class="equiphead"><span class="eyebrow">Снаряжение</span><button class="qbtn" style="min-height:34px;padding:4px 10px" data-act="tab" data-tab="bag">Реликвии ${relics.length}/${CHAINS.length}</button></div>
+  <div class="equip">${BASE_GEAR.map(g=>`<div class="slot" tabindex="0">${GEAR_ICON[g[0]]}<span class="tt">${esc(g[1])}</span></div>`).join('')}
+   ${CHAINS.slice(0,4).map((c,i)=>{const got=relics[i];return got?`<div class="slot relic" tabindex="0"><span class="rg sym">${got.relic[0]}</span><span class="tt">${esc(got.relic[1])}</span></div>`:`<div class="slot empty" tabindex="0"><span class="rg">?</span><span class="tt">Реликвия от Беатрис</span></div>`}).join('')}</div>`;
+}
+function pickSpeech(C){
+  const d=today(),a=(S.days[d]||{}).acts||{};
+  const tot=C.byDay[d]||0;
+  if(!tot)return hourNow()<12?'Утро! С чего начнём?':'Ещё ни одного опыта сегодня. Одна задача?';
+  if(tot>=80)return 'Сегодня я в ударе!';
+  if((a.phys||0)+(a.math||0)>=5)return 'Формулы так и щёлкают.';
+  if((a.bike||0)+(a.skate||0))return 'Ветер в волосах, задачи в голове.';
+  return 'Ещё немного, и новый уровень.';
+}
+function renderContent(C){
+  const tabs=[['quests','Квесты'],['skills','Навыки'],['diary','Дела дня'],['bag','Сундук'],['chron','Хроника']];
+  const beaPip=beaAvailable()||beaReady();
+  let html=`<nav class="tabs" role="tablist">${tabs.map(([id,n])=>`<button class="tab" role="tab" aria-selected="${tab===id}" data-act="tab" data-tab="${id}">${n}${id==='quests'&&beaPip&&tab!=='quests'?'<span class="pip"></span>':''}</button>`).join('')}</nav>`;
+  html+=({quests:vQuests,skills:vSkills,diary:vDiary,bag:vBag,chron:vChron}[tab]||vQuests)(C);
+  document.getElementById('content').innerHTML=html;
+}
+
+/* --- Беатрис --- */
+function beaNext(){return CHAINS.find(c=>!S.bea.done.some(b=>b.id===c.id))}
+function beaAvailable(){return !S.bea.cur&&!!beaNext()&&(!S.bea.nextAt||today()>=S.bea.nextAt)}
+function beaReady(){const c=S.bea.cur&&CH[S.bea.cur];if(!c)return false;const st=S.bea.steps[c.id]||[];return c.steps.every((_,i)=>st[i])}
+function vMentor(){
+  const c=S.bea.cur&&CH[S.bea.cur];
+  if(c){
+    const st=S.bea.steps[c.id]||[],n=c.steps.filter((_,i)=>st[i]).length,ready=n===c.steps.length;
+    return `<div class="panel frame pad mentor"><div class="ava">${beaSVG()}</div><div class="legend">
+      <div><div class="rarity">Легендарный квест Беатрис · ${S.bea.done.length+1} из ${CHAINS.length}</div><h3>${esc(c.t)}</h3></div>
+      <p class="voice" style="margin:0">«${esc(c.intro[c.intro.length-1])}»</p>
+      <ol class="steps">${c.steps.map((s,i)=>`<li class="${st[i]?'done':''}"><button class="check gold" aria-pressed="${!!st[i]}" aria-label="${esc(s)}" data-act="step" data-i="${i}">${st[i]?'✓':''}</button><span>${esc(s)}</span></li>`).join('')}</ol>
+      <div class="prog"><i style="width:${n/c.steps.length*100}%"></i></div>
+      <div class="sechead"><small>Награда: ${c.xp} опыта · ${c.sk.map(k=>SKILLS[k].n).join(', ')} · реликвия «${esc(c.relic[1])}»</small></div>
+      <div class="btnrow">${ready?`<button class="btn" data-act="beaturnin">Отчитаться Беатрис</button>`:`<button class="btn ghost" data-act="beatalk">Поговорить с Беатрис</button>`}</div>
+    </div></div>`;
+  }
+  if(beaAvailable()){
+    const first=!S.bea.met;
+    return `<button class="letter" data-act="beaopen">${envSVG}<div><b>${first?'Тебе письмо от наставницы':'Беатрис зовёт тебя на чай'}</b><span class="muted">${first?'Беатрис хочет познакомиться и дать первое задание':'У неё новое легендарное задание'}</span></div></button>`;
+  }
+  if(!beaNext())return `<div class="panel frame pad mentor"><div class="ava">${beaSVG()}</div><div class="legend"><div class="rarity">Все легенды пройдены</div><p class="voice" style="margin:0">«Ты прошла всё, что я приготовила. Дальше пиши свои легенды сама, а я буду читать.»</p></div></div>`;
+  return `<div class="panel frame pad mentor"><div class="ava">${beaSVG()}</div><div class="legend"><div class="rarity">Беатрис пишет новое задание</div><p class="voice" style="margin:0">«Загляни ко мне завтра, дорогая. Хорошая история не пишется за один вечер.»</p></div></div>`;
+}
+function vQuests(C){
+  const d=today(),day=S.days[d]||{},q=day.q||{},a=day.acts||{};
+  const m=morningQ(d),e=eveningQ(d),eveOpen=hourNow()>=EVENING_H;
+  const goals=dayGoals(d),mon=monday(d),wk=S.weeks[mon]||{};
+  const daysLeft=6-dow(d);
+  const card=(x,cls,kind,extra,on,act,locked)=>`<article class="q ${cls} ${on?'done':''} ${locked?'locked':''}">
+     <div class="kind"><span>${kind}</span><em>${extra||''}</em></div>
+     <b>${esc(locked?'Откроется в 17:00':x.t)}</b><span class="rw">+${x.pts}</span>
+     <small>${esc(locked?'Вечерний квест появится на доске сам. Я пришлю уведомление.':x.h)}</small>
+     <div class="foot"><span class="skill-tag"><i class="sym">${SKILLS[x.s].g}</i>${SKILLS[x.s].n}</span>${locked?'':`<button class="qbtn" aria-pressed="${!!on}" data-act="${act}" data-id="${x.id}">${on?'Выполнено ✓':'Выполнить'}</button>`}</div></article>`;
+  const goalCards=goals.map((g,i)=>{const p=goalProg(g,a);return `<article class="q goal ${p.ok?'done':''}"><div class="kind"><span>Цель дня</span><em>засчитается сама</em></div><b>${esc(g.t)}</b><span class="rw">+${g.b}</span>
+     <div class="gprog"><div class="prog"><i style="width:${p.cur/p.max*100}%"></i></div><span>${p.cur}/${p.max}</span></div>
+     <div class="foot"><span class="skill-tag"><i class="sym">${SKILLS[g.s].g}</i>${SKILLS[g.s].n}</span>${p.ok?'<span class="skill-tag" style="color:var(--good)">Выполнено ✓</span>':'<button class="qbtn" data-act="tab" data-tab="diary">Отметить дела</button>'}</div></article>`}).join('');
+  const quote=BEA_DAILY[hash('bd'+d)%BEA_DAILY.length];
+  return `
+  <section class="sec">${vMentor()}</section>
+  <section class="sec"><div class="sechead"><h2>Сегодня</h2><small>${esc(longDate(d))}</small></div>
+   <div class="panel pad" style="display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center"><div class="ava" style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:1px solid var(--brass)">${beaSVG()}</div><p class="voice" style="margin:0;font-size:16.5px">«${esc(quote)}»</p></div>
+   <div class="qgrid">${card(m,'morning','Утренний квест','до вечера',q[m.id],'dq')}${card(e,'evening','Вечерний квест','с 17:00',q[e.id],'dq',!eveOpen&&!q[e.id])}${goalCards}</div></section>
+  <section class="sec"><div class="sechead"><h2>Квесты недели</h2><small>${daysLeft?'осталось '+daysLeft+' '+plural(daysLeft,'день','дня','дней'):'последний день'}</small></div>
+   <div class="qgrid">${weekQs(mon).map(x=>card(x,'week','Квест недели','до воскресенья',wk[x.id],'wq')).join('')}</div></section>
+  <section class="sec"><div class="sechead"><h2>Доска заданий</h2><small>без срока · на место выполненного встаёт новое</small></div>
+   <div class="qgrid">${boardOpen().map(x=>card(x,'board','Доска','',false,'bq')).join('')}</div></section>`;
+}
+function vSkills(C){
+  return `<section class="sec"><div class="sechead"><h2>Навыки</h2><small>опыт идёт в навык от дел и квестов</small></div><div class="skills">${SK_ORDER.map(k=>{
+    const S2=SKILLS[k],L=lvlOf(C.sk[k],skillNeed),nx=S2.perks.find(p=>p[0]>L.l);
+    return `<div class="sk"><div class="skhead"><span class="rune sym">${S2.g}</span><div><b>${S2.n}</b><small>${C.sk[k]} опыта</small></div><span class="sklv">${L.l}</span></div>
+    <div class="prog"><i style="width:${L.into/L.need*100}%;background:linear-gradient(90deg,var(--quant-dim),var(--quant))"></i></div>
+    <small class="muted" style="font:500 11.5px var(--mono)">${L.into}/${L.need} до ур. ${L.l+1}${nx?' · на ур. '+nx[0]+': «'+esc(nx[1])+'»':''}</small>
+    <div class="perks">${S2.perks.map(p=>`<span class="perk ${L.l>=p[0]?'on':''}" title="Уровень ${p[0]}">${L.l>=p[0]?'':'ур. '+p[0]+' · '}${esc(p[1])}</span>`).join('')}</div>
+    <div class="feeds">${esc(S2.d)}</div></div>`}).join('')}</div></section>`;
+}
+function vDiary(C){
+  const d=view,day=S.days[d]||{},a=day.acts||{},t=today();
+  const min=addDays(t,-6);
+  return `<section class="sec"><div class="sechead"><div class="daynav"><button class="step" data-act="day" data-n="-1" ${d<=min?'disabled':''} aria-label="Предыдущий день">‹</button><b>${d===t?'Сегодня, ':''}${esc(longDate(d))}</b><button class="step" data-act="day" data-n="1" ${d>=t?'disabled':''} aria-label="Следующий день">›</button></div><small>за день: +${C.byDay[d]||0} опыта</small></div>
+  <div class="acts">${ACTIONS.map(A=>{const v=+a[A.id]||0;return `<div class="act"><span class="rune sym">${SKILLS[A.s].g}</span><div><b>${esc(A.n)} <span class="muted" style="font:500 12px var(--mono)">+${A.pts}</span></b><small>${esc(A.d)}${A.d?' · ':''}${SKILLS[A.s].n}</small></div>
+   ${A.k==='count'?`<div class="cnt"><button class="step" data-act="cnt" data-id="${A.id}" data-n="-1" ${v?'':'disabled'} aria-label="Убрать: ${esc(A.n)}">−</button><output>${v}</output><button class="step plus" data-act="cnt" data-id="${A.id}" data-n="1" aria-label="Добавить: ${esc(A.n)}">+</button></div>`
+   :`<button class="check" style="width:44px;height:44px" aria-pressed="${!!v}" aria-label="${esc(A.n)}" data-act="tog" data-id="${A.id}">${v?'✓':''}</button>`}</div>`}).join('')}</div></section>`;
+}
+function vBag(C){
+  const done=S.bea.done.map(b=>b.id);
+  return `<section class="sec"><div class="sechead"><h2>Реликвии Беатрис</h2><small>${done.length} из ${CHAINS.length}</small></div>
+  <div class="relics">${CHAINS.map(c=>{const got=done.includes(c.id);return `<div class="relic ${got?'':'lock'}"><div class="slot ${got?'relic':'empty'}"><span class="rg sym">${got?c.relic[0]:'?'}</span></div><div><b>${got?esc(c.relic[1]):'Не найдена'}</b><small>${got?esc(c.relic[2])+' · за «'+esc(c.t)+'»':'Награда за легендарный квест'}</small></div></div>`}).join('')}</div></section>
+  <section class="sec"><div class="sechead"><h2>Лавка наград</h2><span class="coin"><i></i>${C.coins} квантов</span></div>
+  <div class="shop">${REWARDS.map(([id,n,cost])=>{const cnt=S.buys.filter(b=>b.id===id).length;return `<div class="ware"><b>${esc(n)}</b><span class="coin"><i></i>${cost}</span><button class="btn teal" data-act="buy" data-id="${id}" ${C.coins<cost?'disabled':''}>${C.coins<cost?'Нужно ещё '+(cost-C.coins):'Получить'}</button>${cnt?`<small class="muted">Получено ${cnt} раз${cnt%10>=2&&cnt%10<=4&&(cnt<10||cnt>20)?'а':''}</small>`:''}</div>`}).join('')}</div>
+  ${S.buys.length?`<div class="btnrow"><button class="btn ghost" data-act="unbuy">Отменить последнюю покупку</button></div>`:''}</section>`;
+}
+function vChron(C){
+  const quests=[];
+  for(const[d,day]of Object.entries(S.days))for(const id of Object.keys(day.q||{}))if(day.q[id]&&AQ[id])quests.push([d,AQ[id]]);
+  for(const[m,w]of Object.entries(S.weeks))for(const id of Object.keys(w))if(w[id]&&AQ[id])quests.push([m,AQ[id]]);
+  S.board.forEach(b=>AQ[b.id]&&quests.push([b.date,AQ[b.id],b]));
+  quests.sort((a,b)=>a[0]<b[0]?1:-1);
+  return `<section class="sec"><div class="sechead"><h2>Журнал приключений</h2><small>${quests.length} ${plural(quests.length,'квест','квеста','квестов')} · ${S.bea.done.length} ${plural(S.bea.done.length,'легенда','легенды','легенд')}</small></div>
+   ${S.bea.done.length?`<ul class="log">${S.bea.done.slice().reverse().map(b=>`<li><span class="ico k-bea">Б</span><div><b>${esc(CH[b.id].t)}</b><br><small class="muted">Легендарный квест · ${esc(CH[b.id].relic[1])}</small></div><time>${esc(b.date)}</time></li>`).join('')}</ul>`:''}
+   ${quests.length?`<ul class="log">${quests.slice(0,40).map(([d,q,b])=>`<li><span class="ico k-quest">✓</span><div><b>${esc(q.t)}</b><br><small class="muted">${({qm:'Утренний',qe:'Вечерний',qw:'Недельный',qb:'Доска'})[q.kind]} · +${q.pts}${b?` · <button class="qbtn" style="min-height:30px;padding:2px 8px;font-size:12px" data-act="unboard" data-id="${q.id}">Отменить</button>`:''}</small></div><time>${esc(d)}</time></li>`).join('')}</ul>`:'<div class="empty">Здесь появятся выполненные квесты. Начни с утреннего на вкладке «Квесты».</div>'}
+  </section>
+  <section class="sec"><div class="sechead"><h2>Настройки героини</h2></div>
+   <div class="panel settings">
+    <div class="setrow"><label for="nm">Имя</label><input id="nm" type="text" value="${esc(S.name)}" maxlength="24" data-act="name"></div>
+    <div class="setrow"><span>Цвет волос</span><div class="swatches">${['#4a2f22','#1d1820','#a0522d','#d9b26a','#7a2f4a'].map(c=>`<button class="sw" style="background:${c}" aria-label="Цвет волос" aria-pressed="${S.hair===c}" data-act="hair" data-c="${c}"></button>`).join('')}</div></div>
+    <label class="toggle"><input id="snd" type="checkbox" ${S.sound?'checked':''} data-act="sound"> Звуки уведомлений</label>
+    <small class="muted">${dbRef?'Прогресс сохраняется в твоём аккаунте и виден на всех устройствах.':'Прогресс сохраняется в этом браузере.'}</small>
+   </div></section>`;
+}
+function renderDrawer(){
+  const el=document.getElementById('drawer');
+  if(!drawerOpen){el.hidden=true;return}
+  el.hidden=false;
+  el.innerHTML=`<div class="head"><h2 style="font:700 20px var(--display)">Уведомления</h2><button class="iconbtn" data-act="drawer" aria-label="Закрыть">✕</button></div>
+  ${S.log.length?`<ul class="log">${S.log.slice(0,60).map(n=>`<li><span class="ico k-${n.k}">${KIND_ICON[n.k]||'•'}</span><div><b>${esc(n.t)}</b>${n.x?`<br><small class="muted">${esc(n.x)}</small>`:''}</div><time>${esc(timeStr(n.ts))}</time></li>`).join('')}</ul>`:'<div class="empty">Пока тихо. Уведомления о квестах, уровнях и письмах Беатрис появятся здесь.</div>'}`;
+}
+function renderAll(){const C=calc();document.documentElement.style.setProperty('--hair',S.hair);renderHud(C);renderHero(C);renderContent(C);renderDrawer()}
+
+/* ================= Диалог с Беатрис ================= */
+let D=null,typer=null;
+function openDialog(lines,choices){D={lines,i:0,choices,shown:false};showLine()}
+function showLine(){
+  const el=document.getElementById('dlg');el.hidden=false;
+  const line=D.lines[D.i],last=D.i===D.lines.length-1;
+  el.innerHTML=`<div class="scene" role="dialog" aria-label="Разговор с Беатрис"><div class="bust">${beaSVG()}</div>
+   <div class="box"><span class="nameplate">Беатрис</span><p class="voice" id="vtext" aria-live="polite"></p>
+   ${last&&D.reward?D.reward:''}
+   <div class="next">${last?`<div class="btnrow">${D.choices.map((c,i)=>`<button class="btn ${c.ghost?'ghost':''}" data-act="choice" data-i="${i}">${esc(c.t)}</button>`).join('')}</div>`:`<span class="hint">нажми, чтобы продолжить</span><button class="btn ghost" data-act="dnext">Дальше<span class="caret"></span></button>`}</div></div></div>`;
+  const t=document.getElementById('vtext');let k=0;clearInterval(typer);D.typing=true;
+  const full=line;
+  typer=setInterval(()=>{k+=2;t.textContent=full.slice(0,k);if(k>=full.length){clearInterval(typer);D.typing=false}},22);
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches){clearInterval(typer);t.textContent=full;D.typing=false}
+  const b=el.querySelector('.btn');b&&b.focus({preventScroll:true});
+}
+function dlgNext(){if(!D)return;if(D.typing){clearInterval(typer);document.getElementById('vtext').textContent=D.lines[D.i];D.typing=false;return}if(D.i<D.lines.length-1){D.i++;showLine()}}
+function closeDialog(){clearInterval(typer);D=null;const el=document.getElementById('dlg');el.hidden=true;el.innerHTML=''}
+function beaOpen(){
+  const c=beaNext();if(!c)return;
+  const lines=[];
+  if(!S.bea.met)lines.push('Анна! Проходи, проходи. Я Беатрис. Сорок лет преподавала литературу и историю, а теперь вот учу тебя… или учусь у тебя, посмотрим.','Ты занимаешься физикой. Прекрасно. Но знаешь, все великие открытия кто-то когда-то описал словами. Я буду давать тебе задания на стыке наших миров.','Это не обычные квесты. Легендарные. Каждый в несколько шагов, и за каждый — реликвия из моей коллекции.');
+  lines.push(...c.intro);
+  chime([392,494,587]);
+  openDialog(lines,[{t:'Принять задание',f:()=>{act(()=>{S.bea.cur=c.id;S.bea.met=true;S.bea.steps[c.id]=[]});notify('bea','Новый легендарный квест',c.t);closeDialog()}},{t:'Позже',ghost:true,f:()=>{if(!S.bea.met){S.bea.met=true;persist()}closeDialog()}}]);
+}
+function beaTalk(){
+  const c=CH[S.bea.cur];if(!c)return;
+  const st=S.bea.steps[c.id]||[],n=c.steps.filter((_,i)=>st[i]).length,next=c.steps.find((_,i)=>!st[i]);
+  const lines=[n?`Уже ${n} из ${c.steps.length}. Я вижу, ты не торопишься, и это правильно.`:'Не знаешь, с чего начать? Начни с чтения. Всё начинается с чтения.'];
+  if(next)lines.push('Следующий шаг: «'+next+'». Возьми чай и садись.');
+  openDialog(lines,[{t:'Спасибо, Беатрис',f:closeDialog}]);
+}
+function beaTurnIn(){
+  const c=CH[S.bea.cur];if(!c||!beaReady())return;
+  D=null;
+  openDialog(c.outro.slice(),[{t:'Принять реликвию',f:()=>{
+    closeDialog();
+    act(()=>{S.bea.done.push({id:c.id,date:today()});S.bea.cur=null;S.bea.nextAt=addDays(today(),1)});
+    notify('bea','Легенда завершена: '+c.t,'+'+c.xp+' опыта · реликвия «'+c.relic[1]+'»',{sticky:true});
+    chime([523,659,784,1046,1318],.12);heroAnim('cheer');
+  }}]);
+  D.reward=`<div class="reward"><div class="slot relic" style="width:52px;flex:none"><span class="rg sym">${c.relic[0]}</span></div><div><b style="font:700 16px var(--display);color:var(--brass-hi)">${esc(c.relic[1])}</b><br><small class="muted">+${c.xp} опыта · ${c.sk.map(k=>SKILLS[k].n).join(', ')}</small></div></div>`;
+  showLine();
+}
+
+/* ================= События ================= */
+const dayObj=d=>(S.days[d]=S.days[d]||{acts:{},q:{}},S.days[d].acts=S.days[d].acts||{},S.days[d].q=S.days[d].q||{},S.days[d]);
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act]');
+  if(!b){if(D&&ev.target.closest('#dlg .box'))dlgNext();return}
+  const a=b.dataset.act,pt={x:ev.clientX,y:ev.clientY};
+  if(a==='tab'){tab=b.dataset.tab;try{localStorage.setItem(LS+'-tab',tab)}catch(e){}renderAll();if(window.innerWidth<920)document.getElementById('content').scrollIntoView({behavior:'smooth',block:'start'})}
+  else if(a==='cnt'){const id=b.dataset.id,n=+b.dataset.n;act(()=>{const d=dayObj(view);d.acts[id]=Math.max(0,(+d.acts[id]||0)+n)},pt)}
+  else if(a==='tog'){const id=b.dataset.id;act(()=>{const d=dayObj(view);d.acts[id]=d.acts[id]?0:1},pt)}
+  else if(a==='day'){view=addDays(view,+b.dataset.n);renderAll()}
+  else if(a==='dq'){const id=b.dataset.id,d=today();const on=!(S.days[d]&&S.days[d].q&&S.days[d].q[id]);act(()=>{const o=dayObj(d);if(on)o.q[id]=true;else delete o.q[id]},pt);if(on)notify('quest','Квест выполнен',AQ[id].t+' · +'+AQ[id].pts)}
+  else if(a==='wq'){const id=b.dataset.id,m=monday(today());const on=!((S.weeks[m]||{})[id]);act(()=>{S.weeks[m]=S.weeks[m]||{};if(on)S.weeks[m][id]=true;else delete S.weeks[m][id]},pt);if(on)notify('quest','Квест недели выполнен',AQ[id].t+' · +'+AQ[id].pts)}
+  else if(a==='bq'){const id=b.dataset.id;act(()=>{S.board.push({id,date:today()})},pt);notify('quest','Задание с доски выполнено',AQ[id].t+' · +'+AQ[id].pts);const nq=boardOpen()[5];if(nq)setTimeout(()=>notify('info','На доске новое задание',nq.t),700)}
+  else if(a==='unboard'){const id=b.dataset.id;act(()=>{const i=S.board.map(x=>x.id).lastIndexOf(id);if(i>=0)S.board.splice(i,1)})}
+  else if(a==='step'){const c=CH[S.bea.cur];if(!c)return;const i=+b.dataset.i;act(()=>{const st=S.bea.steps[c.id]=S.bea.steps[c.id]||[];st[i]=!st[i]});if(beaReady()){notify('bea','Все шаги пройдены','Беатрис ждёт твоего рассказа',{sticky:true});chime([587,740,880])}}
+  else if(a==='beaopen')beaOpen();
+  else if(a==='beatalk')beaTalk();
+  else if(a==='beaturnin')beaTurnIn();
+  else if(a==='dnext')dlgNext();
+  else if(a==='choice'){const c=D&&D.choices[+b.dataset.i];c&&c.f()}
+  else if(a==='closelvl'){document.getElementById('lvl').hidden=true}
+  else if(a==='drawer'){drawerOpen=!drawerOpen;if(drawerOpen){S.unread=0;persist()}renderAll()}
+  else if(a==='buy'){const r=REWARDS.find(x=>x[0]===b.dataset.id);const C=calc();if(!r||C.coins<r[2])return;S.buys.push({id:r[0],cost:r[2],date:today()});persist();notify('info','Награда получена',r[1]+' · −'+r[2]+' квантов');chime([784,659]);renderAll()}
+  else if(a==='unbuy'){const r=S.buys.pop();persist();if(r)notify('info','Покупка отменена','Кванты вернулись',{log:false});renderAll()}
+  else if(a==='hair'){S.hair=b.dataset.c;persist();renderAll();heroAnim('jump')}
+});
+document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset.act==='name'){S.name=t.value.trim().slice(0,24)||'Анна';persist();renderAll()}else if(t.dataset.act==='sound'){S.sound=t.checked;persist()}});
+document.addEventListener('keydown',ev=>{
+  if(D&&(ev.key===' '||ev.key==='Enter')&&!ev.target.closest('button')){ev.preventDefault();dlgNext()}
+  if(ev.key==='Escape'){if(!document.getElementById('lvl').hidden)document.getElementById('lvl').hidden=true;else if(drawerOpen){drawerOpen=false;renderAll()}}
+});
+
+/* ================= Время: вечерние квесты, письма ================= */
+function tick(){
+  const d=today();
+  if(view>d||view<addDays(d,-6))view=d;
+  if(hourNow()>=EVENING_H&&!S.seenEve[d]){S.seenEve={[d]:true};persist();const e=eveningQ(d);notify('quest','Вечерний квест открыт',e.t,{sticky:true});chime([440,554,659]);renderAll()}
+  if(S.letterDay!==d&&beaAvailable()&&S.bea.met){S.letterDay=d;persist();notify('bea','Письмо от Беатрис','У неё новое легендарное задание. Загляни на вкладку «Квесты»',{sticky:true});renderAll()}
+}
+renderAll();
+setTimeout(()=>{if(!S.bea.met&&!S.log.length)notify('bea','Тебе письмо','Наставница Беатрис хочет познакомиться',{sticky:true});else tick();renderHud(calc())},900);
+setInterval(tick,60000);
+initRemote();
+</script>
