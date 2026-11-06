@@ -591,6 +591,9 @@ const EVENING_H=17;
 
 
 
+/* Квесты, которые требуют рабочего дня: в выходные не выпадают */
+['Новый поворот','Вопрос коллеге','Пешком от работы до библиотеки'].forEach(t=>Object.values(AQ).forEach(x=>{if(x.title===t)x.work=1}));
+const isWknd=s=>dow(s)>=5;
 /* ---------- Характеристики ---------- */
 const STATS=[
  ['int','Интеллект','ИНТ','Лекции, задачи, язык, книги, темы','Мудрая','Учёная'],
@@ -623,8 +626,8 @@ const ACTIONS=[
  {id:'sat',group:'study',kind:'toggle',name:'Допзанятие по физике',note:'Только по субботам',xp:{int:12,wil:5},satOnly:1},
  {id:'mistakes',group:'study',kind:'toggle',name:'Разбор ошибок',note:'Прошлась по задачам, где ошиблась',xp:{int:3,wil:2}},
  {id:'review',group:'study',kind:'toggle',name:'Повторение конспекта',note:'Хотя бы 15 минут',xp:{int:3}},
- {id:'work',group:'work',kind:'toggle',name:'Поход на работу',note:'Сходила и отработала как планировалось',xp:{wil:6,cha:2}},
- {id:'worklecture',group:'work',kind:'count',name:'Лекция на работе',note:'За каждую прослушанную',xp:{int:3,wil:1}},
+ {id:'work',group:'work',kind:'toggle',wdOnly:1,name:'Поход на работу',note:'Сходила и отработала как планировалось',xp:{wil:6,cha:2}},
+ {id:'worklecture',group:'work',kind:'count',wdOnly:1,name:'Лекция на работе',note:'За каждую прослушанную',xp:{int:3,wil:1}},
  {id:'focus',group:'work',kind:'count',name:'Помидор',note:'25 минут без телефона',xp:{wil:3}},
  {id:'workout',group:'move',kind:'toggle',name:'Тренировка',note:'От 20 минут: зал, бег, йога, турник, танцы',xp:{str:6,vit:2}},
  {id:'bike',group:'move',kind:'count',name:'Поездка на велосипеде',note:'За каждую',xp:{agi:4,str:2}},
@@ -799,7 +802,7 @@ const weekRec=m=>{if(!S.weeks)S.weeks={};if(!S.weeks[m])S.weeks[m]={};return S.w
 const doneDays=()=>{const m={};Object.keys(S.days).sort().forEach(d=>(S.days[d].q||[]).forEach(id=>{m[id]=d}));return m};
 const qSeen=()=>new Set(Object.keys(doneDays()));
 const QLIST={m:QM,e:QE,l:QL};
-function dayQ(d,slot){const L=log(d),pin=L['q'+slot],list=QLIST[slot];if(pin&&AQ[pin])return AQ[pin];return nextTopic(list,hash(slot+d),qSeen())}
+function dayQ(d,slot){const L=log(d),pin=L['q'+slot],list=QLIST[slot];if(pin&&AQ[pin])return AQ[pin];return nextTopic(isWknd(d)?list.filter(x=>!x.work):list,hash(slot+d),qSeen())}
 const legendOn=d=>!!log(d).ql||(log(d).q||[]).some(id=>id.startsWith('ql'))||hash('L'+d)%100<((curLv.cur||1)>=TAL_LVL?LEGEND_P_TAL:LEGEND_P);
 function weekQ(m){const W=(S.weeks||{})[m]||{};if(W.qp&&W.qp.length===2&&W.qp.every(id=>AQ[id]))return W.qp.map(id=>AQ[id]);
  const s=qSeen(),a=nextTopic(QW,hash('w'+m),s);let b=nextTopic(QW,hash('x'+m),s,a.id);if(b.id===a.id)b=QW[(QW.indexOf(a)+1)%QW.length];return[a,b]}
@@ -1050,7 +1053,7 @@ function heroArt(sxp,cls,crop){
   y:['#a87418','#e8b33a','#ffe08a'],b:['#432a17','#6a4326','#8f5f3a'],p:['#241f38','#3d3656','#575078'],t:['#321f12','#5a3a22','#7d5434'],
   m:['#7d88a0','#c9d1e0','#f4f8ff'],r:['#8e2230','#d6404e','#ff8a96'],n:['#2b6b3a','#3f9a5a','#7fd08e'],f:['#e0a020','#ffd166','#fff6c4'],q:['#c9bfa8','#f4efe0','#ffffff'],v:['#7fb0c8','#cfeaff','#ffffff']};
  const FIX={k:'#1d1424',e:'#1d1424',I:'#1d1424',w:'#ffffff',i:'#4a7fd0',H:'#3d2218',m2:'#b8565a',N:'#d29a76',c:'#f0a39a',g:'#e0405a'};
- const W=56,H=60,G=Array.from({length:H},()=>Array(W).fill('.'));
+ const W=52,H=60,G=Array.from({length:H},()=>Array(W).fill('.'));
  HERO2.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')G[y][x+6]=c==='m'?'M':c}));
  HERO2_FIX.forEach(([x,y,c])=>{G[y][x+6]=c});
  if(k1){const it=ITEM2[k1];it.r.forEach((r,y)=>[...r].forEach((c,x)=>{const gy=it.y+y,gx=it.x+x;if(c!=='.'&&G[gy]&&gx<W)G[gy][gx]=c}))}
@@ -1064,7 +1067,7 @@ function heroArt(sxp,cls,crop){
   if(!same(at(x,y+1))||!same(at(x+1,y)))return m[0];
   if(!same(at(x,y-1))||!same(at(x-1,y)))return m[2];
   return m[1]}
- return HERO2_CACHE[key]=`<svg class="${cls||''}" viewBox="${crop?'12 0 32 30':'0 0 '+W+' '+H}" shape-rendering="crispEdges" aria-hidden="true">${out}</svg>`;
+ return HERO2_CACHE[key]=`<svg class="${cls||''}" viewBox="${crop?'10 0 32 30':'0 0 '+W+' '+H}" shape-rendering="crispEdges" aria-hidden="true">${out}</svg>`;
 }
 
 const topStats=sxp=>STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
@@ -1142,9 +1145,9 @@ function rowHTML(x,d,L){
  const a=L.a||{},v=a[x.id];
  if(x.kind==='choice')return `<div class="row choice"><div class="rname"><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div>
   <div class="choices" role="group" aria-label="${esc(x.name)}">${x.options.map(o=>`<button class="opt" id="o-${x.id}-${o[0]}" data-act="choice" data-id="${x.id}" data-v="${o[0]}" aria-pressed="${v===o[0]}"><span>${esc(o[1])}</span><span class="chips">${xpChips(o[2])}${heart(o[3])}</span></button>`).join('')}</div></div>`;
- const dis=x.satOnly&&!isSat(d),neg=sumX(x.xp)<0;
- const nm=`<div class="rname"><b>${esc(x.name)}</b>${x.note||dis?`<small>${dis?'Откроется в субботу':esc(x.note)}</small>`:''}<span class="chips">${xpChips(x.xp)}${heart(x.hp)}</span></div>`;
- if(x.kind==='count')return `<div class="row">${nm}<div class="ctl"><button class="step" id="m-${esc(x.id)}" data-act="dec" data-id="${esc(x.id)}" aria-label="Убавить: ${esc(x.name)}" ${v?'':'disabled'}>−</button><output aria-live="polite">${v||0}</output><button class="step plus" id="p-${esc(x.id)}" data-act="inc" data-id="${esc(x.id)}" aria-label="Добавить: ${esc(x.name)}">+</button></div></div>`;
+ const dis=(x.satOnly&&!isSat(d))||(x.wdOnly&&isWknd(d)),neg=sumX(x.xp)<0;
+ const nm=`<div class="rname"><b>${esc(x.name)}</b>${x.note||dis?`<small>${dis?(x.satOnly?'Откроется в субботу':'Выходной: работы нет'):esc(x.note)}</small>`:''}<span class="chips">${xpChips(x.xp)}${heart(x.hp)}</span></div>`;
+ if(x.kind==='count')return `<div class="row ${dis?'off':''}">${nm}<div class="ctl"><button class="step" id="m-${esc(x.id)}" data-act="dec" data-id="${esc(x.id)}" aria-label="Убавить: ${esc(x.name)}" ${v?'':'disabled'}>−</button><output aria-live="polite">${v||0}</output><button class="step plus" id="p-${esc(x.id)}" data-act="inc" data-id="${esc(x.id)}" aria-label="Добавить: ${esc(x.name)}" ${dis?'disabled':''}>+</button></div></div>`;
  return `<div class="row ${dis?'off':''}">${nm}<div class="ctl"><button class="tick ${neg?'badt':''}" id="t-${esc(x.id)}" data-act="toggle" data-id="${esc(x.id)}" aria-pressed="${!!v}" aria-label="${esc(x.name)}" ${dis?'disabled':''}>${v?(neg?'×':'✓'):''}</button></div></div>`;
 }
 function oathPanel(r,isToday){
@@ -1520,7 +1523,7 @@ document.addEventListener('click',ev=>{
    if(slot[0]==='w'){const m=monday(view);weekRec(m).qp=weekQ(m).map(x=>x.id)}
    L.q=(L.q||[]).concat(id);toast('Квест выполнен',AQ[id]?AQ[id].title:'')},
   qswap(){const slot=t.dataset.slot,s=qSeen();
-   if(QLIST[slot]){const list=QLIST[slot],cur=AQ[id],L=dayLog(view);L['q'+slot]=nextTopic(list,list.indexOf(cur)+1,s,cur.id).id;return}
+   if(QLIST[slot]){const list=QLIST[slot].filter(x=>x.id===id||!(x.work&&isWknd(view))),cur=AQ[id],L=dayLog(view);L['q'+slot]=nextTopic(list,list.indexOf(cur)+1,s,cur.id).id;return}
    const m=monday(view),cur=weekQ(m),i=+slot[1],other=cur[1-i];s.add(other.id);
    const n=nextTopic(QW,QW.indexOf(cur[i])+1,s,cur[i].id);if(n.id===other.id||n.id===cur[i].id)return;
    cur[i]=n;weekRec(m).qp=cur.map(x=>x.id)},
