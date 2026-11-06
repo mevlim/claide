@@ -1,0 +1,1231 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Квантовая сага</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Neucha&family=Unbounded:wght@500;700;800&display=swap">
+<style>
+/* Layout: тетрадь в клетку. Слева страница с полем, где красной ручкой стоят баллы; справа атом дня и босс недели. В тёмной теме та же тетрадь становится школьной доской. */
+:root{
+  --paper:#eaf0f9; --sheet:#fbfcff; --ink:#16264f; --muted:#56658a; --grid:#d3dff0; --line:#dbe4f2;
+  --pen:#2346c7; --on-pen:#ffffff; --red:#c92626; --red-soft:#fbe7e6; --gold:#9a6500; --gold-soft:#fbf0d4; --green:#17734a; --green-soft:#dff3e8; --pen-soft:#e5eafb;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Golos Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --hand:"Neucha","Segoe Print","Comic Sans MS",cursive;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1b2a27; --sheet:#233531; --ink:#eef2e6; --muted:#a8b9ae; --grid:#293d38; --line:#354b45;
+  --pen:#8ec5ff; --on-pen:#0f1f25; --red:#ff918b; --red-soft:#46302e; --gold:#f2cf6b; --gold-soft:#413c26; --green:#9bdc8c; --green-soft:#2b4531; --pen-soft:#2b4149; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1b2a27; --sheet:#233531; --ink:#eef2e6; --muted:#a8b9ae; --grid:#293d38; --line:#354b45;
+  --pen:#8ec5ff; --on-pen:#0f1f25; --red:#ff918b; --red-soft:#46302e; --gold:#f2cf6b; --gold-soft:#413c26; --green:#9bdc8c; --green-soft:#2b4531; --pen-soft:#2b4149; color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;color:var(--ink);font:400 15px/1.45 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px;border-radius:4px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.wrap{max-width:1080px;margin:0 auto}
+/* top */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding-block:12px 0;margin-inline:-4px;padding-inline:4px;border-bottom:2px solid var(--ink)}
+.toprow{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.brand{font:800 15px/1.1 var(--display);letter-spacing:-.01em}
+.rank{flex:1 1 240px;min-width:0}
+.rankline{display:flex;justify-content:space-between;gap:8px;font-size:13px;align-items:baseline}
+.rankline b{font:700 13px var(--display)}
+.rankline span{color:var(--muted);font:500 12px var(--mono);white-space:nowrap}
+.xp{height:8px;background:var(--sheet);border:1.5px solid var(--ink);border-radius:2px;margin-top:4px;overflow:hidden}
+.xp i{display:block;height:100%;background:var(--pen);transition:width .35s}
+.stats{display:flex;gap:18px}
+.stat{line-height:1.1}
+.stat b{display:block;font:700 19px var(--display)}
+.stat small{color:var(--muted);font-size:11.5px}
+.tabrow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.tabs{display:flex;gap:2px;flex:1;min-width:0;align-self:flex-end;overflow-x:auto;scrollbar-width:none}
+.themebtn{flex:none;width:40px;height:40px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;background:var(--sheet);color:var(--ink);border:1.5px solid var(--ink);border-radius:6px;padding:0}
+.themebtn:hover{background:var(--pen-soft)}
+.tab{background:none;border:0;padding:8px 13px;font-weight:600;font-size:14px;color:var(--muted);border-radius:6px 6px 0 0;white-space:nowrap;min-height:40px}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+/* layout */
+.today{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);grid-template-areas:"day hero" "quests hero" "quests side";grid-template-rows:auto auto 1fr;gap:16px 22px;margin-top:16px;align-items:start}
+.dayhead{grid-area:day}.quests{grid-area:quests}.hero{grid-area:hero}.side{grid-area:side;display:grid;gap:16px}
+@media (max-width:820px){.today{grid-template-columns:minmax(0,1fr);grid-template-areas:"day" "hero" "quests" "side";grid-template-rows:none}}
+.dayhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.daynav{display:flex;align-items:center;gap:6px}
+.iconbtn{width:40px;height:40px;background:var(--sheet);border:1.5px solid var(--ink);border-radius:6px;font-weight:700;font-size:17px;line-height:1}
+.iconbtn:disabled{opacity:.3;cursor:default}
+.iconbtn:not(:disabled):hover{background:var(--pen-soft)}
+.daytitle{font:700 16px/1.2 var(--display);min-width:0}
+.todaybtn{background:none;border:0;color:var(--pen);font-weight:600;text-decoration:underline;padding:8px 4px}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:var(--sheet);flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 10px;font-size:13px;font-weight:500;min-height:36px}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+/* sheet */
+.sheet{background:var(--sheet);border:1.5px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--grid)}
+.pad{padding:14px 16px}
+.alert{background:var(--red-soft);border:1.5px solid var(--red);color:var(--ink);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:12px}
+.alert b{color:var(--red)}
+.blocks{display:grid;gap:18px}
+.block{overflow:hidden}
+.g-study{--head:var(--pen-soft)}.g-work{--head:var(--gold-soft)}.g-move{--head:var(--green-soft)}.g-body{--head:var(--line)}.g-extra{--head:var(--sheet)}.g-bad{--head:var(--red-soft)}
+.ghead{display:grid;grid-template-columns:66px 1fr;background:var(--head,none);font:700 13px var(--display);letter-spacing:.02em;border-bottom:1.5px solid var(--ink)}
+.ghead span:first-child{border-right:2px solid var(--red);padding:12px 0}
+.ghead span:last-child{padding:12px 12px 8px}
+.ghead.bad span:last-child{color:var(--red)}
+.row{display:grid;grid-template-columns:66px minmax(0,1fr) auto;align-items:center;border-bottom:1px solid var(--line);min-height:58px}
+.row:last-child{border-bottom:0}
+.margin{align-self:stretch;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--red);font:400 19px/1 var(--hand);color:var(--red);padding:0 4px;text-align:center}
+.margin.pos{color:var(--pen)}
+.rname{padding:9px 10px 9px 12px;min-width:0}
+.rname b{font-weight:600;display:block}
+.rname small{color:var(--muted);font-size:12.5px;display:block;line-height:1.3}
+.ctl{padding:7px 12px 7px 0;display:flex;align-items:center;gap:6px}
+.cnt{display:flex;align-items:center;gap:2px}
+.cnt output{min-width:32px;text-align:center;font:700 17px var(--mono)}
+.step{width:40px;height:40px;background:none;border:1.5px solid var(--ink);border-radius:6px;font-size:19px;font-weight:700;line-height:1}
+.step.plus{background:var(--pen);color:var(--on-pen);border-color:var(--pen)}
+.step:disabled{opacity:.3;cursor:default}
+.step:not(:disabled):active{transform:scale(.94)}
+.tick{width:44px;height:44px;background:none;border:2px solid var(--ink);border-radius:6px;font:400 22px/1 var(--hand);padding:0}
+.tick[aria-pressed="true"]{background:var(--pen);border-color:var(--pen);color:var(--on-pen)}
+.tick.badt[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--sheet)}
+.row.choice{grid-template-columns:66px minmax(0,1fr)}
+.row.choice .rname{padding-bottom:4px}
+.choices{display:flex;flex-wrap:wrap;gap:6px;padding:2px 12px 10px}
+.opt{border:1.5px solid var(--ink);background:none;border-radius:6px;padding:6px 10px;font-size:13.5px;font-weight:500;min-height:38px}
+.opt em{font:700 13px var(--mono);font-style:normal;margin-left:4px}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.row.off{opacity:.55}
+.row .choicewrap{min-width:0}
+/* hero */
+.hero .pad{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);gap:12px;align-items:center}
+.atom{width:100%;max-width:190px;aspect-ratio:1;display:block}
+.orbit{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4;opacity:.7}
+.orbit.on{stroke:var(--pen);stroke-width:2;stroke-dasharray:none;opacity:1}
+.nuc{fill:var(--ink)}
+.el{fill:var(--pen)}
+.el.ion{fill:var(--gold)}
+.spin{transform-origin:150px 150px;animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orbn{font:500 11px var(--mono);fill:var(--muted)}
+.photon{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;opacity:0;animation:ph 1s ease-out}
+@keyframes ph{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(70px,-70px)}}
+.score{display:flex;align-items:flex-start;gap:8px}
+.score b{font:800 clamp(38px,6vw,52px)/1 var(--display);letter-spacing:-.03em}
+.score b.neg{color:var(--red)}
+.grade{font:400 27px/1 var(--hand);color:var(--red);border:2px solid var(--red);border-radius:50%;width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center;transform:rotate(-8deg);flex:none}
+.state{font-weight:600;margin-top:6px;line-height:1.25}
+.next{color:var(--muted);font-size:13px;margin-top:2px}
+.h3{font:700 13px/1.2 var(--display);margin-bottom:8px}
+.quest{display:flex;gap:10px;align-items:flex-start}
+.quest .mark{flex:none;width:30px;height:30px;border:2px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font:400 18px/1 var(--hand)}
+.quest.done .mark{background:var(--green);border-color:var(--green);color:var(--sheet)}
+.q-v{font:700 14px var(--mono);margin-left:auto;white-space:nowrap}
+.chest{width:100%;background:var(--gold-soft);border:1.5px solid var(--gold);border-radius:4px;padding:11px 12px;display:flex;gap:10px;align-items:center;text-align:left;font-weight:600;min-height:52px}
+.chest:hover{filter:brightness(.97)}
+.chest:disabled{cursor:default}
+.chest b{margin-left:auto;font:700 17px var(--mono);color:var(--gold);white-space:nowrap}
+.chest.wiggle{animation:wig 1.4s ease-in-out infinite}
+@keyframes wig{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-1deg)}95%{transform:rotate(1deg)}}
+.boss-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.boss-top span{font:700 13px var(--mono);white-space:nowrap}
+.hp{height:14px;background:var(--line);border:1.5px solid var(--ink);border-radius:2px;margin:6px 0 10px;overflow:hidden}
+.hp i{display:block;height:100%;background:var(--red);transition:width .35s}
+.hp.dead i{background:var(--green)}
+.goal{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;font-size:13.5px;margin-top:6px}
+.goal span:nth-child(2){font:500 12.5px var(--mono)}
+.goal .bar{grid-column:1/-1;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.goal .bar i{display:block;height:100%;background:var(--pen)}
+.small{font-size:13px;color:var(--muted)}
+.lines{list-style:none;margin:0;padding:0}
+.lines li{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.lines li:last-child{border-bottom:0}
+.lines b{font:700 13px var(--mono);white-space:nowrap}
+.lines .minus b{color:var(--red)}
+.lines .mod{color:var(--muted)}
+.lines .bonus b{color:var(--green)}
+.total{display:flex;justify-content:space-between;font:400 22px var(--hand);border-top:2px solid var(--ink);margin-top:6px;padding-top:4px}
+/* journal etc */
+.page{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin-top:18px}
+@media (max-width:820px){.top{position:static}}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0;border:1.5px solid var(--ink);background:var(--sheet);border-radius:4px}
+.tile{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tile b{display:block;font:700 24px/1.1 var(--display)}
+.tile small{color:var(--muted);font-size:12.5px}
+.chartwrap{overflow-x:auto}
+.chart{display:block;width:100%;min-width:520px;height:auto}
+.chart text{font:500 11px var(--mono);fill:var(--muted)}
+.chart .gridl{stroke:var(--line);stroke-width:1}
+.chart .base{stroke:var(--ink);stroke-width:1.5}
+.chart .up{fill:var(--pen)}.chart .dn{fill:var(--red)}
+.chart .hit{fill:transparent;cursor:pointer}
+.chart .hit:hover{fill:var(--grid);opacity:.5}
+#tip{position:fixed;z-index:30;background:var(--ink);color:var(--paper);font-size:12.5px;padding:5px 8px;border-radius:4px;pointer-events:none;max-width:220px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;color:var(--muted);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1.5px solid var(--ink);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.linkbtn{background:none;border:0;color:var(--pen);font-weight:600;text-decoration:underline;padding:4px 0;text-align:left}
+.gr{font:400 19px/1 var(--hand);color:var(--red)}
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}
+.badge{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;align-items:center;padding:12px;background:var(--sheet);border:1.5px solid var(--line);border-radius:4px}
+.badge.got{border-color:var(--ink)}
+.sym{width:48px;height:48px;border:2px dashed var(--muted);border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 20px var(--mono);color:var(--muted)}
+.badge.got .sym{border:2px solid var(--gold);background:var(--gold-soft);color:var(--gold)}
+.badge b{display:block;line-height:1.2}
+.badge small{color:var(--muted);font-size:12.5px;line-height:1.25;display:block}
+.prog{height:4px;background:var(--line);margin-top:6px;border-radius:2px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--pen)}
+.ladder{list-style:none;margin:0;padding:0}
+.ladder li{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto;gap:10px;padding:7px 4px;border-bottom:1px solid var(--line);align-items:baseline}
+.ladder li:last-child{border-bottom:0}
+.ladder .sz{font:500 12.5px var(--mono);color:var(--muted);white-space:nowrap}
+.ladder .thr{font:500 12.5px var(--mono);white-space:nowrap;min-width:64px;text-align:right}
+.ladder .lk{color:var(--muted)}
+.ladder .cur{background:var(--pen-soft);font-weight:700}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.card{background:var(--sheet);border:1.5px solid var(--ink);border-radius:4px;padding:13px;display:flex;flex-direction:column;gap:9px;justify-content:space-between}
+.card .pr{font:700 19px var(--display)}
+.btn{background:var(--pen);color:var(--on-pen);border:1.5px solid var(--pen);border-radius:6px;padding:8px 13px;font-weight:600;min-height:42px}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--ink)}
+.btn.red{background:none;color:var(--red);border-color:var(--red)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.rulelist{margin:0;padding-left:18px;display:grid;gap:6px;max-width:65ch}
+.field{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.field label{min-width:0}
+input[type=number],input[type=text],select,textarea{background:var(--sheet);border:1.5px solid var(--ink);border-radius:5px;padding:7px 8px;width:100%;min-height:38px}
+textarea{min-height:90px;font:500 12px var(--mono)}
+.inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.inline>*{flex:1 1 130px;min-width:0}
+.inline .btn{flex:0 0 auto}
+.chk{display:flex;gap:8px;align-items:center;min-height:36px}
+.chk input{width:20px;height:20px;accent-color:var(--pen)}
+.setrow{display:grid;grid-template-columns:minmax(0,1fr) 72px 56px;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}
+.setrow .hd{font-size:12px;color:var(--muted)}
+.setrow input[type=checkbox]{width:20px;height:20px;accent-color:var(--pen);justify-self:center}
+.sec{font:700 16px var(--display);margin-bottom:10px}
+.note{font:400 18px/1.2 var(--hand);color:var(--red)}
+/* темы */
+.ghead.more[aria-expanded="false"]{border-bottom:0}
+.ghead.more{width:100%;border:0;border-bottom:1.5px solid var(--ink);padding:0;text-align:left;color:inherit;min-height:44px}
+.ghead.more span:last-child{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.ghead.more:hover{background:var(--pen-soft)}
+.ghead.more i{font-style:normal;font-size:14px}
+.topic{display:grid;gap:9px;align-content:start;min-width:0}
+.tophead{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.tag{flex:none;font:500 11.5px var(--mono);border:1.5px solid currentColor;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.tag.space{color:var(--pen)}.tag.phys{color:var(--red)}.tag.math{color:var(--green)}
+.hook{margin:0;font-size:14px;max-width:65ch}
+.ttl{font:700 18px/1.25 var(--display)}
+.ask{font:400 18px/1.25 var(--hand);color:var(--red)}
+.tbtns{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.ext{color:var(--pen);font-weight:600;padding:8px 0}
+textarea.tnote{font:400 14px/1.4 var(--body);min-height:72px;resize:vertical}
+.found{list-style:none;margin:14px 0 0;padding:0}
+.found li{padding:10px 0;border-top:1px solid var(--line)}
+.fnote{margin:2px 0 0;font:400 16px/1.3 var(--hand);overflow-wrap:anywhere;white-space:pre-wrap}
+/* приключения */
+.aq{display:grid;gap:8px;align-content:start;min-width:0}
+.quest small{display:block;color:var(--muted);font-size:12.5px;line-height:1.3;margin-top:2px;font-weight:400}
+.quest.locked .mark{border-style:dashed;color:var(--muted)}
+button.mark{background:none;color:inherit;padding:0;width:36px!important;height:36px!important;cursor:pointer}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.board .aq{border:1.5px solid var(--line);border-radius:4px;padding:12px;background:var(--sheet)}
+.qlist{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+/* overlays */
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:25;display:grid;gap:8px;width:min(92vw,380px)}
+.toast{background:var(--ink);color:var(--paper);padding:10px 13px;border-radius:5px;font-weight:500;animation:up .25s ease-out}
+.toast b{display:block;font:700 13px var(--display)}
+@keyframes up{from{transform:translateY(8px);opacity:0}}
+.fl{position:fixed;z-index:26;pointer-events:none;font:400 26px var(--hand);color:var(--pen);animation:fl .9s ease-out forwards}
+.fl.neg{color:var(--red)}
+@keyframes fl{to{transform:translateY(-46px);opacity:0}}
+#lvl{position:fixed;inset:0;z-index:40;background:var(--paper);display:flex;align-items:center;justify-content:center;text-align:center;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+#lvl .inner{display:grid;gap:12px;justify-items:center;max-width:480px;animation:pop .5s cubic-bezier(.2,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+#lvl h2{font:800 clamp(30px,8vw,52px)/1.05 var(--display)}
+#lvl .sz{font:700 18px var(--mono);color:var(--pen)}
+/* RPG */
+.brand .cls{display:block;font:500 11.5px var(--body);color:var(--muted);letter-spacing:0;margin-top:3px;max-width:200px}
+.statbtn{background:none;border:0;padding:0;text-align:left;line-height:1.1;color:inherit}
+.statbtn:hover small{text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.chip{font:500 11px/1.5 var(--mono);border:1px solid var(--pen);color:var(--pen);border-radius:3px;padding:0 5px;white-space:nowrap}
+.chip.neg{border-color:var(--red);color:var(--red)}
+.chips.big .chip{font-size:12.5px;padding:2px 7px}
+.aq.legend,.topic.legend{border-color:var(--gold)!important;background:var(--gold-soft)}
+.tag.gold{color:var(--gold)}
+.herotop{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.herotop{grid-template-columns:minmax(0,1fr)}}
+.heroname{font:800 clamp(22px,4vw,32px)/1.1 var(--display);letter-spacing:-.02em;margin-top:2px}
+.radar{display:block;width:100%;max-width:420px;margin:6px auto 0;height:auto}
+.radar text{font:700 12px var(--mono);fill:var(--ink)}
+.rring{fill:none;stroke:var(--line);stroke-width:1}
+.raxis{stroke:var(--line);stroke-width:1}
+.rpoly{fill:var(--pen);fill-opacity:.22;stroke:var(--pen);stroke-width:2;stroke-linejoin:round}
+.rdot{fill:var(--pen)}
+.stats8{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.statc{background:var(--sheet);border:1.5px solid var(--ink);border-radius:4px;padding:12px;display:grid;gap:6px;align-content:start}
+.sthead{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+.sthead small{display:block;color:var(--muted);font-size:12px;line-height:1.25}
+.stab{width:44px;height:44px;border:2px solid var(--pen);color:var(--pen);border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 12px var(--mono)}
+.stlv{font:800 26px/1 var(--display)}
+.stmeta{display:flex;justify-content:space-between;gap:8px;font:500 11.5px var(--mono);color:var(--muted)}
+.talent{border-top:1px dashed var(--line);padding-top:6px;color:var(--muted)}
+.talent b{display:block;font-size:13.5px}
+.talent small{display:block;font-size:12.5px;line-height:1.3}
+.talent.on{color:var(--ink)}
+.talent.on b{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}.spin{animation:none!important}}
+@media (max-width:480px){.stats{gap:14px}.stat b{font-size:17px}.row{grid-template-columns:54px minmax(0,1fr) auto}.row.choice{grid-template-columns:54px minmax(0,1fr)}.ghead{grid-template-columns:54px 1fr}.margin{font-size:17px}.hero .pad{grid-template-columns:110px minmax(0,1fr)}.step{width:38px;height:38px}.cnt output{min-width:26px}}
+</style>
+
+<div class="wrap">
+  <div id="app"></div>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<div id="tip" hidden></div>
+<div id="lvl" hidden></div>
+
+<script>
+"use strict";
+const THEME_KEY='kvantovaya-saga-theme';
+const curTheme=()=>document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+const themeIcon=t=>t==='dark'?'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" fill="currentColor"/></svg>';
+function themeBtn(){const t=curTheme(),l=t==='dark'?'Включить светлую тему':'Включить тёмную тему';return `<button class="themebtn" id="themebtn" data-act="theme" aria-label="${l}" title="${l}">${themeIcon(t)}</button>`}
+function toggleTheme(){const n=curTheme()==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem(THEME_KEY,n)}catch(e){}render()}
+try{const t=localStorage.getItem(THEME_KEY);if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}
+/* ---------- Каталог ---------- */
+const GROUPS={study:'Учёба',work:'Работа',move:'Движение',body:'Тело и режим',extra:'Дополнительно',bad:'Штрафы, которые ставишь сама'};
+const ACTIONS=[
+ {id:'lecture',group:'study',kind:'count',name:'Лекция по физике',note:'За каждую просмотренную лекцию',pts:15},
+ {id:'phys',group:'study',kind:'count',name:'Задача по физике',note:'За каждую решённую',pts:3},
+ {id:'math',group:'study',kind:'count',name:'Задача по математике',note:'За каждую решённую',pts:3},
+ {id:'sat',group:'study',kind:'toggle',name:'Допзанятие по физике',note:'Только по субботам. Пропуск стоит баллов',pts:30,satOnly:1},
+ {id:'mistakes',group:'study',show:'extra',kind:'toggle',name:'Разбор ошибок',note:'Прошлась по задачам, где ошиблась',pts:6},
+ {id:'review',group:'study',show:'extra',kind:'toggle',name:'Повторение конспекта',note:'Хотя бы 15 минут',pts:6},
+ {id:'work',group:'work',kind:'toggle',name:'Поход на работу',note:'Сходила и отработала как планировалось',pts:20},
+ {id:'worklecture',group:'work',kind:'count',name:'Лекция на работе',note:'За каждую прослушанную лекцию на работе',pts:8},
+ {id:'focus',group:'work',show:'extra',kind:'count',name:'Помидор',note:'25 минут без телефона, работа или учёба',pts:5},
+ {id:'bike',group:'move',kind:'count',name:'Поездка на велосипеде',note:'За каждую поездку',pts:10},
+ {id:'skate',group:'move',kind:'count',name:'Поездка на скейте',note:'За каждую поездку',pts:10},
+ {id:'walk',group:'move',show:'extra',kind:'toggle',name:'Прогулка или зарядка',note:'От 20 минут',pts:4},
+ {id:'sleep',group:'body',kind:'choice',name:'Сон',note:'Хороший сон даёт +10% к баллам за учёбу, плохой забирает 10%',options:[['good','7–9 часов',10],['ok','6–7 часов',0],['bad','Меньше 6',-10]]},
+ {id:'food',group:'body',kind:'choice',name:'Питание',note:'Как прошёл день в целом',options:[['good','Правильное',10],['ok','Так себе',0],['bad','Сорвалась',-5]]},
+ {id:'water',group:'body',kind:'toggle',name:'Вода',note:'Полтора-два литра',pts:3},
+ {id:'early',group:'body',kind:'toggle',name:'Отбой до полуночи',note:'',pts:5},
+ {id:'scroll',group:'bad',kind:'toggle',name:'Залипла в телефоне',note:'Больше двух часов за день',pts:-8},
+ {id:'skip',group:'bad',kind:'toggle',name:'Отменила занятие',note:'Было в планах, но не случилось',pts:-10},
+];
+const RANKS=[
+ ['Кварк','меньше 10⁻¹⁸ м',0],['Протон','10⁻¹⁵ м',100],['Атом','10⁻¹⁰ м',250],['Молекула ДНК','2·10⁻⁹ м',450],
+ ['Вирус','10⁻⁷ м',700],['Клетка','10⁻⁵ м',1000],['Песчинка','10⁻³ м',1400],['Велосипед','2 м',1900],
+ ['Эверест','8,8·10³ м',2500],['Земля','1,3·10⁷ м',3200],['Солнце','1,4·10⁹ м',4000],['Солнечная система','~10¹³ м',5000],
+ ['Млечный Путь','~10²¹ м',6500],['Наблюдаемая Вселенная','8,8·10²⁶ м',8500]];
+const ORBITS=[[0,'Основное состояние'],[20,'Первое возбуждение'],[45,'Устойчивая орбита'],[75,'Высокая орбита'],[110,'Почти ионизация']];
+const IONIZE=150;
+const DEF_REWARDS=[['Серия сериала',30],['Кофе или десерт вне дома',40],['Час игр',50],['Вечер без дел и без вины',120],['Новая книга',250],['Большая покупка себе',600]];
+const QUESTS=[
+ {t:'Реши 5 задач по математике',b:12,f:a=>(a.math||0)>=5},
+ {t:'Реши 5 задач по физике',b:12,f:a=>(a.phys||0)>=5},
+ {t:'Лекция по физике и 3 задачи к ней',b:15,f:a=>(a.lecture||0)>=1&&(a.phys||0)>=3},
+ {t:'Прокатись на велосипеде или скейте',b:8,f:a=>(a.bike||0)+(a.skate||0)>=1},
+ {t:'Сделай два помидора',b:8,f:a=>(a.focus||0)>=2},
+ {t:'Разбери свои ошибки',b:8,f:a=>!!a.mistakes},
+ {t:'Ляг спать до полуночи',b:8,f:a=>!!a.early},
+ {t:'Реши 10 задач, физика плюс математика',b:15,f:a=>(a.phys||0)+(a.math||0)>=10},
+ /* Новые квесты: выпадают с 5 ноября 2026, чтобы не менять уже прожитые дни */
+ {t:'Прокатись на скейте',b:8,f:a=>(a.skate||0)>=1},
+ {t:'Сходи на работу и реши 3 задачи',b:12,f:a=>!!a.work&&(a.phys||0)+(a.math||0)>=3},
+ {t:'Лекция по физике и поездка',b:12,f:a=>(a.lecture||0)>=1&&(a.bike||0)+(a.skate||0)>=1}];
+const QUESTS_OLD=8,QUESTS_CUT='2026-11-05';
+
+/* ---------- Приключения: утренние, вечерние, недельные, легендарные квесты и доска. [название, подсказка, баллы, характеристики] ---------- */
+const mkQ=(p,l)=>l.map((x,i)=>({id:p+i,kind:p,title:x[0],hint:x[1],pts:x[2],st:(x[3]||'cur').split(',')}));
+const QM=mkQ('qm',[
+ ['Выйди на остановку раньше','Дойди пешком и рассмотри улицу, мимо которой обычно проезжаешь',10,'cur,str'],
+ ['Необычный завтрак','Съешь утром то, чего никогда не пробовала на завтрак: шакшуку, мисо-суп, кашу из киноа',10,'cur,cre'],
+ ['Охота за цветом','Выбери цвет до выхода из дома и сфотографируй по дороге 5 вещей этого цвета',10,'cre,cur'],
+ ['Доброе утро на трёх языках','Узнай, как это звучит, и скажи кому-нибудь одно из них',8,'int,cha'],
+ ['Зарядка под чужую музыку','10 минут движения под жанр, который ты никогда не слушаешь',10,'str,cur'],
+ ['Новый поворот','Измени маршрут на работу хотя бы на одну улицу',8,'cur'],
+ ['Три ожидания','Напиши от руки три вещи, которых ждёшь от сегодняшнего дня',6,'wil'],
+ ['Незнакомый чай','Пуэр, ройбос, матча, каркаде: что-то, чего ты ещё не пила',8,'cur'],
+ ['Определи облака','Посмотри на небо 2 минуты и узнай, как называются сегодняшние облака',8,'int,cur'],
+ ['Другой рукой','Почисти зубы или причешись непривычной рукой',6,'agi'],
+ ['Вопрос коллеге','Спроси на работе то, чего никогда не спрашивала. Например, какой была чья-то первая работа',10,'cha'],
+ ['Как зовут это растение','Найди по дороге растение и узнай его название через определитель',10,'int,cur'],
+ ['Холодный финал','Последние 30 секунд душа сделай прохладными',10,'wil,vit'],
+ ['Подкаст наугад','В дороге включи выпуск на тему, о которой ничего не знаешь',8,'int,cur'],
+ ['Задача до завтрака','Одна задача по физике, пока телефон ещё спит',10,'int,wil'],
+ ['Комплимент незнакомцу','Искренний и короткий: баристе, водителю, охраннику',10,'cha'],
+ ['Пять минут растяжки','Сразу после пробуждения, до телефона',8,'agi,vit'],
+ ['Запомни сон','Запиши, что снилось, в двух строчках',6,'cre'],
+ ['Слово дня','Найди в словаре незнакомое слово и употреби его сегодня в разговоре',8,'int,cha'],
+ ['Без лифта и эскалатора','Весь день только по лестницам',8,'str,wil'],
+ ['Стакан воды до кофе','И ещё один до обеда',6,'vit'],
+ ['Пять тысяч шагов до обеда','Шагомер в телефоне в помощь',10,'str,vit'],
+ ['Голос прошлого века','Послушай в дороге запись песни или речи старше 1960 года',8,'cur'],
+ ['Нарисуй завтрак','Скетч за минуту, прежде чем съесть',8,'cre'],
+ ['Утро без новостей','Не открывай ленты и новости до полудня',10,'wil']]);
+const QE=mkQ('qe',[
+ ['Пешком от работы до библиотеки','Возьми там книгу с полки, к которой раньше не подходила',15,'str,int'],
+ ['Спорт на полчаса','Бег, турник, йога, танцы — что угодно, лишь бы вспотеть',15,'str,vit'],
+ ['Ужин страны, где ты не была','Грузия, Перу, Вьетнам, Марокко: найди простой рецепт',15,'cre,cur'],
+ ['Рисунок за 10 минут','Чашка, рука, вид из окна. Красота не важна',10,'cre'],
+ ['Звонок из прошлого','Позвони тому, с кем давно не говорила',12,'cha'],
+ ['Найди планету','Посмотри по карте неба, что видно сегодня, и найди это глазами',12,'cur,int'],
+ ['Выучи фокус','С монетой или картами. Покажи кому-нибудь',12,'agi,cha'],
+ ['Незнакомая улица','Прокатись на велосипеде или скейте там, где никогда не была',15,'agi,cur'],
+ ['Фрукт-загадка','Купи фрукт или овощ, которого никогда не ела, и попробуй',10,'cur'],
+ ['Письмо себе через год','Запечатай и поставь напоминание на эту дату',12,'cre,wil'],
+ ['Час без экрана','Последний час перед сном без телефона и ноутбука',12,'wil,vit'],
+ ['Новый узел','Выучи булинь или восьмёрку. Пригодится',8,'agi'],
+ ['Самолётик-рекордсмен','Сложи самолётик новой конструкции и измерь дальность полёта',10,'int,agi'],
+ ['Альбом целиком','Послушай альбом в незнакомом жанре от первого трека до последнего',10,'cur,cre'],
+ ['Объясни за две минуты','Расскажи кому-нибудь физическое явление. Если поняли, засчитано',12,'int,cha'],
+ ['Дверь, мимо которой ходишь','Зайди в кафе или магазин, мимо которого всегда проходишь',10,'cur'],
+ ['Партия с незнакомцем','Сыграй онлайн в шахматы или го',8,'int'],
+ ['Танец на кухне','Три песни подряд, никто не смотрит',8,'agi,cre'],
+ ['Звёздная прогулка','Выйди после заката на 20 минут и посчитай, сколько звёзд видно',10,'cur,vit'],
+ ['Планка на рекорд','Засеки время. В следующий раз продержись на 10 секунд дольше',10,'str,wil'],
+ ['Зайди в книжный','Полистай раздел, куда никогда не заходила: поэзия, кулинария, философия',10,'cur,int'],
+ ['Напиши хокку','Три строки о сегодняшнем дне: 5, 7 и 5 слогов',8,'cre'],
+ ['Скажи спасибо вслух','Скажи близкому человеку, за что ты его ценишь',10,'cha'],
+ ['Головоломка на 15 минут','Судоку, кубик Рубика или задача на логику',8,'int'],
+ ['Йога-нидра перед сном','15 минут лёжа, по записи',8,'vit,wil'],
+ ['Испытание равновесия','Постой на одной ноге с закрытыми глазами. Сколько секунд вышло?',8,'agi'],
+ ['Карта звуков','Сядь у окна на 5 минут и запиши все звуки, что слышишь',6,'cur,cre']]);
+const QW=mkQ('qw',[
+ ['Выучи 50 слов на незнакомом языке','Возьми язык, которого никогда не касалась: исландский, суахили, японский. По 7–8 слов в день',60,'int,cur'],
+ ['Выучи стихотворение наизусть','От 12 строк. В конце недели прочитай его кому-нибудь вслух',50,'int,cre'],
+ ['Прочитай историю одного открытия','Как открыли пенициллин, рентген или радиоактивность. Перескажи за 3 минуты',40,'int,cur'],
+ ['Сходи в музей, где никогда не была','Краеведческий, технический, музей науки или маленький частный',60,'cur,int'],
+ ['Выучи чужой алфавит','Корейский хангыль учится за выходные. Ещё варианты: греческий, грузинский',50,'int'],
+ ['Научись жонглировать тремя мячами','Подойдут апельсины или свёрнутые носки. Цель: 10 бросков подряд',60,'agi,wil'],
+ ['Испеки хлеб с нуля','Мука, вода, соль, дрожжи и немного терпения',50,'cre,wil'],
+ ['Найди на небе три созвездия','Выучи, как они выглядят, и найди их вживую в ясную ночь',50,'cur,int'],
+ ['Сделай дома физический опыт','Батарейка из лимона, электромагнит из гвоздя, радуга из стакана воды',50,'int,cre'],
+ ['Попробуй новый вид спорта','Скалодром, бадминтон, плавание, ролики, настольный теннис',60,'str,agi'],
+ ['Фильм из незнакомой страны','Иран, Корея, Бразилия, Исландия. С субтитрами',40,'cur'],
+ ['Сыграй мелодию на инструменте','Укулеле, синтезатор в приложении или губная гармошка. Хотя бы 8 тактов',50,'cre,agi'],
+ ['Прочитай о жизни учёной','Лиза Мейтнер, Эмми Нётер, Вера Рубин, Сесилия Пейн. Что она открыла и чего ей это стоило?',40,'int,cur'],
+ ['Пройди пешком незнакомый район','Без цели, по улицам, где ни разу не была. Найди там одну интересную деталь',40,'str,cur'],
+ ['Неделя новой привычки','Каждый день одно новое дело: 5 минут растяжки, дневник или медитация',50,'wil,vit'],
+ ['Рассказ неизвестного автора','Выбери в библиотеке по обложке или по случайной странице',40,'cur,int'],
+ ['Событие в последний момент','Концерт, лекция, выставка или открытый микрофон, о котором узнала на этой неделе',50,'cha,cur'],
+ ['Стойка на руках у стены','Или колесо. Тренируй по 10 минут в день',50,'str,agi'],
+ ['Пять дней без сахара','Фрукты можно. Запиши, как поменялось самочувствие',50,'vit,wil'],
+ ['Мини-доклад для друга','Выбери тему из раздела «Темы», нарисуй схему на листе и расскажи',50,'int,cha'],
+ ['Каждый день новое блюдо','Пять дней, пять рецептов, которых ещё не готовила',50,'cre,vit'],
+ ['50 000 шагов за неделю','Около 7 тысяч в день',50,'str,vit'],
+ ['Выучи азбуку Морзе','Отстучи своё имя и SOS, расшифруй сообщение от друга',40,'int,agi'],
+ ['Сфотографируй неделю','Один кадр в день на одну тему. Собери коллаж',40,'cre,cur'],
+ ['Пять разговоров с незнакомцами','Коротких: в очереди, в парке, на остановке',50,'cha,wil']]);
+const QB=mkQ('qb',[
+ ['Ботанический сад или оранжерея','Найди самое странное растение и узнай, откуда оно',30,'cur'],
+ ['Сходи в планетарий','Или в открытую обсерваторию, если такая есть в городе',35,'cur,int'],
+ ['Блошиный рынок','Купи вещь с историей дешевле 200 рублей',25,'cur,cha'],
+ ['Встреть рассвет на улице','Термос с чаем обязателен',30,'vit,wil'],
+ ['Сходи на скалодром','В первый раз с инструктором, это недорого',35,'str,agi'],
+ ['Самое старое здание района','Узнай, кто его построил и что там было',25,'int,cur'],
+ ['Посади косточку','Авокадо, лимон, финик. Отметь день, когда проклюнется',20,'cre,wil'],
+ ['Кино наугад','Сходи одна на сеанс фильма, о котором ничего не знаешь',25,'cur'],
+ ['Фотопрогулка «Физика вокруг»','20 кадров: отражения, тени, радуга в луже, разводы на мыльной плёнке',30,'cre,int'],
+ ['Электричка до незнакомой станции','Погуляй там час и вернись',40,'cur,str'],
+ ['Новый трюк на скейте','На ступеньку выше того, что умеешь сейчас',40,'agi'],
+ ['Квиз или вечер настолок','В антикафе, клубе или библиотеке',30,'int,cha'],
+ ['Незнакомая кухня','Поешь в ресторане эфиопской, корейской, перуанской или узбекской кухни',30,'cur'],
+ ['Запусти воздушного змея','Можно сделать самой из пакета и реек',30,'cre,agi'],
+ ['Карта района по памяти','Нарисуй, потом сверь с настоящей и найди, где ошиблась',20,'int,cre'],
+ ['День волонтёрства','Приют для животных, субботник, благотворительный фонд',40,'cha,wil'],
+ ['Пешая экскурсия по городу','Бесплатные экскурсии бывают почти везде',35,'cur,int'],
+ ['Сходи в бассейн','Проплыви хотя бы 500 метров',30,'str,vit'],
+ ['Открытая лекция','В университете, библиотеке или музее, на тему не из школьной программы',30,'int,cur'],
+ ['Дальний веломаршрут','Больше 15 км, туда, где ещё не была',35,'agi,str'],
+ ['День без телефона','С утра до вечера. Запиши, что заметила',40,'wil'],
+ ['Мастер-класс руками','Керамика, каллиграфия, столярка, витраж',45,'cre'],
+ ['Тир или стрельба из лука','Попади в центр мишени хотя бы раз',30,'agi,wil'],
+ ['Каток','Проедь круг задом наперёд',30,'agi,str'],
+ ['Караоке','Спой песню, которую стыдно петь',30,'cha,cre'],
+ ['Баня или сауна','С холодной водой после',25,'vit,wil'],
+ ['Квест-комната','Выберитесь до конца таймера',35,'int,cha'],
+ ['Музей науки или экспериментариум','Нажми каждую кнопку на каждом экспонате',35,'int,cur'],
+ ['Пикник с собой','Плед, книга, термос. Час без телефона',25,'vit,cur'],
+ ['Пеший поход на 10 км','По тропе за городом',45,'str,vit'],
+ ['Пробный урок танцев','Сальса, свинг, хип-хоп, контемпорари',40,'agi,cha'],
+ ['Открытка от руки','Напиши и отправь настоящей почтой',20,'cha,cre'],
+ ['Зоопарк или контактная ферма','Узнай одно странное свойство одного животного',25,'cur'],
+ ['Ночная прогулка с фонариком','В парке или у реки, вдвоём',25,'cur,wil']]);
+const QL=mkQ('ql',[
+ ['Встреть рассвет на высоте','Холм, крыша, смотровая площадка. Фонарик, термос, тёплая куртка',80,'str,vit,cur'],
+ ['День в другом городе','Электричка или автобус туда и обратно за один день',90,'cur,cha'],
+ ['Выступи перед людьми','Открытый микрофон, клуб, стихотворение перед друзьями',90,'cha,cre,wil'],
+ ['Сутки без жалоб','Поймала себя на жалобе — отсчёт начинается заново',70,'wil'],
+ ['Ужин на пятерых','По рецептам страны, где ты не была. Позови гостей',80,'cre,cha'],
+ ['Олимпиадная задача','Возьми задачу Всероссийской олимпиады по физике прошлых лет. В решение можно заглянуть только через час',90,'int,wil'],
+ ['40 км на велосипеде','Вода, перекус и запасная камера с собой',90,'agi,str,vit'],
+ ['Найди Млечный Путь','Выезд за город, туда, где не видно фонарей',90,'cur,vit'],
+ ['Проведи урок','Научи кого-то тому, что умеешь: скейт, задача, рецепт',80,'cha,int'],
+ ['День «да»','Соглашайся весь день на все безопасные предложения и идеи',70,'cur,cha'],
+ ['Сделай вещь своими руками','Табурет, сумку, светильник: от начала до конца',90,'cre,agi'],
+ ['Полумарафон пешком','21 км за день, с остановками можно',100,'str,wil,vit']]);
+const AQ={};[QM,QE,QW,QB,QL].forEach(l=>l.forEach(x=>{AQ[x.id]=x}));
+const QKIND={qm:'Утренний квест',qe:'Вечерний квест',qw:'Квест недели',qb:'Доска',ql:'Легендарный квест',qc:'Свой квест'};
+const EVENING_H=17;
+
+/* ---------- RPG: характеристики, таланты, класс ---------- */
+const STATS=[
+ ['int','Интеллект','ИНТ','Лекции, задачи, темы, языки, книги','Мудрая','Учёная'],
+ ['str','Сила','СИЛ','Спорт, ходьба, бассейн, скалодром','Могучая','Воительница'],
+ ['agi','Ловкость','ЛОВ','Велосипед, скейт, трюки, жонглирование','Быстрая','Странница'],
+ ['vit','Выносливость','ВЫН','Сон, еда, вода, режим','Неутомимая','Целительница'],
+ ['wil','Воля','ВОЛ','Работа, помидоры, дни без телефона, босс','Стойкая','Стражница'],
+ ['cha','Обаяние','ОБА','Люди, звонки, разговоры, выступления','Обаятельная','Сказительница'],
+ ['cre','Творчество','ТВО','Рисунок, музыка, готовка, руками','Вдохновенная','Алхимик'],
+ ['cur','Любопытство','ЛЮБ','Новые места, вкусы и открытия','Любопытная','Исследовательница']
+].map(s=>({k:s[0],name:s[1],ab:s[2],src:s[3],adj:s[4],cls:s[5]}));
+const SN={};STATS.forEach(s=>{SN[s.k]=s});
+const TAL_LVL=5,MAST_CAP=20;
+const TAL={int:['Цепкая память','Тема дня +4, тема недели +10'],str:['Закалка','Квесты на силу +5'],agi:['Попутный ветер','Каждая поездка на велосипеде или скейте +2'],vit:['Второе дыхание','Плохой сон больше не отнимает баллы'],wil:['Железная воля','Штрафы, которые ставишь сама, вдвое меньше'],cha:['Душа компании','Квесты на обаяние +5'],cre:['Муза','Квесты на творчество +5'],cur:['Карта сокровищ','На доске 9 квестов вместо 6, легендарный квест выпадает чаще']};
+/* Опыт характеристик за единицу дела */
+const ACT_XP={lecture:{int:6},phys:{int:2},math:{int:2},sat:{int:12,wil:4},mistakes:{int:3,wil:2},review:{int:3},work:{wil:6},worklecture:{int:3,wil:1},focus:{wil:3},bike:{agi:4,str:2},skate:{agi:5},walk:{str:2,vit:1},water:{vit:2},early:{vit:2,wil:2},scroll:{wil:-3},skip:{wil:-3}};
+const CHOICE_XP={sleep:{good:{vit:4},ok:{vit:1},bad:{vit:-2}},food:{good:{vit:3},bad:{vit:-2}}};
+const GROUP_STAT={study:'int',work:'wil',move:'agi',body:'vit',extra:'cur',bad:'wil'};
+function actXP(x){if(ACT_XP[x.id])return ACT_XP[x.id];const k=x.stat||GROUP_STAT[x.group]||'cur',v=Math.max(1,Math.round(Math.abs(x.pts||0)/2));return{[k]:x.pts<0?-v:v}}
+const qXP=x=>{const o={};x.st.forEach((k,i)=>{o[k]=(o[k]||0)+(i?Math.round(x.pts/2):x.pts)});return o};
+const needXP=n=>15*(n-1)*n; /* сколько опыта нужно, чтобы стоять на уровне n */
+const statLvl=xp=>{let l=1;while(xp>=needXP(l+1))l++;return l};
+const LEGEND_P=20,LEGEND_P_TAL=35;
+let curLv={};
+function syncAQ(){Object.keys(AQ).forEach(k=>{if(k.startsWith('qc'))delete AQ[k]});(S.cq||[]).forEach(c=>{AQ[c.id]={id:c.id,kind:'qc',title:c.title,hint:c.hint||'',pts:c.pts,st:[c.stat||'cur'],rep:!!c.rep,gone:!!c.gone}})}
+
+/* ---------- Темы для любопытства: заголовок, зацепка, что выяснить, запрос для поиска ---------- */
+const CATS={space:'Космос',phys:'Физика',math:'Математика'};
+const T_SPACE=[
+ ['Почему Венера горячее Меркурия','Меркурий ближе к Солнцу, но самая горячая планета это Венера: около 465 °C днём и ночью.','Что такое неуправляемый парниковый эффект?','Атмосфера Венеры'],
+ ['Гора втрое выше Эвереста','Олимп на Марсе поднимается примерно на 21 км, а его основание шириной около 600 км.','Почему на Марсе вулканы вырастают такими огромными?','Олимп (Марс)'],
+ ['Сатурн мог бы плавать','Средняя плотность Сатурна меньше плотности воды. Нашёлся бы океан побольше, и планета не утонула бы.','Как узнают массу планеты, которую нельзя взвесить?','Сатурн'],
+ ['Звезда размером с город','Нейтронная звезда шириной около 20 км тяжелее Солнца. Чайная ложка её вещества весит миллиарды тонн.','Что не даёт ей сжаться ещё сильнее?','Нейтронная звезда'],
+ ['Луна от нас убегает','Каждый год Луна отдаляется от Земли примерно на 3,8 см, а земные сутки понемногу удлиняются.','При чём здесь приливы?','Приливное ускорение'],
+ ['Обратная сторона Луны не тёмная','Мы всегда видим одну половину Луны, но солнце освещает обе по очереди.','Что такое приливный захват?','Приливный захват'],
+ ['Откуда взялось золото','Значительная часть золота, по современным данным, родилась при слияниях нейтронных звёзд.','Что такое r-процесс?','R-процесс'],
+ ['Эхо Большого взрыва','Всё небо слабо светится в микроволнах. Этот свет идёт к нам около 13,8 млрд лет.','Как его нашли случайно и при чём тут голуби?','Реликтовое излучение'],
+ ['Самый дальний посланник','«Вояджер-1» летит с 1977 года. Его сигнал идёт до Земли почти сутки.','Что записано на его золотой пластинке?','Вояджер-1'],
+ ['Элемент, найденный на Солнце','Гелий заметили в спектре Солнца в 1868 году, а на Земле нашли только в 1895-м.','Как спектр рассказывает о составе звезды?','Гелий'],
+ ['Где висит телескоп «Уэбб»','Он находится в 1,5 млн км от Земли, в точке, где притяжение Солнца и Земли работает в его пользу.','Что такое точки Лагранжа?','Точки Лагранжа'],
+ ['Плутон и его партнёр','Плутон и Харон вращаются вокруг общей точки, и эта точка лежит вне Плутона.','Где находится такая точка у Земли и Луны?','Барицентр'],
+ ['Голубой закат на Марсе','На Марсе дневное небо рыжеватое, а закат голубой. На Земле всё наоборот.','Из-за чего у Марса так получается?','Атмосфера Марса'],
+ ['МКС всё время падает','На высоте МКС притяжение всего примерно на 10% слабее земного. Невесомость там от свободного падения.','С какой скоростью надо лететь, чтобы падать мимо Земли?','Первая космическая скорость'],
+ ['Чудовище в центре Галактики','В центре Млечного Пути находится чёрная дыра массой около 4 млн Солнц.','Как её нашли по движению соседних звёзд?','Стрелец A*']];
+const T_PHYS=[
+ ['Почему небо голубое','Воздух рассеивает синий свет гораздо сильнее красного.','Почему тогда небо не фиолетовое?','Рэлеевское рассеяние'],
+ ['Кипяток без огня','При низком давлении вода закипает при комнатной температуре.','При какой температуре кипит вода на Эвересте?','Температура кипения'],
+ ['Мы почти пустые','Если ядро атома увеличить до горошины, сам атом станет размером со стадион.','Почему тогда рука не проходит сквозь стол?','Принцип Паули'],
+ ['Почему велосипед не падает','Велосипед держится на ходу даже без рук, и один гироскопический эффект этого не объясняет.','Какую роль играет форма вилки и рулевая ось?','Велосипед|Почему велосипед не падает'],
+ ['Сквозь стену','Квантовая частица может пройти барьер, на который ей не хватает энергии. Без этого Солнце светило бы иначе.','Как туннелирование помогает термоядерным реакциям?','Туннельный эффект'],
+ ['Эйнштейн в твоём телефоне','Часы на спутниках GPS уходят вперёд примерно на 38 микросекунд в сутки. Без поправки ошибка росла бы на километры.','Какая часть эффекта от скорости, а какая от гравитации?','GPS|GPS теория относительности'],
+ ['Как кошка падает на лапы','Кошка переворачивается в воздухе, хотя оттолкнуться ей не от чего.','Как ей это удаётся без внешнего момента сил?','Приземление на лапы|Как кошка приземляется на лапы физика'],
+ ['Горячая вода замерзает быстрее?','Эффект Мпембы обсуждают десятки лет, а учёные всё ещё спорят, существует ли он.','Почему этот опыт так трудно повторить?','Эффект Мпембы'],
+ ['Как скейт взлетает без рук','Олли выглядит как магия, но это последовательность ударов, вращения и трения.','Что делает передняя нога и зачем нужна шкурка?','Скейтбординг|Олли физика трюка'],
+ ['Свет со скоростью велосипеда','В 1999 году свет в ультрахолодном газе замедлили примерно до 17 м/с.','Что такое конденсат Бозе — Эйнштейна?','Конденсат Бозе — Эйнштейна'],
+ ['Частицы-призраки','Каждую секунду сквозь ноготь проходят десятки миллиардов нейтрино от Солнца.','Как поймать то, что почти ни с чем не взаимодействует?','Нейтрино'],
+ ['Почему лёд скользкий','Школьное объяснение про таяние от давления не работает, а окончательного ответа до сих пор нет.','Какие объяснения обсуждают сейчас?','Лёд|Почему лёд скользкий'],
+ ['Зачем Шрёдингеру кот','Знаменитого кота придумали не как объяснение, а как возражение.','Что именно автор хотел показать этим примером?','Кот Шрёдингера'],
+ ['Демон против энтропии','Воображаемый демон сортирует молекулы и как будто нарушает второе начало термодинамики.','Почему у него всё же ничего не выйдет?','Демон Максвелла'],
+ ['Сирена и далёкие галактики','Одно и то же явление меняет тон сирены и краснит свет далёких галактик.','Как эффект Доплера помог открыть расширение Вселенной?','Эффект Доплера']];
+const T_MATH=[
+ ['Парадокс дней рождения','Среди 23 человек совпадение дней рождения вероятнее, чем его отсутствие.','Почему интуиция тут так сильно ошибается?','Парадокс дней рождения'],
+ ['Три двери','Ты выбрала дверь, ведущий открыл другую, пустую. Менять выбор выгоднее, и это злит почти всех.','Как выиграть в два раза чаще?','Парадокс Монти Холла'],
+ ['Лента с одной стороной','Склей полоску с перекрутом, и у неё останется одна сторона и один край.','Что будет, если разрезать её вдоль посередине? Попробуй на бумаге','Лента Мёбиуса'],
+ ['Бесконечности разного размера','Действительных чисел больше, чем натуральных, хотя тех и других бесконечно много.','В чём идея диагонального аргумента?','Диагональный аргумент Кантора'],
+ ['Отель, где всегда есть место','В бесконечном отеле все номера заняты, но нового гостя всё равно можно поселить.','Как поселить бесконечный автобус гостей?','Парадокс Гильберта о Гранд-отеле'],
+ ['Лист бумаги до Луны','Лист толщиной 0,1 мм, сложенный 42 раза, стал бы толще расстояния до Луны.','Сколько сгибов понадобится, чтобы достать до Солнца?','Экспоненциальный рост'],
+ ['Золотое сечение: правда и мифы','Про него написано много красивого и не всё верно.','Где оно есть на самом деле, а где его придумали?','Золотое сечение'],
+ ['Числа в подсолнухе','Спирали семян в подсолнухе часто идут числами Фибоначчи.','Какая выгода от этого самому растению?','Филлотаксис'],
+ ['Самая красивая формула','Равенство e^(iπ) + 1 = 0 связывает пять главных чисел математики.','Что значит возвести число в мнимую степень?','Формула Эйлера|Тождество Эйлера'],
+ ['Семь мостов','Эйлер доказал, что по мостам Кёнигсберга нельзя пройти, пройдя по каждому ровно один раз. Так начались графы.','Как быстро проверить любую такую схему?','Задача о семи мостах Кёнигсберга'],
+ ['Какой длины берег','Чем мельче линейка, тем длиннее выходит берег Британии.','Что такое фрактальная размерность?','Парадокс береговой линии'],
+ ['Четыре краски','Любой карте хватит четырёх цветов. Доказать это в 1976 году помог компьютер.','Почему многие математики не сразу приняли такое доказательство?','Проблема четырёх красок'],
+ ['Простые числа и твои пароли','Перемножить два больших простых числа легко, а разложить результат обратно очень трудно.','Как на этом держится шифрование?','RSA'],
+ ['Закон первой цифры','В реальных данных единица стоит первой примерно в 30% случаев, а девятка меньше чем в 5%.','Как этот закон помогает ловить подделки?','Закон Бенфорда'],
+ ['Теорема о еже','Ежа нельзя причесать гладко: где-то обязательно останется вихор.','Что это значит для ветра на Земле?','Теорема о причёсывании ежа']];
+const TOPICS=[];T_SPACE.forEach((_,i)=>[['space',T_SPACE],['phys',T_PHYS],['math',T_MATH]].forEach(([c,l])=>{const x=l[i];TOPICS.push({id:c+i,cat:c,title:x[0],hook:x[1],ask:x[2],q:x[3]})}));
+const WEEKLY=[
+ ['space','Чёрные дыры','Объект, откуда не выбраться даже свету. Их уже сфотографировали и слышали их столкновения.',['Что такое горизонт событий?','Что случилось бы с человеком при падении в чёрную дыру?','Как на самом деле получили снимок чёрной дыры?'],'Чёрная дыра'],
+ ['phys','Двухщелевой опыт','Опыт, который Фейнман считал сердцем квантовой механики: одна частица ведёт себя как волна.',['Какую картину дают отдельные электроны?','Что меняется, если следить за щелями?','Почему «наблюдение» здесь не значит «посмотрел человек»?'],'Двухщелевой опыт'],
+ ['math','Топология: кружка равна бублику','Раздел математики, где фигуры можно мять как пластилин, но нельзя рвать.',['Почему кружка и бублик для топологии одно и то же?','Что такое гомеоморфизм простыми словами?','Сколько дырок у футболки?'],'Топология'],
+ ['space','Жизнь и смерть звёзд','Атомы твоего тела когда-то были внутри звёзд, и это не метафора.',['Как рождается звезда?','Что решает, станет она белым карликом, нейтронной звездой или чёрной дырой?','Откуда берутся элементы тяжелее железа?'],'Звёздная эволюция'],
+ ['phys','Энтропия и стрела времени','Законы механики работают в обе стороны, а разбитая чашка сама не собирается. Почему?',['Что такое энтропия в формулировке Больцмана?','Почему она связана с направлением времени?','Что такое тепловая смерть Вселенной?'],'Энтропия'],
+ ['math','Дилемма заключённого','Двое разумных игроков приходят к результату, который хуже для обоих.',['Что такое равновесие Нэша?','Какая стратегия победила на турнире Аксельрода?','Где эта логика встречается в жизни?'],'Дилемма заключённого'],
+ ['space','Как нашли тысячи чужих планет','Планету у другой звезды почти не видно, но она себя выдаёт.',['Как работает транзитный метод?','Что такое зона обитаемости?','Как ищут признаки жизни в атмосфере планеты?'],'Экзопланета'],
+ ['phys','Теория относительности без формул','Скорость света одинакова для всех, и из этого выходят странные вещи со временем и длиной.',['Почему движущиеся часы идут медленнее?','Что такое парадокс близнецов и как он решается?','Откуда берётся E = mc²?'],'Специальная теория относительности'],
+ ['math','Комплексные числа','Корень из минус единицы придумали ради кубических уравнений, а теперь без него нет физики и электротехники.',['Как комплексное число выглядит на плоскости?','Что умножение на i делает с точкой?','Зачем они нужны в квантовой механике?'],'Комплексное число'],
+ ['space','Тёмная материя и тёмная энергия','Примерно 95% содержимого Вселенной мы не видим напрямую.',['Как вращение галактик намекает на тёмную материю?','Как открыли ускоренное расширение Вселенной?','Какие ещё есть объяснения?'],'Тёмная материя'],
+ ['phys','Как устроен лазер','Вся современная связь и медицина держатся на идее, которую Эйнштейн описал в 1917 году.',['Что такое вынужденное излучение?','Зачем нужна инверсия населённостей?','Чем свет лазера отличается от света лампы?'],'Лазер'],
+ ['math','Преобразование Фурье','Любой сигнал можно разложить на простые волны. На этом работают музыка, снимки и Wi-Fi.',['Что значит разложить сигнал на частоты?','Как это помогает сжимать музыку и фото?','Как это связано с квантовой неопределённостью?'],'Преобразование Фурье'],
+ ['space','Как долететь до Марса','К Марсу не летят по прямой и не вылетают когда угодно.',['Что такое гомановская траектория?','Почему окно запуска открывается раз примерно в 26 месяцев?','Что такое гравитационный манёвр?'],'Гомановская траектория'],
+ ['phys','Стандартная модель','Вся известная материя укладывается в короткую таблицу частиц.',['Какие есть кварки и лептоны?','Какие силы переносят бозоны?','Зачем искали бозон Хиггса?'],'Стандартная модель'],
+ ['math','Теорема Байеса','Положительный тест ещё не значит, что ты болеешь. Об этом говорит одна короткая формула.',['Как обновлять вероятность при новых данных?','Что такое ошибка базовой частоты?','Посчитай пример с редкой болезнью и точным тестом'],'Теорема Байеса'],
+ ['math','Теоремы Гёделя','В 1931 году Гёдель показал, что у математики есть принципиальные границы.',['Что значит «истинно, но недоказуемо»?','При чём тут парадокс лжеца?','Что теоремы не означают, вопреки популярным пересказам?'],'Теоремы Гёделя о неполноте']
+].map((x,i)=>({id:'w'+i,cat:x[0],title:x[1],hook:x[2],qs:x[3],q:x[4]}));
+
+/* ---------- Даты ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const dow=s=>(parse(s).getDay()+6)%7; // 0=пн
+const monday=s=>addDays(s,-dow(s));
+const isSat=s=>dow(s)===5;
+const today=()=>iso(new Date());
+const longDate=s=>parse(s).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+const shortDate=s=>parse(s).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sg=n=>(n>0?'+':n<0?'−':'')+Math.abs(n);
+const plural=(n,a,b,c)=>{const m=Math.abs(n)%100,k=m%10;if(m>10&&m<20)return c;if(k===1)return a;if(k>=2&&k<=4)return b;return c};
+
+/* ---------- Состояние ---------- */
+const LS='kvantovaya-saga-v1';
+function fresh(){return{v:1,start:today(),days:{},weeks:{},buys:[],rewards:DEF_REWARDS.map((r,i)=>({id:'r'+i,name:r[0],cost:r[1]})),pts:{},hidden:{},custom:[],cq:[],goals:{lecture:3,tasks:20,bike:3},auto:true,sound:true,updatedAt:0}}
+function normalize(o){const f=fresh();return Object.assign(f,o,{goals:Object.assign(f.goals,o.goals||{})})}
+let S=fresh();
+try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch(e){}
+let tab='today',view=today(),saveMode='device',confirmReset=false,importMsg='',showExport=false,extraOpen=false;
+
+/* ---------- Сохранение ---------- */
+let remote=null,writing=false,dirty=false,timer=null;
+function persist(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(remote){clearTimeout(timer);timer=setTimeout(flush,700)}}
+async function flush(){if(!remote)return;if(writing){dirty=true;return}writing=true;
+ try{await remote.set(JSON.parse(JSON.stringify(S)));saveMode='account'}
+ catch(e){saveMode='device';if(e&&e.code==='invalid_argument')remote=null}
+ writing=false;if(dirty){dirty=false;flush()}}
+async function connect(){
+ if(!window.claude||!window.claude.use)return;
+ try{
+  const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
+  if(!db||!user)return;const id=await user.id();if(!id)return;
+  const ref=db.doc('data/users/'+id+'/state');remote=ref;let first=true;
+  ref.onSnapshot(snap=>{
+    if(snap.metadata&&snap.metadata.hasPendingWrites)return;
+    const confirmed=!(snap.metadata&&snap.metadata.fromCache);
+    if(snap.exists){const d=snap.data();
+      if((d.updatedAt||0)>(S.updatedAt||0)){S=normalize(JSON.parse(JSON.stringify(d)));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}baseline=null;render()}
+      else if(confirmed&&first&&(S.updatedAt||0)>(d.updatedAt||0))flush();
+      if(confirmed){saveMode='account';render()}
+    }else if(confirmed&&first){if(S.updatedAt)flush();else{saveMode='account';render()}}
+    if(confirmed)first=false;
+  },()=>{remote=null;saveMode='device';render()});
+ }catch(e){}
+}
+
+/* ---------- Правила ---------- */
+const allActions=()=>ACTIONS.concat(S.custom||[]);
+const P=(key,def)=>{const v=S.pts[key];return typeof v==='number'?v:def};
+const aPts=a=>P(a.id,a.pts);
+const optPts=(a,o)=>P(a.id+'_'+o[0],o[2]);
+const autoNoStudy=()=>P('auto_nostudy',-20);
+const autoSat=()=>P('auto_sat',-15);
+const bossBonus=()=>P('boss',60);
+const topicDayPts=()=>P('topic_day',8);
+const topicWeekPts=()=>P('topic_week',40);
+const dayNum=s=>{const[y,m,d]=s.split('-').map(Number);return Math.round(Date.UTC(y,m-1,d)/864e5)};
+const seenDays=()=>new Set(Object.values(S.days).filter(L=>L.tdone&&L.tpick).map(L=>L.tpick));
+const seenWeeks=()=>new Set(Object.values(S.weeks||{}).filter(W=>W.day&&W.pick).map(W=>W.pick));
+function nextTopic(list,from,seen,skip){const N=list.length;for(let i=0;i<N;i++){const t=list[(from+i)%N];if(!seen.has(t.id)&&t.id!==skip)return t}return list[from%N]}
+function dayTopic(d){const L=log(d);if(L.tpick){const t=TOPICS.find(x=>x.id===L.tpick);if(t)return t}return nextTopic(TOPICS,dayNum(d),seenDays())}
+function weekTopic(m){const W=(S.weeks||{})[m];if(W&&W.pick){const t=WEEKLY.find(x=>x.id===W.pick);if(t)return t}return nextTopic(WEEKLY,Math.floor(dayNum(m)/7),seenWeeks())}
+const weekRec=m=>{if(!S.weeks)S.weeks={};if(!S.weeks[m])S.weeks[m]={};return S.weeks[m]};
+const doneDays=()=>{const m={};Object.keys(S.days).sort().forEach(d=>(S.days[d].q||[]).forEach(id=>{m[id]=d}));return m};
+const qSeen=()=>new Set(Object.keys(doneDays()));
+const QLIST={m:QM,e:QE,l:QL};
+function dayQ(d,slot){const L=log(d),pin=L['q'+slot],list=QLIST[slot];if(pin&&AQ[pin])return AQ[pin];return nextTopic(list,hash(slot+d),qSeen())}
+const legendOn=d=>!!log(d).ql||(log(d).q||[]).some(id=>id.startsWith('ql'))||hash('L'+d)%100<((curLv.cur||1)>=TAL_LVL?LEGEND_P_TAL:LEGEND_P);
+function weekQ(m){const W=(S.weeks||{})[m]||{};if(W.qp&&W.qp.length===2&&W.qp.every(id=>AQ[id]))return W.qp.map(id=>AQ[id]);
+ const s=qSeen(),a=nextTopic(QW,hash('w'+m),s);let b=nextTopic(QW,hash('x'+m),s,a.id);if(b.id===a.id)b=QW[(QW.indexOf(a)+1)%QW.length];return[a,b]}
+function weekDoneDay(m,id){for(let i=0;i<7;i++){const d=addDays(m,i);if((log(d).q||[]).includes(id))return d}return null}
+function boardQ(){const dm=doneDays(),order=QB.slice().sort((a,b)=>hash('b'+a.id)-hash('b'+b.id));return{open:order.filter(x=>!dm[x.id]).slice(0,(curLv.cur||1)>=TAL_LVL?9:6),done:QB.filter(x=>dm[x.id]).length}}
+const eveningOpen=d=>d<today()||new Date().getHours()>=EVENING_H;
+const streakPct=s=>s>=30?50:s>=14?40:s>=7?25:s>=3?10:0;
+const log=d=>S.days[d]||{a:{},type:'normal'};
+const dayQuest=d=>QUESTS[hash('q'+d)%(d<QUESTS_CUT?QUESTS_OLD:QUESTS.length)];
+const chestValue=d=>{const h=hash('c'+d)%100;return h<5?50:5+(hash('v'+d)%5)*5};
+const gradeOf=t=>t>=110?'5+':t>=75?'5':t>=45?'4':t>=20?'3':'2';
+const orbitOf=t=>{let n=0;ORBITS.forEach((o,i)=>{if(t>=o[0])n=i});return n};
+
+function calcDay(d,prevStreak,now,start,lv){
+ lv=lv||{};const tal=k=>(lv[k]||1)>=TAL_LVL;
+ const L=log(d),a=L.a||{},type=L.type||'normal',lines=[],sx={};
+ const addX=(o,m)=>{for(const k in o){const v=Math.round(o[k]*m);if(v)sx[k]=(sx[k]||0)+v}};
+ let studyPos=0,otherPos=0,neg=0,studied=false,moved=false,mast=0,ride=0;
+ const mastery=(p,k)=>{if(p>0)mast+=p*Math.min(MAST_CAP,(lv[k]||1)-1)/100};
+ for(const x of allActions()){
+  const v=a[x.id];if(!v)continue;
+  if(x.kind==='choice'){const o=x.options.find(o=>o[0]===v);if(!o)continue;const p=optPts(x,o);
+    if(p>0)otherPos+=p;else neg+=p;
+    if(p!==0)lines.push({t:x.name+': '+o[1].toLowerCase(),v:p,k:p<0?'minus':''});const cx=(CHOICE_XP[x.id]||{})[v];if(cx)addX(cx,1);continue}
+  let p=aPts(x)*(x.kind==='count'?v:1);
+  if(p<0&&x.group==='bad'&&tal('wil'))p=Math.round(p/2);
+  if((x.id==='bike'||x.id==='skate')&&tal('agi'))ride+=2*v;
+  const xo=actXP(x);addX(xo,x.kind==='count'?v:1);mastery(p,Object.keys(xo)[0]);
+  if(p>0){if(x.group==='study')studyPos+=p;else otherPos+=p}else neg+=p;
+  if(x.group==='study')studied=true;if(x.group==='move')moved=true;
+  lines.push({t:x.name+(x.kind==='count'&&v>1?' × '+v:''),v:p,k:p<0?'minus':''});
+ }
+ if(L.tdone){const p=topicDayPts()+(tal('int')?4:0);otherPos+=p;lines.push({t:'Тема дня изучена',v:p,k:''});addX({cur:4,int:3},1)}
+ if(L.wk){const p=topicWeekPts()+(tal('int')?10:0);otherPos+=p;lines.push({t:'Тема недели изучена',v:p,k:''});addX({int:12,cur:12},1)}
+ for(const id of (L.q||[])){const x=AQ[id];if(!x)continue;const ex=['str','cha','cre'].some(k=>x.st.includes(k)&&tal(k))?5:0;otherPos+=x.pts+ex;lines.push({t:QKIND[x.kind]+': '+x.title,v:x.pts+ex,k:''});addX(qXP(x),1);mastery(x.pts,x.st[0])}
+ const isPast=d<now,type0=type==='normal';
+ let streak=prevStreak;
+ if(studied)streak=prevStreak+1;else if(!type0)streak=prevStreak;else if(isPast)streak=0;
+ const sleepMod=a.sleep==='good'?10:a.sleep==='bad'&&!tal('vit')?-10:0;
+ const sleepV=studyPos?Math.round(studyPos*sleepMod/100):0;
+ if(sleepV)lines.push({t:(sleepMod>0?'Выспалась':'Не выспалась')+': '+sg(sleepMod)+'% к учёбе',v:sleepV,k:sleepMod>0?'mod':'minus'});
+ const pct=streakPct(streak);
+ const sub=studyPos+sleepV+otherPos;
+ const streakV=Math.round(Math.max(0,sub)*pct/100);
+ if(streakV)lines.push({t:'Серия '+streak+' '+plural(streak,'день','дня','дней')+': +'+pct+'%',v:streakV,k:'mod'});
+ let bonus=0;
+ const physDone=(a.lecture||0)+(a.phys||0)>0,mathDone=(a.math||0)>0;
+ if(physDone&&mathDone){bonus+=8;lines.push({t:'Комбо «Физмат»: физика и математика',v:8,k:'bonus'})}
+ if(studied&&moved&&a.food==='good'){bonus+=10;lines.push({t:'Комбо «Триада»: учёба, движение, питание',v:10,k:'bonus'})}
+ const perfect=studied&&moved&&a.food==='good'&&a.sleep==='good'&&neg===0;
+ if(perfect){bonus+=25;lines.push({t:'Идеальный день',v:25,k:'bonus'});addX({vit:5,wil:3},1)}
+ if(ride){bonus+=ride;lines.push({t:'Талант «Попутный ветер»',v:ride,k:'bonus'})}
+ mast=Math.round(mast);if(mast){bonus+=mast;lines.push({t:'Мастерство характеристик',v:mast,k:'bonus'})}
+ const Q=dayQuest(d),qDone=Q.f(a);
+ if(qDone){bonus+=Q.b;lines.push({t:'Квест дня',v:Q.b,k:'bonus'})}
+ let auto=0;
+ if(S.auto&&type0&&isPast&&d>=start){
+  if(!studied){auto+=autoNoStudy();lines.push({t:'День без учёбы',v:autoNoStudy(),k:'minus'})}
+  if(isSat(d)&&!a.sat){auto+=autoSat();lines.push({t:'Пропущено субботнее допзанятие',v:autoSat(),k:'minus'})}
+ }
+ const pre=sub+streakV+bonus+neg;
+ const chestOk=pre>=45,chestV=chestValue(d),chestOn=!!L.chest&&chestOk;
+ if(chestOn)lines.push({t:'Находка из тайника',v:chestV,k:'bonus'});
+ const total=pre+auto+(chestOn?chestV:0);
+ const touched=Object.keys(a).length>0||!!L.tdone||!!L.wk||!!(L.q&&L.q.length);
+ return{d,total,lines,streak,studied,moved,perfect,qDone,Q,chestOk,chestV,chestOn,a,type,neg,touched,auto,sx};
+}
+function weekStats(mon){
+ const r={lecture:0,tasks:0,bike:0,sat:0};
+ for(let i=0;i<7;i++){const a=log(addDays(mon,i)).a||{};r.lecture+=a.lecture||0;r.tasks+=(a.phys||0)+(a.math||0);r.bike+=(a.bike||0)+(a.skate||0);if(a.sat)r.sat=1}
+ return r;
+}
+function bossState(mon){
+ const w=weekStats(mon),g=S.goals;
+ const parts=[['Лекции по физике',w.lecture,g.lecture],['Задачи, физика и математика',w.tasks,g.tasks],['Поездки: велосипед и скейт',w.bike,g.bike],['Субботнее допзанятие',w.sat,1]];
+ const prog=parts.reduce((s,p)=>s+Math.min(1,p[1]/Math.max(1,p[2])),0)/parts.length;
+ return{parts,prog,win:parts.every(p=>p[1]>=p[2])};
+}
+function computeAll(){
+ syncAQ();
+ const now=today(),keys=Object.keys(S.days).filter(d=>d<=now).sort();
+ const first=keys[0]&&keys[0]<S.start?keys[0]:S.start;
+ const days={},order=[];let streak=0,exp=0;const sxp={};
+ const lvOf=()=>{const o={};STATS.forEach(s=>{o[s.k]=statLvl(sxp[s.k]||0)});return o};
+ const T={lecture:0,phys:0,math:0,bike:0,skate:0,sat:0,work:0,perfect:0,boss:0,maxStreak:0,sleepRun:0,sleepMax:0,quests:0,chests:0,orbit5:0,focus:0,topics:0,wtopics:0,adv:0,advw:0,legend:0};
+ for(let d=first;d<=now;d=addDays(d,1)){
+  const r=calcDay(d,streak,now,S.start,lvOf());streak=r.streak;for(const k in r.sx)sxp[k]=Math.max(0,(sxp[k]||0)+r.sx[k]);days[d]=r;order.push(d);exp+=r.total;
+  const a=r.a;T.lecture+=a.lecture||0;T.phys+=a.phys||0;T.math+=a.math||0;T.bike+=a.bike||0;T.skate+=a.skate||0;T.focus+=a.focus||0;if(log(d).tdone)T.topics++;if(log(d).wk)T.wtopics++;const qq=log(d).q||[];T.adv+=qq.length;T.advw+=qq.filter(id=>id.startsWith('qw')).length;T.legend+=qq.filter(id=>id.startsWith('ql')).length;
+  if(a.sat)T.sat++;if(a.work)T.work++;if(r.perfect)T.perfect++;if(r.qDone)T.quests++;if(r.chestOn)T.chests++;if(r.total>=IONIZE)T.orbit5++;
+  T.maxStreak=Math.max(T.maxStreak,streak);
+  if(a.sleep==='good'){T.sleepRun++;T.sleepMax=Math.max(T.sleepMax,T.sleepRun)}else if(d<now)T.sleepRun=0;
+ }
+ const seen=new Set();let bonus=0;
+ for(const d of order){const m=monday(d);if(seen.has(m))continue;seen.add(m);if(bossState(m).win){bonus+=bossBonus();T.boss++;sxp.wil=(sxp.wil||0)+20}}
+ const sl=lvOf();curLv=sl;const lvs=STATS.map(s=>sl[s.k]);T.maxStat=Math.max(...lvs);T.minStat=Math.min(...lvs);T.sumStat=lvs.reduce((s,v)=>s+v,0);
+ exp+=bonus;
+ const spent=(S.buys||[]).reduce((s,b)=>s+b.cost,0);
+ let lvl=0;RANKS.forEach((r,i)=>{if(exp>=r[2])lvl=i});
+ return{days,order,exp,spent,balance:exp-spent,lvl,T,streak,bonus,sxp,sl};
+}
+const ACH=[
+ ['λ','Первый квант','Посмотри первую лекцию',T=>T.lecture,1],
+ ['Σ','Десять лекций','Лекций по физике за всё время',T=>T.lecture,10],
+ ['Ψ','Полсотни лекций','Лекций по физике за всё время',T=>T.lecture,50],
+ ['F','Сто задач по физике','Решённых задач по физике',T=>T.phys,100],
+ ['∫','Сто задач по математике','Решённых задач по математике',T=>T.math,100],
+ ['∞','Тысяча задач','Физика и математика вместе',T=>T.phys+T.math,1000],
+ ['Δ','Резонанс','Серия из 7 дней с учёбой',T=>T.maxStreak,7],
+ ['ω','Устойчивая частота','Серия из 30 дней с учёбой',T=>T.maxStreak,30],
+ ['v','Первые 10 поездок','Поездок на велосипеде',T=>T.bike,10],
+ ['p','Полсотни поездок','Поездок на велосипеде',T=>T.bike,50],
+ ['S','Энтропия убывает','Победи босса недели',T=>T.boss,1],
+ ['∇','Второе начало отменяется','Победи босса 5 раз',T=>T.boss,5],
+ ['★','Идеальный день','Сон, еда, учёба, движение и без штрафов',T=>T.perfect,1],
+ ['ħ','Суббота святая','Посети 4 субботних допзанятия',T=>T.sat,4],
+ ['ε','Глубокий сон','7 ночей хорошего сна подряд',T=>T.sleepMax,7],
+ ['e⁻','Ионизация','Набери 150 баллов за один день',T=>T.orbit5,1],
+ ['Q','Охота за квестами','Выполни 10 квестов дня',T=>T.quests,10],
+ ['τ','Сто помидоров','Помидоров за всё время',T=>T.focus,100],
+ ['L','Момент импульса','Поездок на скейте',T=>T.skate,10],
+ ['α','Полсотни на доске','Поездок на скейте',T=>T.skate,50],
+ ['?','Любопытная','Изучи 10 тем дня',T=>T.topics,10],
+ ['π','Ходячая энциклопедия','Изучи 30 тем дня',T=>T.topics,30],
+ ['H','Большая тема','Изучи первую тему недели',T=>T.wtopics,1],
+ ['Ω','Полный курс','Изучи все 16 тем недели',T=>T.wtopics,16],
+ ['☄','Искательница приключений','Выполни 10 квестов-приключений',T=>T.adv,10],
+ ['✦','Сто новых опытов','Выполни 100 квестов-приключений',T=>T.adv,100],
+ ['W','Неделя открытий','Выполни 5 квестов недели',T=>T.advw,5],
+ ['✧','Первый талант','Подними любую характеристику до 5 уровня',T=>T.maxStat,5],
+ ['☼','Гармония','Все восемь характеристик на 3 уровне',T=>T.minStat,3],
+ ['♛','Мастер','Любая характеристика на 10 уровне',T=>T.maxStat,10],
+ ['⚜','Легенда','Выполни легендарный квест',T=>T.legend,1],
+ ['❖','Сага продолжается','Выполни 5 легендарных квестов',T=>T.legend,5]];
+
+/* ---------- Отрисовка ---------- */
+const $=s=>document.querySelector(s);
+let baseline=null,lastOrbit=null,photonNow=false;
+function header(C){
+ const r=RANKS[C.lvl],nx=RANKS[C.lvl+1];
+ const pct=nx?Math.max(0,Math.min(100,(C.exp-r[2])/(nx[2]-r[2])*100)):100;
+ const tabs=[['today','Сегодня'],['hero','Героиня'],['quests','Квесты'],['topics','Темы'],['journal','Журнал'],['ach','Достижения'],['shop','Награды'],['rules','Правила']];
+ return `<header class="top"><div class="toprow">
+  <div class="brand">Квантовая<br>сага<small class="cls">${esc(heroClass(C.sl,C.sxp))}</small></div>
+  <div class="rank"><div class="rankline"><b>Ур. ${C.lvl+1} · ${esc(r[0])}</b><span>${r[1]}</span></div>
+   <div class="xp" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100" aria-label="Прогресс уровня"><i style="width:${pct}%"></i></div>
+   <div class="small" style="font-size:12px;margin-top:2px">${nx?`Опыт ${C.exp} из ${nx[2]}. Дальше: ${esc(nx[0])}`:`Опыт ${C.exp}. Выше масштаба нет`}</div></div>
+  <div class="stats"><div class="stat"><b style="${C.balance<0?'color:var(--red)':''}">${String(C.balance).replace('-','−')}</b><small>баллов</small></div>
+   <div class="stat"><b>${C.streak}</b><small>${plural(C.streak,'день','дня','дней')} серии</small></div>
+   <div class="stat"><button class="statbtn" data-act="tab" data-v="hero"><b>${C.T.sumStat}</b><small>сила героини</small></button></div></div>
+ </div><div class="tabrow"><nav class="tabs" role="tablist" aria-label="Разделы">${tabs.map(t=>`<button class="tab" role="tab" id="tab-${t[0]}" data-act="tab" data-v="${t[0]}" aria-selected="${tab===t[0]}">${t[1]}</button>`).join('')}</nav>${themeBtn()}</div></header>`;
+}
+function rowHTML(x,d,L){
+ const a=L.a||{},v=a[x.id];
+ if(x.kind==='choice'){
+  return `<div class="row choice"><div class="margin ${v&&optPts(x,x.options.find(o=>o[0]===v))>0?'pos':''}">${v?sg(optPts(x,x.options.find(o=>o[0]===v)))||'0':'?'}</div>
+   <div class="choicewrap"><div class="rname"><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div>
+   <div class="choices" role="group" aria-label="${esc(x.name)}">${x.options.map(o=>`<button class="opt" id="o-${x.id}-${o[0]}" data-act="choice" data-id="${x.id}" data-v="${o[0]}" aria-pressed="${v===o[0]}">${esc(o[1])}<em>${sg(optPts(x,o))||'0'}</em></button>`).join('')}</div></div></div>`;
+ }
+ const p=aPts(x),dis=x.satOnly&&!isSat(d);
+ const m=`<div class="margin ${p>0?'pos':''}">${sg(p)}</div>`;
+ const nm=`<div class="rname"><b>${esc(x.name)}</b>${x.note?`<small>${dis?'Откроется в субботу':esc(x.note)}</small>`:''}</div>`;
+ if(x.kind==='count'){
+  return `<div class="row">${m}${nm}<div class="ctl cnt"><button class="step" id="m-${x.id}" data-act="dec" data-id="${x.id}" aria-label="Убавить: ${esc(x.name)}" ${v?'':'disabled'}>−</button><output aria-live="polite">${v||0}</output><button class="step plus" id="p-${x.id}" data-act="inc" data-id="${x.id}" aria-label="Добавить: ${esc(x.name)}">+</button></div></div>`;
+ }
+ return `<div class="row ${dis?'off':''}">${m}${nm}<div class="ctl"><button class="tick ${p<0?'badt':''}" id="t-${x.id}" data-act="toggle" data-id="${x.id}" role="switch" aria-checked="${!!v}" aria-pressed="${!!v}" aria-label="${esc(x.name)}" ${dis?'disabled':''}>${v?(p<0?'×':'✓'):''}</button></div></div>`;
+}
+function atomSVG(n,ion){
+ const R=[36,60,84,108,132],r=R[n];
+ const delay=-(performance.now()%8000);
+ return `<svg class="atom" viewBox="0 0 300 300" role="img" aria-label="Атом дня, электрон на орбите ${n+1} из 5">
+  ${R.map((q,i)=>`<circle class="orbit ${i===n?'on':''}" cx="150" cy="150" r="${q}"/><text class="orbn" x="${150+q*.707+3}" y="${150-q*.707}">${i+1}</text>`).join('')}
+  <circle class="nuc" cx="150" cy="150" r="13"/>
+  <g class="spin" style="animation-delay:${delay}ms"><circle class="el ${ion?'ion':''}" cx="${150+r}" cy="150" r="9"/></g>
+  ${photonNow?`<path class="photon" d="M150 150 q8 -14 16 0 t16 0 t16 0 t16 0" transform="rotate(-45 150 150)"/>`:''}
+ </svg>`;
+}
+function todayView(C){
+ const d=view,now=today(),L=log(d),r=C.days[d]||calcDay(d,0,now,S.start,C.sl),isToday=d===now;
+ const n=orbitOf(r.total),ion=r.total>=IONIZE;
+ const nxt=n<4?ORBITS[n+1]:null;
+ const stateTxt=ion?'Ионизация! Электрон вырвался':ORBITS[n][1];
+ const nextTxt=ion?'Выше этого за день не прыгнуть':nxt?`До орбиты ${n+2}: ещё ${Math.max(1,nxt[0]-r.total)}`:`До ионизации: ещё ${IONIZE-r.total}`;
+ const offUsed=Object.keys(S.days).some(k=>k!==d&&monday(k)===monday(d)&&S.days[k].type==='off');
+ const groups=Object.keys(GROUPS).map(g=>{
+  const items=allActions().filter(x=>(x.show||x.group)===g&&!S.hidden[x.id]);if(!items.length)return'';
+  if(g==='extra'){const n=items.filter(x=>(L.a||{})[x.id]).length;
+   return `<section class="sheet block g-extra"><button class="ghead more" id="more" data-act="more" aria-expanded="${extraOpen}"><span></span><span>${GROUPS[g]}${n?`: отмечено ${n}`:''}<i aria-hidden="true">${extraOpen?'▴':'▾'}</i></span></button>${extraOpen?items.map(x=>rowHTML(x,d,L)).join(''):''}</section>`}
+  return `<section class="sheet block g-${g}"><div class="ghead ${g==='bad'?'bad':''}"><span></span><span>${GROUPS[g]}</span></div>${items.map(x=>rowHTML(x,d,L)).join('')}</section>`}).join('');
+ const mon=monday(d),B=bossState(mon);
+ const warn=[];
+ if(isToday&&S.auto&&r.type==='normal'){
+  if(!r.studied)warn.push(`учёбы пока нет, в полночь спишется <b>${sg(autoNoStudy())}</b>`);
+  if(isSat(d)&&!r.a.sat)warn.push(`допзанятие не отмечено, ещё <b>${sg(autoSat())}</b>`);
+ }
+ return `<div class="today">
+  <div class="dayhead"><div class="daynav"><button class="iconbtn" id="prevday" data-act="day" data-v="-1" aria-label="Предыдущий день">‹</button>
+    <button class="iconbtn" id="nextday" data-act="day" data-v="1" aria-label="Следующий день" ${isToday?'disabled':''}>›</button>
+    <h1 class="daytitle">${esc(longDate(d))}</h1>${isToday?'':`<button class="todaybtn" data-act="gotoday">к сегодня</button>`}</div>
+   <div class="seg" role="group" aria-label="Тип дня">
+    <button id="ty-n" data-act="type" data-v="normal" aria-pressed="${r.type==='normal'}">Обычный</button>
+    <button id="ty-o" data-act="type" data-v="off" aria-pressed="${r.type==='off'}" ${offUsed&&r.type!=='off'?'disabled title="Отгул на этой неделе уже взят"':''}>Отгул</button>
+    <button id="ty-s" data-act="type" data-v="sick" aria-pressed="${r.type==='sick'}">Болею</button></div></div>
+  <section class="quests">
+   ${warn.length?`<div class="alert">Сегодня: ${warn.join('; ')}.</div>`:''}
+   ${r.type!=='normal'?`<div class="alert" style="border-color:var(--green);background:var(--green-soft)">${r.type==='off'?'Отгул, один на неделю':'Больничный'}: автоштрафов нет, серия не прерывается.</div>`:''}
+   <div class="blocks">${groups}</div></section>
+  <section class="hero sheet"><div class="pad">${atomSVG(n,ion)}<div>
+    <div class="score"><b class="${r.total<0?'neg':''}" id="dayscore">${sg(r.total)||'0'}</b>${r.touched||!isToday?`<span class="grade" aria-label="Оценка за день ${gradeOf(r.total)}">${gradeOf(r.total)}</span>`:''}</div>
+    <div class="state">${stateTxt}</div><div class="next">${nextTxt}</div></div></div></section>
+  <div class="side">
+   <section class="sheet pad"><div class="h3">Квест дня</div>
+    <div class="quest ${r.qDone?'done':''}"><span class="mark">${r.qDone?'✓':''}</span><span>${esc(r.Q.t)}</span><span class="q-v">+${r.Q.b}</span></div></section>
+   ${advBrief(d)}${topicBrief('day',d)}${topicBrief('week',d)}
+   ${r.chestOk?(r.chestOn?`<div class="chest" role="status">Тайник открыт<b>+${r.chestV}</b></div>`:`<button class="chest wiggle" id="chest" data-act="chest">Открыть тайник дня<b>?</b></button>`):`<div class="chest" style="opacity:.7">Тайник откроется от 45 баллов за день<b>${Math.max(0,r.total)}/45</b></div>`}
+   <section class="sheet pad"><div class="boss-top"><div class="h3" style="margin:0">Босс недели: Энтропия</div><span>${Math.round((1-B.prog)*100)} HP</span></div>
+    <div class="hp ${B.win?'dead':''}"><i style="width:${B.win?100:(1-B.prog)*100}%"></i></div>
+    ${B.parts.map(p=>`<div class="goal"><span>${p[0]}</span><span>${p[1]}/${p[2]}</span><div class="bar"><i style="width:${Math.min(100,p[1]/Math.max(1,p[2])*100)}%"></i></div></div>`).join('')}
+    <div class="small" style="margin-top:9px">${B.win?`Побеждена. На счету +${bossBonus()}`:`Закрой все цели до воскресенья и получи +${bossBonus()}`}</div></section>
+   ${gainBrief(r)}
+   <section class="sheet pad"><div class="h3">Расчёт дня</div>
+    ${r.lines.length?`<ul class="lines">${r.lines.map(l=>`<li class="${l.k}"><span>${esc(l.t)}</span><b>${sg(l.v)}</b></li>`).join('')}</ul>`:`<div class="small">Отметь первое дело, и здесь появится расчёт: каждый балл, бонус и штраф по строчкам.</div>`}
+    <div class="total"><span>Итого</span><span>${sg(r.total)||'0'}</span></div></section>
+  </div></div>`;
+}
+function topicState(kind,d){
+ if(kind==='day'){const L=log(d);return{t:dayTopic(d),done:!!L.tdone,note:L.tnote||'',pts:topicDayPts(),label:'Тема дня',doneDay:L.tdone?d:null}}
+ const m=monday(d),W=(S.weeks||{})[m]||{};return{t:weekTopic(m),done:!!W.day,note:W.note||'',pts:topicWeekPts(),label:'Тема недели',doneDay:W.day||null};
+}
+function topicBrief(kind,d){
+ const s=topicState(kind,d);
+ return `<section class="sheet pad topic"><div class="tophead"><div class="h3" style="margin:0">${s.label}</div><span class="tag ${s.t.cat}">${CATS[s.t.cat]}</span></div>
+  <div class="quest ${s.done?'done':''}"><span class="mark">${s.done?'✓':''}</span><span><b>${esc(s.t.title)}</b></span><span class="q-v">+${s.pts}</span></div>
+  <p class="hook">${esc(s.t.hook)}</p>
+  <div class="tbtns"><button class="btn ${s.done?'ghost':''}" id="brief-${kind}" data-act="${kind==='day'?'tdone':'wdone'}">${s.done?'Отменить отметку':'Изучила'}</button><button class="linkbtn" id="open-${kind}" data-act="tab" data-v="topics">${kind==='day'?'Вопрос и ссылки':'Вопросы и ссылки'}</button></div></section>`;
+}
+function topicFull(kind,d){
+ const s=topicState(kind,d),t=s.t,enc=encodeURIComponent;
+ const [qw,qv]=t.q.split('|'),wiki=`https://ru.wikipedia.org/w/index.php?search=${enc(qw)}`,yt=`https://www.youtube.com/results?search_query=${enc((qv||qw)+' простыми словами')}`;
+ return `<section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">${s.label}</h2><span class="tag ${t.cat}">${CATS[t.cat]}</span></div>
+  <h3 class="ttl">${esc(t.title)}</h3><p class="hook">${esc(t.hook)}</p>
+  ${kind==='day'?`<div class="ask">Выясни: ${esc(t.ask)}</div>`:`<div class="ask">Разберись:</div><ol class="rulelist">${t.qs.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`}
+  <div class="small">${kind==='day'?'На 5–10 минут.':'На 30–40 минут, можно частями в течение недели.'}</div>
+  <div class="tbtns"><a class="ext" href="${esc(wiki)}" target="_blank" rel="noopener noreferrer">Читать в Википедии ↗</a><a class="ext" href="${esc(yt)}" target="_blank" rel="noopener noreferrer">Найти видео ↗</a></div>
+  <label class="small" for="note-${kind}">Что запомнила</label><textarea class="tnote" id="note-${kind}" data-chg="${kind==='day'?'tnote':'wnote'}" placeholder="Пара строк своими словами">${esc(s.note)}</textarea>
+  <div class="tbtns"><button class="btn ${s.done?'ghost':''}" id="full-${kind}" data-act="${kind==='day'?'tdone':'wdone'}">${s.done?'Отменить отметку':'Изучила, +'+s.pts}</button>${s.done?'':`<button class="btn ghost" id="swap-${kind}" data-act="${kind==='day'?'tswap':'wswap'}">Другая тема</button>`}</div></section>`;
+}
+const chips=x=>`<span class="chips">${Object.entries(qXP(x)).map(([k,v])=>`<span class="chip" title="${esc(SN[k].name)}">${SN[k].ab} +${v}</span>`).join('')}</span>`;
+function qCard(x,slot,doneDay,swap,extra){const done=!!doneDay;
+ return `<div class="aq ${x.kind==='ql'?'legend':''}"><div class="quest ${done?'done':''}"><span class="mark">${done?'✓':''}</span><span><b>${esc(x.title)}</b>${x.hint?`<small>${esc(x.hint)}</small>`:''}${chips(x)}</span><span class="q-v">+${x.pts}</span></div>
+  <div class="tbtns"><button class="btn ${done?'ghost':''}" id="qd-${slot}-${x.id}" data-act="qtoggle" data-id="${x.id}" data-slot="${slot}" data-d="${doneDay||''}">${done?'Отменить':'Сделала, +'+x.pts}</button>${!done&&swap?`<button class="linkbtn" id="qs-${slot}" data-act="qswap" data-slot="${slot}" data-id="${x.id}">Другой квест</button>`:''}${extra||''}</div></div>`}
+const lockedEve=`<div class="quest locked"><span class="mark">?</span><span><b>Вечерний квест ещё запечатан</b><small>Откроется в ${EVENING_H}:00. Загляни после работы.</small></span></div>`;
+function advBrief(d){
+ const L=log(d),eo=eveningOpen(d);
+ const row=(x,slot)=>{const done=(L.q||[]).includes(x.id);return `<div class="quest ${done?'done':''}"><button class="mark" id="qb-${slot}" data-act="qtoggle" data-id="${x.id}" data-slot="${slot}" data-d="${done?d:''}" aria-pressed="${done}" aria-label="${done?'Отменить':'Отметить'}: ${esc(x.title)}">${done?'✓':''}</button><span><b>${esc(x.title)}</b><small>${QKIND[x.kind]}</small>${chips(x)}</span><span class="q-v">+${x.pts}</span></div>`};
+ return `<section class="sheet pad topic"><div class="tophead"><div class="h3" style="margin:0">Приключения дня</div><button class="linkbtn" data-act="tab" data-v="quests">Доска квестов</button></div>
+  ${row(dayQ(d,'m'),'m')}${eo?row(dayQ(d,'e'),'e'):lockedEve}${legendOn(d)?row(dayQ(d,'l'),'l'):''}</section>`;
+}
+function questsView(C){
+ const d=view,L=log(d),m=monday(d),eo=eveningOpen(d);
+ const dq=x=>(L.q||[]).includes(x.id)?d:null;
+ const qm=dayQ(d,'m'),qe=dayQ(d,'e'),W=weekQ(m),B=boardQ();
+ const all=[];Object.keys(S.days).forEach(k=>(S.days[k].q||[]).forEach(id=>{if(AQ[id])all.push({d:k,x:AQ[id]})}));
+ all.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+ return `<div class="page">
+  ${d!==today()?`<div class="alert">Квесты за ${esc(longDate(d))}. <button class="linkbtn" data-act="gotoday">К сегодня</button></div>`:''}
+  <div class="rules">
+   <section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Утренний квест</h2><span class="tag space">на весь день</span></div>${qCard(qm,'m',dq(qm),true)}</section>
+   <section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Вечерний квест</h2><span class="tag phys">с ${EVENING_H}:00</span></div>${eo?qCard(qe,'e',dq(qe),true):lockedEve}</section>
+  </div>
+  <section class="sheet pad topic ${legendOn(d)?'legend':''}"><div class="tophead"><h2 class="sec" style="margin:0">Легендарный квест</h2><span class="tag gold">редкий</span></div>
+   ${legendOn(d)?qCard(dayQ(d,'l'),'l',dq(dayQ(d,'l')),true):`<p class="hook">Сегодня не выпал. Легендарный квест появляется примерно в ${(curLv.cur||1)>=TAL_LVL?LEGEND_P_TAL:LEGEND_P}% дней и даёт много опыта сразу нескольким характеристикам.</p>`}</section>
+  <section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Квесты недели</h2><span class="tag math">до воскресенья</span></div>
+   <div class="qlist">${W.map((x,i)=>qCard(x,'w'+i,weekDoneDay(m,x.id),true)).join('')}</div>
+   <div class="small">Большие дела на несколько дней. Отметь в тот день, когда закончишь.</div></section>
+  <section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Доска квестов</h2><span class="tag space">${B.done} из ${QB.length}</span></div>
+   <p class="hook">Висят, пока не сделаешь, срока нет. Выполненный снимается с доски, на его место приходит новый.</p>
+   ${B.open.length?`<div class="board">${B.open.map(x=>qCard(x,'b',null,false)).join('')}</div>`:'<p class="note">Доска пуста: ты сделала всё!</p>'}</section>
+  ${ownQuests(d)}
+  <section class="sheet pad"><h2 class="sec">Журнал приключений</h2>
+   ${all.length?`<ul class="found">${all.map(e=>`<li><div class="tophead"><b>${esc(e.x.title)}</b><span class="q-v">+${e.x.pts}</span></div><div class="tbtns"><span class="small">${QKIND[e.x.kind]}</span><button class="linkbtn" data-act="openday" data-v="${e.d}">${esc(shortDate(e.d))}</button><button class="linkbtn" style="color:var(--red)" data-act="qtoggle" data-id="${e.x.id}" data-d="${e.d}">Отменить</button></div></li>`).join('')}</ul>`:`<p class="small" style="margin:0">Здесь соберётся всё новое, что ты попробовала. Начни с утреннего квеста.</p>`}
+  </section></div>`;
+}
+
+function heroClass(sl,sxp){
+ if(!sxp||!Object.keys(sxp).length)return 'Начинающая искательница';
+ const o=STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
+ return o[1]&&(sxp[o[1].k]||0)>0?o[1].adj+' '+o[0].cls.toLowerCase():o[0].cls;
+}
+function gainBrief(r){
+ const e=STATS.filter(s=>r.sx&&r.sx[s.k]);
+ return `<section class="sheet pad"><div class="tophead"><div class="h3" style="margin:0">Прокачка дня</div><button class="linkbtn" data-act="tab" data-v="hero">Героиня</button></div>
+  ${e.length?`<div class="chips big">${e.map(s=>`<span class="chip ${r.sx[s.k]<0?'neg':''}">${esc(s.name)} ${sg(r.sx[s.k])}</span>`).join('')}</div>`:`<div class="small">Каждое дело и квест качают свою характеристику. Отметь что-нибудь, и здесь появится опыт.</div>`}</section>`;
+}
+function radarSVG(sl){
+ const N=STATS.length,cx=170,cy=150,R=100,max=Math.max(5,...STATS.map(s=>sl[s.k]));
+ const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/N;return[cx+Math.cos(a)*R*v/max,cy+Math.sin(a)*R*v/max]};
+ let g='';const step=max>10?5:max>5?2:1;
+ for(let v=step;v<=max;v+=step)g+=`<polygon class="rring" points="${STATS.map((_,i)=>pt(i,v).join(',')).join(' ')}"/>`;
+ g+=STATS.map((_,i)=>{const p=pt(i,max);return `<line class="raxis" x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}"/>`}).join('');
+ const poly=STATS.map((s,i)=>pt(i,sl[s.k]).join(',')).join(' ');
+ const labs=STATS.map((s,i)=>{const a=-Math.PI/2+i*2*Math.PI/N,x=cx+Math.cos(a)*(R+20),y=cy+Math.sin(a)*(R+20)+4,an=Math.abs(Math.cos(a))<.2?'middle':Math.cos(a)>0?'start':'end';return `<text x="${x}" y="${y}" text-anchor="${an}">${s.ab} ${sl[s.k]}</text>`}).join('');
+ const dots=STATS.map((s,i)=>{const p=pt(i,sl[s.k]);return `<circle class="rdot" cx="${p[0]}" cy="${p[1]}" r="3.5"/>`}).join('');
+ return `<svg class="radar" viewBox="0 0 340 300" role="img" aria-label="Характеристики героини: ${STATS.map(s=>s.name+' '+sl[s.k]).join(', ')}">${g}<polygon class="rpoly" points="${poly}"/>${dots}${labs}</svg>`;
+}
+function heroView(C){
+ const sl=C.sl,sxp=C.sxp,r=RANKS[C.lvl];
+ const low=STATS.slice().sort((a,b)=>(sxp[a.k]||0)-(sxp[b.k]||0))[0];
+ const seen=qSeen(),pool=QB.concat(QE,QM).filter(x=>!seen.has(x.id)&&x.st[0]===low.k);
+ const pick=pool.slice().sort((a,b)=>hash(view+a.id)-hash(view+b.id)).slice(0,3);
+ const L=log(view);
+ const cards=STATS.map(s=>{const xp=sxp[s.k]||0,l=sl[s.k],a=needXP(l),b=needXP(l+1),pct=Math.min(100,(xp-a)/(b-a)*100),t=TAL[s.k],open=l>=TAL_LVL;
+  return `<div class="statc"><div class="sthead"><span class="stab">${s.ab}</span><div><b>${esc(s.name)}</b><small>${esc(s.src)}</small></div><span class="stlv">${l}</span></div>
+   <div class="prog"><i style="width:${pct}%"></i></div><div class="stmeta"><span>${xp} опыта</span><span>до ${l+1} ур.: ${b-xp}</span></div>
+   <div class="stmeta"><span>Мастерство: +${Math.min(MAST_CAP,l-1)}% к баллам</span></div>
+   <div class="talent ${open?'on':''}"><b>${open?'★':'☆'} ${esc(t[0])}</b><small>${open?esc(t[1]):`С ${TAL_LVL} уровня: ${esc(t[1].charAt(0).toLowerCase()+t[1].slice(1))}`}</small></div></div>`}).join('');
+ return `<div class="page">
+  <div class="herotop">
+   <section class="sheet pad heroid"><div class="note">Персонаж</div><h1 class="heroname">${esc(heroClass(sl,sxp))}</h1>
+    <div class="small">Уровень ${C.lvl+1} · ${esc(r[0])} · сила героини ${C.T.sumStat}</div>
+    <p class="hook" style="margin-top:10px">Класс складывается из двух самых прокачанных характеристик. Делай разное, и он будет меняться вместе с тобой.</p>
+    ${radarSVG(sl)}</section>
+   <section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Совет наставницы</h2><span class="tag phys">${esc(low.ab)}</span></div>
+    <p class="hook">Слабее всего сейчас <b>${esc(low.name.toLowerCase())}</b>. ${esc(low.src)}. Вот что её подтянет:</p>
+    ${pick.length?pick.map(x=>{const done=(L.q||[]).includes(x.id);return qCard(x,'b',done?view:null,false)}).join(''):'<p class="small">Все квесты на эту характеристику уже пройдены. Придумай свой во вкладке «Квесты».</p>'}
+   </section></div>
+  <section><h2 class="sec">Характеристики</h2><div class="stats8">${cards}</div></section>
+  <section class="sheet pad"><h2 class="sec">Как качается героиня</h2><ol class="rulelist">
+   <li><b>Опыт.</b> Каждое дело и квест дают опыт своим характеристикам. Лекции и задачи качают интеллект, поездки ловкость, сон и вода выносливость, работа и помидоры волю. У квестов характеристики подписаны на карточке: первая получает опыт целиком, остальные половину.</li>
+   <li><b>Уровни.</b> До 2 уровня нужно 30 опыта, до 3 уже 90, до 5 300, до 10 1350. Чем выше, тем дольше.</li>
+   <li><b>Мастерство.</b> Каждый уровень выше первого добавляет +1% к баллам за дела и квесты этой характеристики, до +${MAST_CAP}%.</li>
+   <li><b>Таланты.</b> На ${TAL_LVL} уровне у характеристики открывается талант: новая способность, которая меняет правила.</li>
+   <li><b>Штрафы.</b> Залипание в телефоне и отменённые занятия отнимают опыт воли. Плохой сон и сорванное питание отнимают выносливость.</li>
+  </ol></section>
+ </div>`;
+}
+function ownQuests(d){
+ const L=log(d),dm=doneDays();
+ const list=(S.cq||[]).filter(c=>!c.gone).map(c=>AQ[c.id]).filter(Boolean);
+ const cards=list.filter(x=>x.rep||!dm[x.id]).map(x=>{const dd=x.rep?((L.q||[]).includes(x.id)?d:null):null;
+  return qCard(x,'c',dd,false,`<button class="linkbtn" style="color:var(--red)" data-act="cqdel" data-id="${esc(x.id)}">Убрать</button>${x.rep?'<span class="small">каждый день</span>':''}`)}).join('');
+ return `<section class="sheet pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Свои квесты</h2><span class="tag math">${list.length}</span></div>
+  <p class="hook">Придумай квест сама: сходить на йогу, дочитать книгу, позвонить бабушке. Выбери, что он качает.</p>
+  ${cards?`<div class="board">${cards}</div>`:''}
+  <div style="display:grid;gap:8px">
+   <input type="text" id="cq-name" placeholder="Например, сходить на бачату" aria-label="Название квеста">
+   <div class="inline"><select id="cq-stat" aria-label="Что качает">${STATS.map(s=>`<option value="${s.k}">${esc(s.name)}</option>`).join('')}</select>
+    <input type="number" id="cq-pts" placeholder="Баллы" min="1" max="200" aria-label="Баллы за квест" value="15"></div>
+   <div class="inline"><label class="chk"><input type="checkbox" id="cq-rep"> Повторять каждый день</label><button class="btn" id="cq-add" data-act="cqadd">Добавить квест</button></div>
+  </div></section>`;
+}
+function topicsView(C){
+ const d=view,done=[];
+ Object.keys(S.days).forEach(k=>{const L=S.days[k];if(L.tdone&&L.tpick){const t=TOPICS.find(x=>x.id===L.tpick);if(t)done.push({d:k,t,note:L.tnote,w:0})}});
+ Object.keys(S.weeks||{}).forEach(m=>{const W=S.weeks[m];if(W.day&&W.pick){const t=WEEKLY.find(x=>x.id===W.pick);if(t)done.push({d:W.day,t,note:W.note,w:1})}});
+ done.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+ const bar=(n,m)=>`<div class="bar"><i style="width:${Math.min(100,n/Math.max(1,m)*100)}%"></i></div>`;
+ const seenD=seenDays(),seenW=seenWeeks();
+ const prog=Object.keys(CATS).map(c=>{const all=TOPICS.concat(WEEKLY).filter(t=>t.cat===c),n=all.filter(t=>seenD.has(t.id)||seenW.has(t.id)).length;return `<div class="goal"><span>${CATS[c]}</span><span>${n}/${all.length}</span>${bar(n,all.length)}</div>`}).join('');
+ return `<div class="page">
+  ${d!==today()?`<div class="alert">Темы за ${esc(longDate(d))}. <button class="linkbtn" data-act="gotoday">К сегодня</button></div>`:''}
+  <div class="rules">${topicFull('day',d)}${topicFull('week',d)}</div>
+  <section class="sheet pad"><h2 class="sec">Коллекция открытий</h2>${prog}
+   ${done.length?`<ul class="found">${done.map(x=>`<li><div class="tophead"><b>${esc(x.t.title)}</b><span class="tag ${x.t.cat}">${x.w?'Неделя · ':''}${CATS[x.t.cat]}</span></div><button class="linkbtn" data-act="openday" data-v="${x.d}">${esc(shortDate(x.d))}</button>${x.note?`<p class="fnote">${esc(x.note)}</p>`:''}</li>`).join('')}</ul>`:`<p class="small" style="margin:12px 0 0">Здесь соберутся изученные темы и твои заметки к ним. Начни с темы дня: это всего 5–10 минут.</p>`}
+  </section></div>`;
+}
+function chartSVG(C){
+ const now=today(),N=30,W=640,H=210,L=34,R=8,T=12,B=26,ds=[];
+ for(let i=N-1;i>=0;i--)ds.push(addDays(now,-i));
+ const vals=ds.map(d=>C.days[d]?C.days[d].total:0);
+ const maxA=Math.max(50,...vals.map(Math.abs));const step=maxA>200?100:maxA>100?50:25;
+ const top=Math.ceil(Math.max(50,...vals)/step)*step,bot=Math.floor(Math.min(0,...vals)/step)*step;
+ const y=v=>T+(top-v)/(top-bot)*(H-T-B),bw=(W-L-R)/N;
+ let g='';for(let v=bot;v<=top;v+=step)g+=`<line class="gridl" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${String(v).replace('-','−')}</text>`;
+ const bars=ds.map((d,i)=>{const v=vals[i],x=L+i*bw,bh=Math.abs(y(v)-y(0));
+  const m=v?`<rect class="${v>0?'up':'dn'}" x="${x+1.5}" y="${v>0?y(v):y(0)}" width="${Math.max(2,bw-3)}" height="${Math.max(1,bh)}" rx="2"/>`:'';
+  const lab=(N-1-i)%5===0?`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${parse(d).getDate()}.${pad(parse(d).getMonth()+1)}</text>`:'';
+  return m+lab+`<rect class="hit" x="${x}" y="${T}" width="${bw}" height="${H-T-B}" data-act="openday" data-v="${d}" data-tip="${esc(shortDate(d))}: ${sg(v)||'0'}"/>`}).join('');
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Баллы по дням за последние 30 дней">${g}<line class="base" x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}"/>${bars}</svg>`;
+}
+function journalView(C){
+ const T=C.T,rows=C.order.slice().reverse().slice(0,21);
+ const last7=C.order.slice(-7).reduce((s,d)=>s+C.days[d].total,0);
+ return `<div class="page">
+  <div class="tiles">
+   ${[['Лекции',T.lecture],['Задачи по физике',T.phys],['Задачи по математике',T.math],['Велосипед',T.bike],['Скейт',T.skate],['Допзанятия',T.sat],['Походы на работу',T.work],['Изученные темы',T.topics+T.wtopics],['Квесты-приключения',T.adv],['Лучшая серия',T.maxStreak],['Баллы за 7 дней',String(sg(last7)||'0')]].map(x=>`<div class="tile"><b>${x[1]}</b><small>${x[0]}</small></div>`).join('')}
+  </div>
+  <section class="sheet pad"><h2 class="sec">Баллы за 30 дней</h2><div class="chartwrap">${chartSVG(C)}</div>
+   <div class="small">Столбик вверх: день в плюс, вниз: день в минус. Нажми на столбик, чтобы открыть день.</div></section>
+  <section class="sheet pad"><h2 class="sec">Дни</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Оценка</th><th class="n">Баллы</th><th class="n">Серия</th></tr></thead><tbody>
+   ${rows.map(d=>{const r=C.days[d];return `<tr><td><button class="linkbtn" data-act="openday" data-v="${d}">${esc(longDate(d))}</button></td><td><span class="gr">${r.touched||d<today()?gradeOf(r.total):'–'}</span></td><td class="n">${sg(r.total)||'0'}</td><td class="n">${r.streak}</td></tr>`}).join('')}
+   </tbody></table></div><div class="small" style="margin-top:8px">Забыла отметить день? Открой его и заполни: штрафы и серия пересчитаются сами.</div></section>
+ </div>`;
+}
+function achView(C){
+ const got=ACH.filter(a=>a[3](C.T)>=a[4]).length;
+ return `<div class="page">
+  <section><h2 class="sec">Достижения: ${got} из ${ACH.length}</h2><div class="ach">
+   ${ACH.map((a,i)=>{const v=a[3](C.T),ok=v>=a[4];return `<div class="badge ${ok?'got':''}"><span class="sym" aria-hidden="true">${a[0]}</span><div><b>${esc(a[1])}</b><small>${esc(a[2])}</small>${ok?'':`<div class="prog"><i style="width:${Math.min(100,v/a[4]*100)}%"></i></div><small style="margin-top:2px">${v} из ${a[4]}</small>`}</div></div>`}).join('')}
+  </div></section>
+  <section class="sheet pad"><h2 class="sec">Лестница масштабов</h2><p class="small" style="margin:0 0 8px;max-width:65ch">Уровень растёт от всего опыта: заработанные баллы минус штрафы. Покупка наград уровень не снижает. Размеры настоящие.</p>
+   <ol class="ladder">${RANKS.map((r,i)=>`<li class="${i===C.lvl?'cur':i>C.lvl?'lk':''}"><span>${i+1}</span><span>${esc(r[0])}</span><span class="sz">${r[1]}</span><span class="thr">${r[2]}</span></li>`).join('')}</ol></section>
+ </div>`;
+}
+function shopView(C){
+ const buys=(S.buys||[]).slice().reverse().slice(0,12);
+ return `<div class="page">
+  <section><h2 class="sec">На счету ${String(C.balance).replace('-','−')} ${plural(C.balance,'балл','балла','баллов')}</h2>
+  <p class="small" style="margin:0 0 12px;max-width:65ch">Это примеры наград. Меняй названия и цены ниже.</p>
+  <div class="shop">${S.rewards.map(r=>{const can=C.balance>=r.cost;return `<div class="card"><div><b>${esc(r.name)}</b></div><div class="pr">${r.cost}</div><button class="btn" id="buy-${esc(r.id)}" data-act="buy" data-id="${esc(r.id)}" ${can?'':'disabled'}>${can?'Купить':'Не хватает '+(r.cost-C.balance)}</button></div>`}).join('')}</div></section>
+  ${buys.length?`<section class="sheet pad"><h2 class="sec">Покупки</h2><div class="tablewrap"><table><tbody>${buys.map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(shortDate(b.date))}</td><td class="n">−${b.cost}</td><td class="n"><button class="linkbtn" data-act="refund" data-v="${b.ts}">Вернуть</button></td></tr>`).join('')}</tbody></table></div></section>`:''}
+  <section class="sheet pad"><h2 class="sec">Изменить награды</h2>
+   ${S.rewards.map(r=>`<div class="inline" style="margin-bottom:8px"><input type="text" id="rn-${esc(r.id)}" aria-label="Название награды" data-chg="rname" data-id="${esc(r.id)}" value="${esc(r.name)}"><input type="number" style="flex:0 0 90px" id="rc-${esc(r.id)}" aria-label="Цена" data-chg="rcost" data-id="${esc(r.id)}" value="${r.cost}" min="1"><button class="btn red" id="rd-${esc(r.id)}" data-act="rdel" data-id="${esc(r.id)}">Убрать</button></div>`).join('')}
+   <div class="inline" style="margin-top:12px"><input type="text" id="newr-name" placeholder="Новая награда" aria-label="Название новой награды"><input type="number" style="flex:0 0 90px" id="newr-cost" placeholder="Цена" aria-label="Цена новой награды" min="1"><button class="btn" id="newr-add" data-act="radd">Добавить</button></div>
+  </section></div>`;
+}
+function rulesView(C){
+ const std=allActions().map(x=>{
+  if(x.kind==='choice')return x.options.map(o=>`<div class="setrow"><label for="pt-${x.id}_${o[0]}">${esc(x.name)}: ${esc(o[1].toLowerCase())}</label><input type="number" id="pt-${x.id}_${o[0]}" data-chg="pts" data-id="${x.id}_${o[0]}" value="${optPts(x,o)}"><span></span></div>`).join('');
+  const custom=!ACTIONS.includes(x);
+  return `<div class="setrow"><label for="pt-${esc(x.id)}">${esc(x.name)}</label><input type="number" id="pt-${esc(x.id)}" data-chg="pts" data-id="${esc(x.id)}" value="${aPts(x)}"><input type="checkbox" id="vis-${esc(x.id)}" data-chg="vis" data-id="${esc(x.id)}" aria-label="Показывать: ${esc(x.name)}" ${S.hidden[x.id]?'':'checked'}></div>${custom?`<div style="text-align:right"><button class="linkbtn" data-act="cdel" data-id="${esc(x.id)}" style="color:var(--red)">Удалить «${esc(x.name)}»</button></div>`:''}`}).join('');
+ return `<div class="page">
+  <section class="sheet pad"><h2 class="sec">Как считаются баллы</h2><ol class="rulelist">
+   <li><b>Дела.</b> Каждое дело приносит или забирает баллы, цены можно поменять ниже.</li>
+   <li><b>Сон.</b> Хороший сон добавляет 10% к баллам за учёбу, плохой столько же забирает.</li>
+   <li><b>Серия.</b> Дни с учёбой подряд повышают все заработанные баллы: от 3 дней +10%, от 7 +25%, от 14 +40%, от 30 +50%.</li>
+   <li><b>Комбо.</b> Физмат +8, Триада +10, Идеальный день +25.</li>
+   <li><b>Квест дня.</b> Новый каждый день, от +8 до +15.</li>
+   <li><b>Темы.</b> Тема дня +${topicDayPts()}, тема недели +${topicWeekPts()}. Это чтение для интереса: серию они не держат и от штрафа за день без учёбы не спасают.</li>
+   <li><b>Приключения.</b> Утренний квест с начала дня, вечерний открывается в ${EVENING_H}:00, два квеста на неделю и доска, где задания висят без срока. Это баллы за новый опыт: серию они не держат и от штрафа за день без учёбы не спасают.</li>
+   <li><b>Легендарный квест.</b> Выпадает примерно в ${LEGEND_P}% дней, с талантом «Карта сокровищ» в ${LEGEND_P_TAL}%. От +70 до +100.</li>
+   <li><b>Характеристики.</b> Дела и квесты качают восемь характеристик. Каждый уровень даёт +1% к баллам за свои дела, на ${TAL_LVL} уровне открывается талант. Подробно во вкладке «Героиня».</li>
+   <li><b>Тайник.</b> Открывается от 45 баллов за день, внутри от +5 до +25, редко +50.</li>
+   <li><b>Босс недели.</b> Закрой четыре недельные цели и забери +${bossBonus()}.</li>
+   <li><b>Автоштрафы.</b> День без учёбы ${sg(autoNoStudy())}, пропуск субботы ${sg(autoSat())}. Считаются с первого дня игры, в полночь. Отгул (один на неделю) и «Болею» от них защищают.</li>
+  </ol></section>
+  <div class="rules">
+   <section class="sheet pad"><h2 class="sec">Цены дел</h2><div class="setrow"><span class="hd">Дело</span><span class="hd">Баллы</span><span class="hd" style="text-align:center">Видно</span></div>${std}</section>
+   <div style="display:grid;gap:18px;align-content:start">
+   <section class="sheet pad"><h2 class="sec">Своё дело или штраф</h2>
+    <div style="display:grid;gap:8px"><input type="text" id="c-name" placeholder="Например, английский" aria-label="Название дела">
+    <div class="inline"><select id="c-group" aria-label="Раздел">${Object.keys(GROUPS).map(g=>`<option value="${g}">${GROUPS[g]}</option>`).join('')}</select><select id="c-kind" aria-label="Как отмечать"><option value="count">Считать штуки</option><option value="toggle">Сделано или нет</option></select></div>
+    <select id="c-stat" aria-label="Что качает"><option value="">Качает: по разделу</option>${STATS.map(s=>`<option value="${s.k}">Качает: ${esc(s.name.toLowerCase())}</option>`).join('')}</select>
+    <div class="inline"><input type="number" id="c-pts" placeholder="Баллы, минус для штрафа" aria-label="Баллы"><button class="btn" id="c-add" data-act="cadd">Добавить</button></div></div></section>
+   <section class="sheet pad"><h2 class="sec">Штрафы и цели</h2>
+    <label class="chk"><input type="checkbox" id="s-auto" data-chg="auto" ${S.auto?'checked':''}> Считать автоштрафы</label>
+    <div class="field"><label for="pt-auto_nostudy">День без учёбы</label><input type="number" id="pt-auto_nostudy" data-chg="pts" data-id="auto_nostudy" value="${autoNoStudy()}"></div>
+    <div class="field"><label for="pt-auto_sat">Пропуск субботы</label><input type="number" id="pt-auto_sat" data-chg="pts" data-id="auto_sat" value="${autoSat()}"></div>
+    <div class="field"><label for="pt-boss">Награда за босса</label><input type="number" id="pt-boss" data-chg="pts" data-id="boss" value="${bossBonus()}"></div>
+    <div class="field"><label for="pt-topic_day">Тема дня</label><input type="number" id="pt-topic_day" data-chg="pts" data-id="topic_day" value="${topicDayPts()}"></div>
+    <div class="field"><label for="pt-topic_week">Тема недели</label><input type="number" id="pt-topic_week" data-chg="pts" data-id="topic_week" value="${topicWeekPts()}"></div>
+    <div class="field"><label for="g-lecture">Лекций в неделю</label><input type="number" min="1" id="g-lecture" data-chg="goal" data-id="lecture" value="${S.goals.lecture}"></div>
+    <div class="field"><label for="g-tasks">Задач в неделю</label><input type="number" min="1" id="g-tasks" data-chg="goal" data-id="tasks" value="${S.goals.tasks}"></div>
+    <div class="field"><label for="g-bike">Поездок в неделю</label><input type="number" min="1" id="g-bike" data-chg="goal" data-id="bike" value="${S.goals.bike}"></div>
+    <label class="chk" style="margin-top:6px"><input type="checkbox" id="s-sound" data-chg="sound" ${S.sound?'checked':''}> Звук при отметках</label></section>
+   <section class="sheet pad"><h2 class="sec">Данные</h2>
+    <p class="small" style="margin:0 0 8px">${saveMode==='account'?'Сохраняется в твоём аккаунте, другим не видно. Откроется и на других устройствах.':'Сохраняется только в этом браузере. Сделай копию, чтобы не потерять.'}</p>
+    <div class="inline"><button class="btn ghost" id="exp" data-act="export">${showExport?'Скрыть копию':'Показать копию данных'}</button></div>
+    ${showExport?`<textarea id="exptext" readonly aria-label="Копия данных" style="margin-top:8px">${esc(JSON.stringify(S))}</textarea><div class="inline" style="margin-top:6px"><button class="btn ghost" id="copy" data-act="copy">Скопировать</button></div>`:''}
+    <textarea id="imp" placeholder="Вставь сюда копию, чтобы восстановить" aria-label="Восстановить из копии" style="margin-top:8px"></textarea>
+    <div class="inline" style="margin-top:6px"><button class="btn ghost" id="impb" data-act="import">Восстановить</button></div>
+    ${importMsg?`<p class="small" role="status" style="margin:6px 0 0">${esc(importMsg)}</p>`:''}
+    <div class="inline" style="margin-top:12px">${confirmReset?`<button class="btn red" id="res2" data-act="reset2">Да, стереть всё</button><button class="btn ghost" id="res0" data-act="reset0">Отмена</button>`:`<button class="btn red" id="res1" data-act="reset1">Начать игру заново</button>`}</div></section>
+   </div></div></div>`;
+}
+function render(){
+ const fid=document.activeElement&&document.activeElement.id;
+ const C=computeAll();
+ const v={today:todayView,hero:heroView,quests:questsView,topics:topicsView,journal:journalView,ach:achView,shop:shopView,rules:rulesView}[tab](C);
+ $('#app').innerHTML=header(C)+'<main>'+v+'</main>';
+ photonNow=false;
+ if(fid){const el=document.getElementById(fid);if(el)try{el.focus({preventScroll:true})}catch(e){}}
+ return C;
+}
+
+/* ---------- Обратная связь ---------- */
+let actx=null;
+function beep(up){if(!S.sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.type='triangle';o.frequency.value=up?740:210;if(up)o.frequency.exponentialRampToValueAtTime(1100,actx.currentTime+.09);g.gain.value=.05;g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.16);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.17)}catch(e){}}
+function floatAt(ev,n){if(!n)return;const el=document.createElement('div');el.className='fl'+(n<0?' neg':'');el.textContent=sg(n);el.style.left=Math.min(innerWidth-70,Math.max(8,(ev.clientX||innerWidth/2)-14))+'px';el.style.top=Math.max(8,(ev.clientY||innerHeight/2)-26)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),950)}
+function toast(t,s){const el=document.createElement('div');el.className='toast';el.innerHTML=`<b>${esc(t)}</b>${s?esc(s):''}`;$('#toasts').appendChild(el);setTimeout(()=>el.remove(),3800)}
+function levelUp(i){const r=RANKS[i],o=$('#lvl');o.innerHTML=`<div class="inner"><div class="note">Новый масштаб!</div><h2>${esc(r[0])}</h2><div class="sz">${r[1]}</div><div class="small">Уровень ${i+1}</div><button class="btn" id="lvlok" data-act="lvlok">Дальше</button></div>`;o.hidden=false;const b=$('#lvlok');if(b)b.focus()}
+const achSet=C=>new Set(ACH.filter(a=>a[3](C.T)>=a[4]).map(a=>a[1]));
+function commit(fn,ev){
+ const b=computeAll(),bo=b.days[view]?orbitOf(b.days[view].total):0;
+ fn();persist();
+ const a=computeAll(),ao=a.days[view]?orbitOf(a.days[view].total):0;
+ if(ao>bo)photonNow=true;
+ const d=a.exp-b.exp;render();
+ if(ev&&d){floatAt(ev,d);beep(d>0)}
+ const s1=achSet(b),s2=achSet(a);s2.forEach(n=>{if(!s1.has(n))toast('Достижение',n)});
+ if(ao>bo&&ao>=3)toast('Квантовый скачок','Электрон на орбите '+(ao+1));
+ STATS.forEach(s=>{if(a.sl[s.k]>b.sl[s.k])toast(s.name+': уровень '+a.sl[s.k],a.sl[s.k]>=TAL_LVL&&b.sl[s.k]<TAL_LVL?'Открыт талант «'+TAL[s.k][0]+'»':'')});
+ if(a.lvl>b.lvl)levelUp(a.lvl);
+ const m=monday(view),wb=bossState(m);if(wb.win&&a.T.boss>b.T.boss)toast('Энтропия побеждена','+'+bossBonus()+' к счёту');
+}
+function dayLog(d){if(!S.days[d])S.days[d]={a:{},type:'normal'};if(!S.days[d].a)S.days[d].a={};return S.days[d]}
+function cleanup(d){const L=S.days[d];if(L&&!Object.keys(L.a||{}).length&&(L.type||'normal')==='normal'&&!L.chest&&!L.tdone&&!L.tpick&&!L.tnote&&!L.wk&&!L.qm&&!L.qe&&!L.ql&&!(L.q&&L.q.length))delete S.days[d]}
+function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36)}
+
+/* ---------- События ---------- */
+document.addEventListener('click',ev=>{
+ const t=ev.target.closest('[data-act]');if(!t)return;
+ const act=t.dataset.act,id=t.dataset.id,val=t.dataset.v;
+ const simple={
+  tab(){tab=val;confirmReset=false;importMsg='';render();scrollTo(0,0)},
+  day(){const n=addDays(view,+val);if(n<=today()){view=n;render()}},
+  gotoday(){view=today();render()},
+  openday(){view=val;tab='today';hideTip();render();scrollTo(0,0)},
+  lvlok(){$('#lvl').hidden=true},
+  more(){extraOpen=!extraOpen;render()},
+  export(){showExport=!showExport;render()},
+  copy(){const x=$('#exptext');const done=()=>toast('Скопировано');if(navigator.clipboard)navigator.clipboard.writeText(x.value).then(done).catch(()=>{x.select()});else x.select()},
+  theme(){toggleTheme()},
+  reset1(){confirmReset=true;render()},reset0(){confirmReset=false;render()},
+ };
+ if(simple[act])return simple[act]();
+ const mut={
+  inc(){const L=dayLog(view);L.a[id]=(L.a[id]||0)+1},
+  dec(){const L=dayLog(view);L.a[id]=Math.max(0,(L.a[id]||0)-1);if(!L.a[id])delete L.a[id];cleanup(view)},
+  toggle(){const L=dayLog(view);if(L.a[id])delete L.a[id];else L.a[id]=1;cleanup(view)},
+  choice(){const L=dayLog(view);if(L.a[id]===val)delete L.a[id];else L.a[id]=val;cleanup(view)},
+  type(){const L=dayLog(view);L.type=val;cleanup(view)},
+  chest(){dayLog(view).chest=true},
+  tdone(){const L=dayLog(view);if(L.tdone){delete L.tdone}else{L.tpick=dayTopic(view).id;L.tdone=1;toast('Тема дня изучена',dayTopic(view).title)}},
+  tswap(){const cur=dayTopic(view),L=dayLog(view);delete L.tnote;L.tpick=nextTopic(TOPICS,TOPICS.indexOf(cur)+1,seenDays(),cur.id).id},
+  wdone(){const m=monday(view),W=weekRec(m);if(W.day){const L=S.days[W.day];if(L){delete L.wk;cleanup(W.day)}delete W.day}else{W.pick=weekTopic(m).id;W.day=view;dayLog(view).wk=1;toast('Тема недели изучена',weekTopic(m).title)}},
+  wswap(){const m=monday(view),cur=weekTopic(m),W=weekRec(m);delete W.note;W.pick=nextTopic(WEEKLY,WEEKLY.indexOf(cur)+1,seenWeeks(),cur.id).id},
+  qtoggle(){const slot=t.dataset.slot||'',dd=t.dataset.d;
+   if(dd){const L=S.days[dd];if(L&&L.q){L.q=L.q.filter(x=>x!==id);if(!L.q.length)delete L.q;cleanup(dd)}return}
+   const L=dayLog(view);if(slot==='m')L.qm=id;if(slot==='e')L.qe=id;if(slot==='l')L.ql=id;
+   if(slot[0]==='w'){const m=monday(view);weekRec(m).qp=weekQ(m).map(x=>x.id)}
+   L.q=(L.q||[]).concat(id);toast('Квест выполнен',AQ[id]?AQ[id].title:'')},
+  qswap(){const slot=t.dataset.slot,s=qSeen();
+   if(QLIST[slot]){const list=QLIST[slot],cur=AQ[id],L=dayLog(view);L['q'+slot]=nextTopic(list,list.indexOf(cur)+1,s,cur.id).id;return}
+   const m=monday(view),cur=weekQ(m),i=+slot[1],other=cur[1-i];s.add(other.id);
+   const n=nextTopic(QW,QW.indexOf(cur[i])+1,s,cur[i].id);if(n.id===other.id||n.id===cur[i].id)return;
+   cur[i]=n;weekRec(m).qp=cur.map(x=>x.id)},
+  buy(){const r=S.rewards.find(x=>x.id===id);if(!r)return;S.buys.push({name:r.name,cost:r.cost,date:today(),ts:Date.now()});toast('Куплено',r.name+' за '+r.cost)},
+  refund(){S.buys=S.buys.filter(b=>String(b.ts)!==val);toast('Баллы вернулись на счёт')},
+  rdel(){S.rewards=S.rewards.filter(x=>x.id!==id)},
+  radd(){const n=$('#newr-name').value.trim(),c=parseInt($('#newr-cost').value,10);if(!n||!(c>0)){toast('Нужны название и цена больше нуля');return}S.rewards.push({id:uid('r'),name:n.slice(0,80),cost:c})},
+  cadd(){const n=$('#c-name').value.trim(),p=parseInt($('#c-pts').value,10);if(!n||!Number.isFinite(p)||p===0){toast('Нужны название и баллы, не ноль');return}const st=$('#c-stat').value;S.custom.push(Object.assign({id:uid('c'),group:$('#c-group').value,kind:$('#c-kind').value,name:n.slice(0,80),note:'',pts:Math.max(-999,Math.min(999,p))},st?{stat:st}:{}))},
+  cdel(){S.custom=S.custom.filter(x=>x.id!==id)},
+  cqadd(){const n=$('#cq-name').value.trim(),p=parseInt($('#cq-pts').value,10);if(!n||!(p>0)){toast('Нужны название и баллы больше нуля');return}if(!S.cq)S.cq=[];S.cq.push({id:uid('qc'),title:n.slice(0,80),stat:$('#cq-stat').value,pts:Math.min(200,p),rep:$('#cq-rep').checked});toast('Квест добавлен',n.slice(0,80))},
+  cqdel(){const c=(S.cq||[]).find(x=>x.id===id);if(c)c.gone=1},
+  import(){try{const o=JSON.parse($('#imp').value);if(!o||typeof o.days!=='object')throw 0;S=normalize(o);importMsg='Данные восстановлены.'}catch(e){importMsg='Текст не похож на копию данных. Вставь его целиком.'}},
+  reset2(){S=fresh();view=today();confirmReset=false},
+ };
+ if(mut[act])commit(mut[act],ev);
+});
+document.addEventListener('change',ev=>{
+ const t=ev.target,k=t.dataset&&t.dataset.chg;if(!k)return;const id=t.dataset.id;
+ const n=parseInt(t.value,10);
+ commit(()=>{
+  if(k==='pts'&&Number.isFinite(n))S.pts[id]=Math.max(-999,Math.min(999,n));
+  if(k==='vis'){if(t.checked)delete S.hidden[id];else S.hidden[id]=1}
+  if(k==='goal'&&n>0)S.goals[id]=Math.min(9999,n);
+  if(k==='auto')S.auto=t.checked;
+  if(k==='sound')S.sound=t.checked;
+  if(k==='tnote'){const v=t.value.trim().slice(0,600),L=dayLog(view);if(v){L.tnote=v;if(!L.tpick)L.tpick=dayTopic(view).id}else{delete L.tnote;cleanup(view)}}
+  if(k==='wnote'){const m=monday(view),W=weekRec(m),v=t.value.trim().slice(0,1500);if(v){W.note=v;if(!W.pick)W.pick=weekTopic(m).id}else delete W.note}
+  if(k==='rname'&&t.value.trim()){const r=S.rewards.find(x=>x.id===id);if(r)r.name=t.value.trim().slice(0,80)}
+  if(k==='rcost'&&n>0){const r=S.rewards.find(x=>x.id===id);if(r)r.cost=n}
+ });
+});
+const tip=$('#tip');function hideTip(){tip.hidden=true}
+document.addEventListener('pointermove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){hideTip();return}tip.textContent=t.dataset.tip;tip.hidden=false;tip.style.left=Math.min(innerWidth-150,e.clientX+12)+'px';tip.style.top=Math.max(4,e.clientY-34)+'px'});
+
+/* ---------- Смена суток, пока вкладка открыта ---------- */
+let lastDay=today();
+let lastH=new Date().getHours();
+setInterval(()=>{const n=today(),h=new Date().getHours();
+ if(n!==lastDay){if(view===lastDay)view=n;lastDay=n;render()}
+ else if(lastH<EVENING_H&&h>=EVENING_H){render();toast('Открылся вечерний квест',dayQ(n,'e').title)}
+ lastH=h},60000);
+
+try{matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(!document.documentElement.dataset.theme)render()})}catch(e){}
+render();
+connect();
+</script>
