@@ -31,7 +31,8 @@ button{cursor:pointer}
 h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
 .px{font-family:var(--display);line-height:1.55;letter-spacing:0}
 .wrap{max-width:1120px;margin:0 auto}
-.win{background:var(--panel);border:3px solid var(--frame);border-radius:9px;box-shadow:inset 0 0 0 3px var(--panel),inset 0 0 0 5px var(--line),4px 4px 0 var(--shadow)}
+.win{background:radial-gradient(circle at 9px 9px,var(--gold) 0 2px,transparent 2.6px),radial-gradient(circle at calc(100% - 9px) 9px,var(--gold) 0 2px,transparent 2.6px),radial-gradient(circle at 9px calc(100% - 9px),var(--gold) 0 2px,transparent 2.6px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),var(--gold) 0 2px,transparent 2.6px),var(--panel);border:3px solid var(--frame);border-radius:9px;box-shadow:inset 0 0 0 3px var(--panel),inset 0 0 0 5px var(--line),4px 4px 0 var(--shadow)}
+.win.legend{background:var(--gold-soft)}
 .pad{padding:16px 18px}
 .h{font:400 12px/1.5 var(--display)}
 .small{font-size:13px;color:var(--muted)}
@@ -62,10 +63,26 @@ h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
 .tab[aria-selected="true"]::before{content:"▶ ";font-size:10px}
 .themebtn{flex:none;width:40px;height:40px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--ink);border:2px solid var(--frame);border-radius:7px;padding:0}
 /* sprite */
-.sprite{display:block;image-rendering:pixelated;flex:none}
-.sprite.mini{width:34px;height:auto}
-.sprite.big{width:76px;height:auto}
-.sprite.huge{width:150px;max-width:100%;height:auto}
+.sprite{display:block;flex:none;height:auto}
+.sprite.mini{width:40px}
+.sprite.big{width:104px;filter:drop-shadow(3px 3px 0 var(--shadow))}
+.sprite.huge{width:208px;max-width:100%;filter:drop-shadow(5px 5px 0 var(--shadow))}
+.coin{width:1em;height:1em;display:inline-block;vertical-align:-.12em;margin-right:.3em}
+.gico{width:26px;height:26px;flex:none}
+.ghead{display:flex;gap:10px;align-items:center}
+.eyebrow{font:400 9px/1.6 var(--display);color:var(--hp);margin-bottom:8px}
+.bosswin .boss{grid-template-columns:110px minmax(0,1fr)}
+.beast{display:block;width:110px;height:auto;filter:drop-shadow(3px 3px 0 var(--shadow))}
+.bosswin:not(.slain) .beast{animation:hover 2.4s ease-in-out infinite}
+@keyframes hover{50%{transform:translateY(-4px)}}
+.slain .beast{filter:grayscale(1) opacity(.45);transform:rotate(-12deg)}
+.lore{margin:8px 0 4px;font-size:13px;font-style:italic;color:var(--muted)}
+.bestiary{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.beastcard{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border:2px dashed var(--line);border-radius:7px}
+.beastcard.got{border:2px solid var(--gold);background:var(--gold-soft)}
+.beastcard:not(.got) .beast{filter:brightness(0) opacity(.35)}
+.beastcard b{display:block}.beastcard small{display:block;color:var(--muted);font-size:12.5px;line-height:1.3}
+.beast.sm{width:72px}
 /* layout */
 .today{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px 22px;margin-top:16px;align-items:start}
 .dayhead{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
@@ -125,7 +142,7 @@ h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
 .opt[aria-pressed="true"]{background:var(--frame);color:var(--bg)}
 .opt[aria-pressed="true"] .chip{--c:var(--bg)}
 /* side */
-.hc{display:flex;gap:14px;align-items:center}
+.hc{display:flex;gap:16px;align-items:flex-end}
 .mini8{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin:12px 0 8px}
 .m8{display:grid;grid-template-columns:34px minmax(0,1fr) 22px;gap:6px;align-items:center}
 .m8 .ab{font-size:8px;color:var(--c)}
@@ -244,8 +261,16 @@ td.n,th.n{text-align:right;font-family:var(--mono)}
 .ladder .lk{color:var(--muted)}
 .ladder .cur{background:var(--gold-soft);font-weight:700}
 .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.card{padding:14px;display:flex;flex-direction:column;gap:9px;justify-content:space-between}
-.card .pr{font:400 15px var(--display);color:var(--gold)}
+.card{padding:16px;display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px 14px;align-items:center;border-color:var(--r)}
+.slot{width:76px;height:76px;border:3px solid var(--r);border-radius:8px;background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--r) 22%,var(--panel)) 0 45%,var(--panel) 75%);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px var(--panel),inset 0 0 0 4px color-mix(in srgb,var(--r) 35%,var(--panel))}
+.ico{width:52px;height:auto;display:block}
+.cardtxt{display:grid;gap:2px;min-width:0}
+.rar{font:400 8px/1.6 var(--display);color:var(--r)}
+.itn{font:700 15px/1.25 var(--body)}
+.real{font-size:13px;color:var(--muted);line-height:1.3}
+.buyrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:2px dashed var(--line);padding-top:10px}
+.card .pr{font:400 13px var(--display);color:var(--gold);display:flex;align-items:center}
+.purse{font:400 14px var(--display);color:var(--gold);display:flex;align-items:center}
 .rulelist{margin:0;padding-left:18px;display:grid;gap:6px;max-width:68ch}
 .field{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 input[type=number],input[type=text],select,textarea{background:var(--panel);border:2px solid var(--frame);border-radius:6px;padding:7px 8px;width:100%;min-height:40px}
@@ -272,7 +297,7 @@ textarea{min-height:90px;font:500 12px var(--mono)}
 #lvl h2{font:400 clamp(18px,5vw,30px)/1.4 var(--display)}
 #lvl .sz{font:700 16px var(--mono);color:var(--acc)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
-@media (max-width:480px){.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.bosswin .boss{grid-template-columns:80px minmax(0,1fr)}.beast{width:80px}.sprite.huge{width:160px}.card{grid-template-columns:64px minmax(0,1fr)}.slot{width:64px;height:64px}.ico{width:44px}.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 <div class="wrap"><div id="app"></div></div>
@@ -488,7 +513,7 @@ const RANKS=[
  ['Вирус','10⁻⁷ м',700],['Клетка','10⁻⁵ м',1000],['Песчинка','10⁻³ м',1400],['Велосипед','2 м',1900],
  ['Эверест','8,8·10³ м',2500],['Земля','1,3·10⁷ м',3200],['Солнце','1,4·10⁹ м',4000],['Солнечная система','~10¹³ м',5000],
  ['Млечный Путь','~10²¹ м',6500],['Наблюдаемая Вселенная','8,8·10²⁶ м',8500]];
-const DEF_REWARDS=[['Серия сериала',60],['Кофе или десерт вне дома',80],['Час игр',100],['Вечер без дел и без вины',200],['Новая книга',400],['Большая покупка себе',1000]];
+const DEF_REWARDS=[['Серия сериала',60,'orb'],['Кофе или десерт вне дома',80,'mug'],['Час игр',100,'dice'],['Вечер без дел и без вины',200,'potion'],['Новая книга',400,'book'],['Большая покупка себе',1000,'chest']];
 
 /* ---------- Темы для любопытства: заголовок, зацепка, что выяснить, запрос для поиска ---------- */
 const CATS={space:'Космос',phys:'Физика',math:'Математика'};
@@ -580,10 +605,11 @@ const plural=(n,a,b,c)=>{const m=Math.abs(n)%100,k=m%10;if(m>10&&m<20)return c;i
 /* ---------- Состояние ---------- */
 const LS='kvantovaya-saga-v1';
 const GROUP_STAT={study:'int',work:'wil',move:'str',body:'vit',soul:'cre',bad:'wil',extra:'cur'};
-function fresh(){return{v:2,start:today(),days:{},weeks:{},buys:[],rewards:DEF_REWARDS.map((r,i)=>({id:'r'+i,name:r[0],cost:r[1]})),hidden:{},custom:[],cq:[],oathOff:{},goals:{lecture:3,tasks:20,move:4,oathDays:5},pen:{xp:4,hp:10},sound:true,updatedAt:0}}
+function fresh(){return{v:2,start:today(),days:{},weeks:{},buys:[],rewards:DEF_REWARDS.map((r,i)=>({id:'r'+i,name:r[0],cost:r[1],icon:r[2]})),hidden:{},custom:[],cq:[],oathOff:{},goals:{lecture:3,tasks:20,move:4,oathDays:5},pen:{xp:4,hp:10},sound:true,updatedAt:0}}
 function normalize(o){const f=fresh();const r=Object.assign(f,o,{goals:Object.assign(f.goals,o.goals||{}),pen:Object.assign(f.pen,o.pen||{})});
  /* Свои дела из «Квантового скачка» хранят баллы: переводим их в опыт характеристики */
  r.custom=(r.custom||[]).filter(c=>c&&c.id).map(c=>{if(c.xp)return c;const k=c.stat||GROUP_STAT[c.group]||'cur',p=+c.pts||2,v=Math.max(1,Math.round(Math.abs(p)/2));return Object.assign({},c,{group:GROUPS[c.group]?c.group:'soul',xp:{[k]:p<0?-v:v}})});
+ const ICK=['orb','mug','dice','potion','book','chest','sword','crown'];(r.rewards||[]).forEach((w,i)=>{if(!w.icon)w.icon=(DEF_REWARDS.find(d=>d[0]===w.name)||[])[2]||ICK[i%ICK.length]});
  if(!r.oathOff)r.oathOff={};if(!r.cq)r.cq=[];return r}
 let S=fresh();
 try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch(e){}
@@ -692,7 +718,7 @@ function computeAll(){
  const first=keys[0]&&keys[0]<S.start?keys[0]:S.start;
  const days={},order=[],sxp={};let streak=0,gold=0,hp=100;
  const lvOf=()=>{const o={};STATS.forEach(s=>{o[s.k]=statLvl(sxp[s.k]||0)});return o};
- const T={lecture:0,tasks:0,rides:0,workout:0,read:0,lang:0,sat:0,work:0,perfect:0,boss:0,maxStreak:0,oathDays:0,topics:0,wtopics:0,adv:0,advw:0,legend:0,chests:0,faint:0,goldEarned:0,bigDay:0};
+ const T={lecture:0,tasks:0,rides:0,workout:0,read:0,lang:0,sat:0,work:0,perfect:0,boss:0,maxStreak:0,oathDays:0,topics:0,wtopics:0,adv:0,advw:0,legend:0,chests:0,faint:0,goldEarned:0,bigDay:0,kills:{}};
  for(let d=first;d<=now;d=addDays(d,1)){
   const r=calcDay(d,streak,now,S.start,lvOf());streak=r.streak;
   for(const k in r.xp)sxp[k]=Math.max(0,(sxp[k]||0)+r.xp[k]);
@@ -706,7 +732,7 @@ function computeAll(){
   T.maxStreak=Math.max(T.maxStreak,streak);
  }
  const seen=new Set();
- for(const d of order){const m=monday(d);if(seen.has(m))continue;seen.add(m);if(bossState(m,days).win){gold+=bossGold();T.goldEarned+=bossGold();T.boss++;addTo(sxp,{wil:20,int:10})}}
+ for(const d of order){const m=monday(d);if(seen.has(m))continue;seen.add(m);if(bossState(m,days).win){const bz=beastOf(m);T.kills[bz.id]=(T.kills[bz.id]||0)+1;gold+=bossGold();T.goldEarned+=bossGold();T.boss++;addTo(sxp,{wil:20,int:10})}}
  const sl=lvOf();curLv=sl;const lvs=STATS.map(s=>sl[s.k]);T.maxStat=Math.max(...lvs);T.minStat=Math.min(...lvs);T.sumStat=lvs.reduce((s,v)=>s+v,0);
  const totalXP=sumX(sxp);let lvl=0;RANKS.forEach((r,i)=>{if(totalXP>=r[2])lvl=i});
  const spent=(S.buys||[]).reduce((s,b)=>s+b.cost,0);
@@ -720,8 +746,9 @@ const ACH=[
  ['∞','Тысяча задач','Физика и математика вместе',T=>T.tasks,1000],
  ['⚔','Верная клятвам','7 дней подряд все клятвы',T=>T.maxStreak,7],
  ['♜','Нерушимая','30 дней подряд все клятвы',T=>T.maxStreak,30],
- ['☠','Энтропия повержена','Победи босса недели',T=>T.boss,1],
- ['♚','Гроза энтропии','Победи босса 5 раз',T=>T.boss,5],
+ ['☠','Охотница','Победи первого босса недели',T=>T.boss,1],
+ ['❂','Бестиарий','Победи всех шесть боссов',T=>BEASTS.filter(b=>T.kills[b.id]).length,6],
+ ['♚','Гроза чудовищ','Победи 5 боссов',T=>T.boss,5],
  ['★','Идеальный день','Все клятвы, хороший сон и еда, без проклятий',T=>T.perfect,1],
  ['¶','Книжная душа','30 дней с чтением',T=>T.read,30],
  ['Я','Полиглот','30 дней с иностранным языком',T=>T.lang,30],
@@ -740,34 +767,129 @@ const ACH=[
  ['¤','Сокровищница','Заработай 5000 золота за всё время',T=>T.goldEarned,5000],
  ['e⁻','Ионизация','Набери 150 опыта за один день',T=>T.bigDay,1]];
 
-/* ---------- Пиксельная героиня ---------- */
-const SPR=["......hhhh......","....hhhhhhhh....","...hhhhhhhhhh...","...hhssssssh....","...hsdssssdsh...","...hssssssssh...","...hhssmmsshh...","...hh.ssss.hh...","....ooaooaoo....","...oooooooooo...","..soooooooooos..","..sooooggoooos..","...oooooooooo...","...oooooooooo...","....oooooooo....","....ll....ll....","....ll....ll....","...bbb....bbb...","................"];
-const ITEMS={int:[[14,10,'x'],[15,10,'x'],[14,11,'p'],[15,11,'x'],[14,12,'x'],[15,12,'x']],
- str:[[15,3,'m'],[15,4,'m'],[15,5,'m'],[15,6,'m'],[15,7,'m'],[15,8,'m'],[15,9,'m'],[14,10,'y'],[15,10,'y'],[15,11,'g']],
- agi:[[2,18,'g'],[3,18,'g'],[4,18,'g'],[5,18,'g'],[6,18,'g'],[7,18,'g'],[8,18,'g'],[9,18,'g'],[10,18,'g'],[11,18,'g'],[12,18,'g'],[13,18,'g']],
- vit:[[14,9,'g'],[14,10,'r'],[15,10,'r'],[14,11,'r'],[15,11,'r']],
- wil:[[0,9,'x'],[1,9,'x'],[0,10,'x'],[1,10,'y'],[0,11,'x'],[1,11,'x'],[1,12,'x']],
- cha:[[14,8,'r'],[15,8,'r'],[14,9,'r'],[15,9,'r'],[14,10,'e'],[14,11,'e']],
- cre:[[15,5,'x'],[15,6,'g'],[15,7,'g'],[15,8,'g'],[15,9,'g'],[15,10,'g']],
- cur:[[14,8,'g'],[14,9,'y'],[15,9,'y'],[14,10,'y'],[15,10,'y'],[14,11,'g']]};
-const topStats=sxp=>STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
-function spriteSVG(sxp,size){
- const o=topStats(sxp),has=k=>(sxp[k]||0)>0,c1=has(o[0].k)?o[0].col:'var(--muted)',c2=has(o[1].k)?o[1].col:'var(--line)';
- const P={h:'#5a3828',s:'#f2c9a5',d:'#22182a',m:'#c4605a',o:c1,a:c2,g:'#7a5530',l:'#3d3656',b:'#5a3a22'};
- const I={x:o[0].col,p:'#f4efe0',m:'#cfd6e6',y:'#e0a82e',g:'#7a5530',r:'#d6404e',e:'#3f9a5a'};
- let r='';SPR.forEach((row,y)=>[...row].forEach((ch,x)=>{if(P[ch])r+=`<rect x="${x}" y="${y}" width="1.04" height="1.04" style="fill:${P[ch]}"/>`}));
- if(has(o[0].k))(ITEMS[o[0].k]||[]).forEach(([x,y,c])=>{r+=`<rect x="${x}" y="${y}" width="1.04" height="1.04" style="fill:${I[c]}"/>`});
- return `<svg class="sprite ${size||''}" viewBox="0 0 16 19" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+/* ---------- Пиксель-арт: героиня, бестиарий, предметы ---------- */
+const mir=h=>h.map(r=>r+[...r].reverse().join(''));
+function pix(rows,pal,cls,label,vb){
+ const W=vb?vb[0]:rows[0].length,H=vb?vb[1]:rows.length;let o='';
+ rows.forEach((row,y)=>{let x=0;while(x<row.length){const c=row[x];if(!pal[c]){x++;continue}let n=1;while(row[x+n]===c)n++;o+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${pal[c]}"/>`;x+=n}});
+ return `<svg class="${cls||''}" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>${o}</svg>`;
 }
+const OUT='#1d1424';
+/* Героиня 24×32 (зеркальная), холст 32×36 со снаряжением */
+const HERO=mir([
+ "........kkkk",
+ "......kkhhhh",
+ ".....khhhhjj",
+ "....khhhhjjh",
+ "....khhhhhhh",
+ "...khhhhhhhh",
+ "...khhHhhhHh",
+ "...khHhssHhs",
+ "...khHssssss",
+ "...khHswkkss",
+ "...khHsskkss",
+ "...khHcsssss",
+ "...khhSsssss",
+ "....khhSsssm",
+ "....khhkSsss",
+ ".....khhkkss",
+ "....kkoooayy",
+ "...koOoooooa",
+ "..kOOoooooya",
+ "..ksOoooooay",
+ ".ksSOooooooy",
+ ".ksSOoooooya",
+ ".kssbbbbbbbB",
+ ".kk.kOooooOo",
+ "....kOooooOo",
+ "....kOOoooOo",
+ "....kkkkkkkk",
+ ".....kpPpk..",
+ ".....kpPpk..",
+ ".....ktTtk..",
+ "....kttTttk.",
+ "....kkkkkkk."]);
+const ITEM_ART={
+ int:{x:25,y:17,r:["kkkkkk","kxxxyk","kxyxxk","kxxxxk","kxxyxk","kxxxxk","kppppk","kkkkkk"]},
+ str:{x:27,y:3,r:["..k..",".kmk.",".kmk.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.",".kmM.","kyyyk",".kgk.",".kgk.",".kyk.","..k.."]},
+ agi:{x:4,y:32,r:[".kkkkkkkkkkkkkkkkkkkkkk.","krrrrrrrrrrrrrrrrrrrrrrk",".kkkkkkkkkkkkkkkkkkkkkk.","...kmk............kmk..."]},
+ vit:{x:25,y:16,r:["..kk..",".kggk.","..kk..",".kwwk.","kwrrrk","krlrrk","krrrrk","krrrRk",".kRRk.","..kk.."]},
+ wil:{x:0,y:16,r:["kkkkkk","kxxyxk","kxxyxk","kyyyyk","kxxyxk","kxxyxk",".kxyk.",".kxyk.","..kk.."]},
+ cha:{x:25,y:15,r:[".kkkk.","krrrrk","krlrrk","krrrRk",".kRRk.","..ke..","..ke..",".kek..","..ke..","..ke.."]},
+ cre:{x:26,y:9,r:["..k.",".kxk",".kxk","kwk.","kgk.","kgk.","kgk.","kgk.","kgk.","kgk.","kgk.",".k.."]},
+ cur:{x:25,y:15,r:["..kk..",".k..k.","kkkkkk","kylyyk","kllllk","kylyyk","kkkkkk",".kyyk.","..kk.."]}};
+function heroArt(sxp,cls){
+ const o=STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0)),has=k=>(sxp[k]||0)>0;
+ const c1=has(o[0].k)?o[0].col:'var(--muted)',c2=has(o[1].k)?o[1].col:'#e0a82e';
+ const pal={k:OUT,h:'#6b3d26',H:'#4a2a1e',j:'#a2643a',s:'#f3cba6',S:'#d9a07c',w:'#ffffff',c:'#ef9a8e',m:'#b8565a',
+  o:c1,O:`color-mix(in srgb,${c1} 62%,#000)`,a:c2,y:'#e8b33a',b:'#6a4326',B:'#f0c75e',p:'#3d3656',P:'#2a2440',t:'#6a4326',T:'#432a17'};
+ const W=32,H=36,grid=Array.from({length:H},()=>Array(W).fill('.'));
+ HERO.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')grid[y][x+4]=c}));
+ let extra='';
+ if(has(o[0].k)){const it=ITEM_ART[o[0].k],ip={k:OUT,x:o[0].col,y:'#e8b33a',p:'#f4efe0',m:'#dfe6f2',M:'#9aa6bd',g:'#6a4326',w:'#cfeaff',r:'#d6404e',R:'#9c2632',l:'#ffd9a8',e:'#3f9a5a'};
+  it.r.forEach((r,y)=>[...r].forEach((c,x)=>{const gy=it.y+y,gx=it.x+x;if(c!=='.'&&grid[gy]&&gx<W){grid[gy][gx]='#'+c}}));
+  Object.keys(ip).forEach(k=>{pal['#'+k]=ip[k]})}
+ return pixGrid(grid,pal,cls);
+}
+function pixGrid(grid,pal,cls){let o='';
+ grid.forEach((row,y)=>{let x=0;while(x<row.length){const c=row[x];if(!pal[c]){x++;continue}let n=1;while(row[x+n]===c)n++;o+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${pal[c]}"/>`;x+=n}});
+ return `<svg class="${cls||''}" viewBox="0 0 ${grid[0].length} ${grid.length}" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`}
+
+/* Бестиарий: босс недели меняется по кругу */
+const BEASTS=[
+ {id:'entropy',name:'Энтропия',title:'Пожирательница порядка',lore:'Растёт из немытой посуды, брошенных дел и недописанных конспектов.',
+  pal:{b:'#8a5cd6',B:'#5a3796',l:'#c3a6f5',w:'#ffffff',e:'#1d1424',r:'#c4324a',t:'#fff3e6',g:'#ffd166'},
+  r:mir(["............","...g......g.","..........kk","........kkbb","......kkbbll",".....kbbblll","....kbbbbbll","...kbbbbbbbb","...kbbbbbbbb","..kbbwwwbbbb","..kbwweekbbb","..kbwweekbbb",".kbbbwwwbbbb",".kBbbbbbbbbb",".kBbbkkkkkkk",".kBbkrtrtrtr",".kBbkrrrrrrr",".kBBbkrrrrrr","kBBBbbkkkkkk","kBBBBbbbbbbb","kkBBBBBbbbbb",".kkBkBBBkBBB","..k.k.kk.kk.","............"])},
+ {id:'slime',name:'Слизень Лени',title:'Король диванных подушек',lore:'Шепчет «ещё пять минуточек» и медленно затекает под одеяло.',
+  pal:{b:'#5cc46a',B:'#2f8a45',l:'#b8f0a8',w:'#ffffff',e:'#1d1424',r:'#2a5c33',g:'#e8f6ff'},
+  r:mir(["............","............","............","............","..........kk","........kkll","......kkbbll",".....kbbbbbb","....kbbbbbbb","...kbbbbbbbb","...kbbkkkbbb","..kbbbweebbb","..kbbbbbbbbb",".kbbbbbbbbbb",".kbbbbbbbbkk",".kbBbbbbbbbb","kbBBbbbbbbbb","kbBBBbbbbbbb","kBBBBBBbbbbb","kBBBBBBBBBBB",".kkkkkkkkkkk","............","............","............"])},
+ {id:'eye',name:'Око Ленты',title:'Страж бесконечной прокрутки',lore:'Смотрит из экрана и не моргает. Питается украденными часами.',
+  pal:{b:'#3d7bd9',B:'#234c94',l:'#9cc6ff',w:'#f4f8ff',e:'#1d1424',g:'#f26b8a'},
+  r:mir(["............","......kkkkkk","....kkbbbbbb","...kbbllbbbb","..kbbllbbbbb","..kbbbbbwwww",".kbbbbwwwwww",".kbbbwwwgggg",".kbbwwwggeee",".kbbwwwggeee",".kbbbwwwgggg",".kbbbbwwwwww","..kbbbbbwwww","..kbbbbbbbbb","...kbbbbbbbb","....kkbbbbbb","....kbkkbkkb","...kb.kb.kb.","..kb..kb..kb","..kb...kb.kb","...k...kb..k","........k...","............","............"])},
+ {id:'ghost',name:'Призрак Прокрастинации',title:'Хранитель вечного «завтра»',lore:'Носит часы, которые всегда показывают «ещё успеешь».',
+  pal:{l:'#e6e1f7',b:'#b9b0dc',w:'#fffbe6',e:'#1d1424',y:'#e8b33a'},
+  r:mir(["............","........kkkk","......kkllll",".....kllllll","....klllllll","....kllkklll","...kllkeekll","...kllkeekll","...klllkklll","...kllllllll","..klllllllyy","..kllllllyww","..klllllywww",".kllllllywwe",".kllllllywwe",".klllllllyww",".kbllllllly",".kbllllllll","kbbllllllll","kbbllllllll","kbbkllllkll","kk.kblk.kbl","....kk...kk","............"].map(r=>(r+'............').slice(0,12)))},
+ {id:'golem',name:'Голем Усталости',title:'Каменная тяжесть понедельника',lore:'Сложен из несданных отчётов. Слабеет от сна и прогулок.',
+  pal:{l:'#c5c1ba',b:'#8f8a83',B:'#5e5a55',g:'#ffb347'},
+  r:mir(["............","............","......kkkkkk",".....kllllll",".....klbbbbb",".....kbbbbbb",".....kbggbbb",".....kbbbbbb","...kkkbkkkkk","..kllkbbbbbb",".klbbkbllbbb",".kbbbkbbbbBb",".kbbBkbbbbbb",".kbbbkbBbbbb",".kkkkkbbbbbb",".kllk.kbbbbb",".kbbk.kbbBbb",".kkkk.kkkkkk","......kbbk..","......kbbk..",".....kbbbk..",".....kkkkk..","............","............"])},
+ {id:'dragon',name:'Дракончик Хаоса',title:'Поджигатель дедлайнов',lore:'Дышит срочными делами. Боится списков и помидоров.',
+  pal:{b:'#d9483b',B:'#912a22',l:'#ffc48a',y:'#f5e6c8',w:'#fff3c4',e:'#1d1424',r:'#5a1414',t:'#ffffff'},
+  r:mir(["..k.........","..kk........","..kyk.......","...kyk..kkkk","...kybkkbbbb","....kbbbbbbb","...kbbbbbbbb","..kbbweebbbb","..kbbweebbbb",".kbbbbbbbbbb",".kbbBbbbllll",".kbBkbllllll","..kBbllkllll","..kBblllllll","..kkbkkkkkkk","...kbtkrrrrr","...kbbkrrrrr","....kbbkkkkk",".....kbbbbbb","......kkkkkk","............","............","............","............"])}];
+const beastOf=mon=>BEASTS[Math.floor(dayNum(mon)/7)%BEASTS.length];
+const beastArt=(b,cls,label)=>pix(b.r,Object.assign({k:OUT},b.pal),cls,label);
+
+/* Предметы лавки */
+const ICONS={
+ orb:{name:'Хрустальный шар',pal:{l:'#d8f3ff',w:'#ffffff',b:'#6fc3f0',B:'#3a86c4',y:'#e8b33a',Y:'#a87418'},
+  r:["....kkkk....","..kkllbbkk..",".klwlbbbbbk.",".kllbbbbbbk.","kbbbbbbbbbbk","kbbbbbbbBbbk",".kbbbbbbBbk.",".kbbbbbBBbk.","..kkbbbbkk..","..kyyyyyyk..",".kyYyyyyYyk.",".kkkkkkkkkk."]},
+ mug:{name:'Кружка из таверны',pal:{w:'#fff8e8',b:'#a8693a',B:'#6e4120',y:'#b9b2a8'},
+  r:["...w.w......","..wwwwww....",".kwwwwwwk...",".kbbbbbbkkk.",".kbybbybk.k.",".kbybbybk.k.",".kbybbybk.k.",".kbbbbbbkkk.",".kbybbybk...",".kBbbbbBk...","..kkkkkk....","............"]},
+ dice:{name:'Кости удачи',pal:{w:'#fbf6ea',B:'#c9bfa8',e:'#c42a35'},
+  r:["............",".kkkkkkkkk..",".kwwwwwwwkk.",".kweewwwwkBk",".kweewwwwkBk",".kwwwwwwwkBk",".kwwwwwwwkBk",".kwwwwweekBk",".kwwwwweekBk",".kwwwwwwwkk.",".kkkkkkkkk..","............"]},
+ potion:{name:'Зелье отдыха',pal:{g:'#8a5a2b',w:'#d8eef7',b:'#d94d8a',B:'#9c2a5e',l:'#ffb8d9'},
+  r:["....kkkk....","....kggk....",".....kk.....","....kwwk....","...kwbbwk...","..kbbbbbbk..",".kblbbbbbbk.",".kllbbbbbbk.",".kbbbbbbbBk.",".kbbbbbbBBk.","..kBBBBBBk..","...kkkkkk..."]},
+ book:{name:'Древний фолиант',pal:{b:'#3d6fc4',B:'#25478a',y:'#e8b33a',w:'#f4efe0'},
+  r:["............","..kkkkkkkkk.",".kbbbbbbbbbk",".kbyyyyyybbk",".kbybbbbybbk",".kbyyyyyybbk",".kbbbbbbbbbk",".kbbbyybbbbk",".kbbbbbbbbbk",".kBwwwwwwwwk",".kkkkkkkkkkk","............"]},
+ chest:{name:'Сундук сокровищ',pal:{b:'#a8693a',B:'#6e4120',y:'#e8b33a'},
+  r:["............","..kkkkkkkk..",".kbbbbbbbbk.","kbbbbbbbbbbk","kyyyyyyyyyyk","kbbbkyykbbbk","kbbbkyykbbbk","kBBBBkkBBBBk","kyyyyyyyyyyk","kBBBBBBBBBBk","kkkkkkkkkkkk","............"]},
+ sword:{name:'Клинок героини',pal:{w:'#f4f8ff',l:'#9aa6bd',y:'#e8b33a',b:'#6a4326'},
+  r:["..........kk",".........kwk","........kwlk",".......kwlk.","......kwlk..",".....kwlk...","..k.kwlk....","..kkwlk.....","...kyk......","..kbkyk.....",".kbk.kk.....",".kk........."]},
+ crown:{name:'Корона',pal:{y:'#f0c75e',Y:'#b8862a',r:'#d6404e'},
+  r:["............","k....kk....k","kk..kyyk..kk","kyk.kyyk.kyk","kyykyyyykyyk","kyyyyryyyyyk","kyyryyyyryyk","kYyyyyyyyyYk","kYYYYYYYYYYk","kkkkkkkkkkkk","............","............"]}};
+const iconArt=(id,cls)=>{const it=ICONS[id]||ICONS.chest;return pix(it.r,Object.assign({k:OUT},it.pal),cls)};
+const RARITY=[[100,'Обычный','var(--muted)'],[250,'Необычный','var(--s-agi)'],[500,'Редкий','var(--s-int)'],[900,'Эпический','var(--s-wil)'],[1e9,'Легендарный','var(--gold)']];
+const rarityOf=c=>RARITY.find(r=>c<r[0]);
+
+const topStats=sxp=>STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
 function heroClass(sxp){
  if(!sxp||!Object.values(sxp).some(v=>v>0))return 'Начинающая искательница';
  const o=topStats(sxp);return (sxp[o[1].k]||0)>0?o[1].adj+' '+o[0].cls.toLowerCase():o[0].cls;
 }
-const BOSS_C={x:'var(--s-wil)',w:'var(--panel)',k:'var(--frame)'};
-const BOSS_ART=`<svg class="bossart" viewBox="0 0 14 12" shape-rendering="crispEdges" aria-hidden="true">${["....xxxxxx....","..xxxxxxxxxx..",".xxxxxxxxxxxx.",".xxwwxxxxwwxx.","xxxwkxxxxwkxxx","xxxxxxxxxxxxxx","xxxxxxxxxxxxxx","xxxkxkxkxkxxxx","xxxxkxkxkxkxxx",".xxxxxxxxxxxx.",".xx.xxx.xxx.x.",".x...x...x...."].map((row,y)=>[...row].map((c,x)=>BOSS_C[c]?`<rect x="${x}" y="${y}" width="1.04" height="1.04" style="fill:${BOSS_C[c]}"/>`:'').join('')).join('')}</svg>`;
 
 /* ---------- Отрисовка ---------- */
 const $=s=>document.querySelector(s);
+const coinArt=pix(["..kkkk..",".kyyyyk.","kyywyyYk","kywyyyYk","kyyyyyYk","kyyyyYYk",".kYYYYk.","..kkkk.."],{k:OUT,y:'#f0c75e',Y:'#b8862a',w:'#fff6cf'},'coin');
+const GICON={study:'book',work:'chest',move:'sword',body:'potion',soul:'orb',bad:'dice'};
 const xpChips=o=>Object.entries(o||{}).filter(e=>e[1]).map(([k,v])=>`<span class="chip" style="--c:${SN[k].col}" title="${esc(SN[k].name)}">${sg(v)} ${SN[k].ab}</span>`).join('');
 const coin=g=>g?`<span class="chip gd">${sg(g)} зол.</span>`:'';
 const heart=h=>h?`<span class="chip hp">${sg(h)} ♥</span>`:'';
@@ -778,12 +900,12 @@ function header(C){
  const tabs=[['today','Сегодня'],['hero','Героиня'],['quests','Квесты'],['topics','Библиотека'],['journal','Летопись'],['ach','Трофеи'],['shop','Лавка'],['rules','Правила']];
  return `<header class="top"><div class="toprow">
   <div class="brand">Квантовая<br>сага</div>
-  <button class="who linkbtn" style="text-decoration:none;color:inherit" data-act="tab" data-v="hero">${spriteSVG(C.sxp,'mini')}<span><b>${esc(heroClass(C.sxp))}</b><small>Ур. ${C.lvl+1} · ${esc(r[0])}</small></span></button>
+  <button class="who linkbtn" style="text-decoration:none;color:inherit" data-act="tab" data-v="hero">${heroArt(C.sxp,'sprite mini')}<span><b>${esc(heroClass(C.sxp))}</b><small>Ур. ${C.lvl+1} · ${esc(r[0])}</small></span></button>
   <div class="bars">
    <div class="barrow"><span class="px lab hpc">HP</span><div class="bar hp" role="progressbar" aria-label="Здоровье" aria-valuenow="${C.hp}" aria-valuemin="0" aria-valuemax="${C.maxHp}"><i style="width:${C.hp/C.maxHp*100}%"></i></div><span class="num">${C.hp}/${C.maxHp}</span></div>
    <div class="barrow"><span class="px lab" style="color:var(--xp)">XP</span><div class="bar" role="progressbar" aria-label="Опыт до следующего уровня" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="num">${C.totalXP}${nx?' / '+nx[2]:''}</span></div>
   </div>
-  <div class="stats"><div class="stat"><b class="gold">${fmt(C.balance)}</b><small>золото</small></div><div class="stat"><b>${C.streak}</b><small>серия клятв</small></div></div>
+  <div class="stats"><div class="stat"><b class="gold">${coinArt}${fmt(C.balance)}</b><small>золото</small></div><div class="stat"><b>${C.streak}</b><small>серия клятв</small></div></div>
  </div><div class="tabrow"><nav class="tabs" role="tablist" aria-label="Разделы">${tabs.map(t=>`<button class="tab" role="tab" id="tab-${t[0]}" data-act="tab" data-v="${t[0]}" aria-selected="${tab===t[0]}">${t[1]}</button>`).join('')}</nav>${themeBtn()}</div></header>`;
 }
 function rowHTML(x,d,L){
@@ -808,22 +930,22 @@ function oathPanel(r,isToday){
   <div class="small">${foot}</div></section>`;
 }
 function heroCard(C){
- return `<section class="win pad"><div class="hc">${spriteSVG(C.sxp,'big')}<div><div class="h">${esc(heroClass(C.sxp))}</div><div class="small">Ур. ${C.lvl+1} · ${esc(RANKS[C.lvl][0])} · ${RANKS[C.lvl][1]}</div></div></div>
+ return `<section class="win pad"><div class="hc">${heroArt(C.sxp,'sprite big')}<div><div class="h">${esc(heroClass(C.sxp))}</div><div class="small">Ур. ${C.lvl+1} · ${esc(RANKS[C.lvl][0])} · ${RANKS[C.lvl][1]}</div></div></div>
   <div class="mini8">${STATS.map(s=>{const xp=C.sxp[s.k]||0,l=C.sl[s.k],a=needXP(l),b=needXP(l+1);return `<div class="m8" style="--c:${s.col}" title="${esc(s.name)}: ${xp} опыта"><span class="px ab">${s.ab}</span><div class="bar sm"><i style="width:${(xp-a)/(b-a)*100}%"></i></div><span class="px lv">${l}</span></div>`}).join('')}</div>
   <button class="linkbtn" data-act="tab" data-v="hero">Характеристики и таланты</button></section>`;
 }
 function lootCard(r){
  const e=STATS.filter(s=>r.xp[s.k]);
  return `<section class="win pad"><h2 class="h">Добыча дня</h2>
-  <div class="loot"><div><b style="color:var(--xp)">${sg(r.xpT)||'0'}</b><small>опыта</small></div><div><b class="gold">${sg(r.gold)||'0'}</b><small>золота</small></div><div><b class="hpc">${sg(r.hpD)||'0'}</b><small>здоровья</small></div></div>
+  <div class="loot"><div><b style="color:var(--xp)">${sg(r.xpT)||'0'}</b><small>опыта</small></div><div><b class="gold">${coinArt}${sg(r.gold)||'0'}</b><small>золота</small></div><div><b class="hpc">${sg(r.hpD)||'0'}</b><small>здоровья</small></div></div>
   ${e.length?`<div class="chips big">${e.map(s=>`<span class="chip" style="--c:${s.col}">${esc(s.name)} ${sg(r.xp[s.k])}</span>`).join('')}</div>`:`<div class="small">Отметь первое дело, и здесь появится опыт по характеристикам.</div>`}</section>`;
 }
 function todayView(C){
  const d=view,now=today(),L=log(d),r=C.days[d]||calcDay(d,0,now,S.start,C.sl),isToday=d===now;
  const offUsed=Object.keys(S.days).some(k=>k!==d&&monday(k)===monday(d)&&S.days[k].type==='off');
  const groups=Object.keys(GROUPS).map(g=>{const items=allActions().filter(x=>x.group===g&&!S.hidden[x.id]);if(!items.length)return '';
-  return `<section class="win block"><div class="ghead ${g==='bad'?'bad':''}"><h2 class="h">${GROUPS[g]}</h2></div>${items.map(x=>rowHTML(x,d,L)).join('')}</section>`}).join('');
- const B=bossState(monday(d),C.days);
+  return `<section class="win block"><div class="ghead ${g==='bad'?'bad':''}">${iconArt(GICON[g],'gico')}<h2 class="h">${GROUPS[g]}</h2></div>${items.map(x=>rowHTML(x,d,L)).join('')}</section>`}).join('');
+ const B=bossState(monday(d),C.days),BZ=beastOf(monday(d));
  return `<div class="today">
   <div class="dayhead"><div class="daynav"><button class="iconbtn" id="prevday" data-act="day" data-v="-1" aria-label="Предыдущий день">‹</button>
     <button class="iconbtn" id="nextday" data-act="day" data-v="1" aria-label="Следующий день" ${isToday?'disabled':''}>›</button>
@@ -836,10 +958,11 @@ function todayView(C){
   <div class="side">
    ${heroCard(C)}${lootCard(r)}${advBrief(d)}${topicBrief('day',d)}${topicBrief('week',d)}
    ${r.chestOk?(r.chestOn?`<div class="chest" role="status">Сундук открыт<b>+${r.chestV} зол.</b></div>`:`<button class="chest wiggle" id="chest" data-act="chest">Открыть сундук дня<b>?</b></button>`):`<div class="chest" style="opacity:.7">Сундук откроется от ${CHEST_AT} опыта за день<b>${Math.max(0,r.xpT)}/${CHEST_AT}</b></div>`}
-   <section class="win pad"><div class="boss">${BOSS_ART}<div><div class="tophead"><h2 class="h">Босс недели: Энтропия</h2><span class="px" style="font-size:10px">${Math.round((1-B.prog)*100)} HP</span></div>
-    <div class="hpb ${B.win?'dead':''}"><i style="width:${B.win?100:(1-B.prog)*100}%"></i></div></div></div>
+   <section class="win pad bosswin ${B.win?'slain':''}"><div class="eyebrow">Босс недели</div><div class="boss">${beastArt(BZ,'beast',BZ.name)}<div><h2 class="h">${esc(BZ.name)}</h2><div class="small">${esc(BZ.title)}</div>
+    <div class="hpb ${B.win?'dead':''}" role="progressbar" aria-label="Здоровье босса" aria-valuenow="${B.win?0:Math.round((1-B.prog)*100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${B.win?100:(1-B.prog)*100}%"></i></div><div class="stmeta"><span>${B.win?'Повержен':'HP '+Math.round((1-B.prog)*100)+'/100'}</span><span>до воскресенья</span></div></div></div>
+    <p class="lore">${esc(BZ.lore)}</p>
     ${B.parts.map(p=>`<div class="goal"><span>${p[0]}</span><span>${p[1]}/${p[2]}</span><div class="gbar"><i style="width:${Math.min(100,p[1]/Math.max(1,p[2])*100)}%"></i></div></div>`).join('')}
-    <div class="small" style="margin-top:9px">${B.win?`Повержена. Добыча: +${bossGold()} золота, +20 ВОЛ, +10 ИНТ`:`Закрой все цели до воскресенья: +${bossGold()} золота, +20 ВОЛ, +10 ИНТ`}</div></section>
+    <div class="small" style="margin-top:9px">${B.win?`Повержен. Добыча: +${bossGold()} золота, +20 ВОЛ, +10 ИНТ`:`Закрой все цели до воскресенья: +${bossGold()} золота, +20 ВОЛ, +10 ИНТ`}</div></section>
    <section class="win pad"><h2 class="h" style="margin-bottom:8px">Летопись дня</h2>
     ${r.lines.length?`<ul class="lines">${r.lines.map(l=>`<li><span>${esc(l.t)}</span><span class="chips">${xpChips(l.x)}${coin(l.g)}${heart(l.h)}</span></li>`).join('')}</ul>`:`<div class="small">Здесь по строчкам появится всё, что принёс день: опыт, золото и здоровье.</div>`}
     <div class="total"><span style="color:var(--xp)">${sg(r.xpT)||'0'} XP</span><span class="gold">${sg(r.gold)||'0'} зол.</span><span class="hpc">${sg(r.hpD)||'0'} HP</span></div></section>
@@ -941,7 +1064,7 @@ function heroView(C){
    <div class="talent ${open?'on':''}"><b>${open?'★':'☆'} ${esc(t[0])}</b><small>${open?esc(t[1]):`С ${TAL_LVL} уровня: ${esc(t[1].charAt(0).toLowerCase()+t[1].slice(1))}`}</small></div></div>`}).join('');
  return `<div class="page">
   <div class="herotop">
-   <section class="win pad heroid">${spriteSVG(sxp,'huge')}<div><div class="small">Персонаж</div><h1 class="heroname">${esc(heroClass(sxp))}</h1>
+   <section class="win pad heroid">${heroArt(sxp,'sprite huge')}<div><div class="small">Персонаж</div><h1 class="heroname">${esc(heroClass(sxp))}</h1>
     <div class="small">Уровень ${C.lvl+1} · ${esc(r[0])} (${r[1]})</div>
     <div class="chips"><span class="chip hp">${C.hp}/${C.maxHp} ♥</span><span class="chip gd">${fmt(C.balance)} зол.</span><span class="chip" style="--c:var(--xp)">${C.totalXP} XP</span></div>
     <p class="hook" style="margin-top:10px">Класс складывается из двух самых прокачанных характеристик, а в руках у героини появляется предмет главной. Делай разное, и она будет меняться.</p></div>
@@ -1008,6 +1131,8 @@ function achView(C){
   <section><h2 class="sec">Трофеи: ${got} из ${ACH.length}</h2><div class="ach">
    ${ACH.map(a=>{const v=a[3](C.T),ok=v>=a[4];return `<div class="badge ${ok?'got':''}"><span class="sym" aria-hidden="true"><span>${a[0]}</span></span><div><b>${esc(a[1])}</b><small>${esc(a[2])}</small>${ok?'':`<div class="prog"><i style="width:${Math.min(100,v/a[4]*100)}%"></i></div><small style="margin-top:2px">${v} из ${a[4]}</small>`}</div></div>`}).join('')}
   </div></section>
+  <section class="win pad"><h2 class="sec">Бестиарий</h2><p class="small" style="margin:0 0 12px;max-width:65ch">Каждую неделю приходит новый босс. Закрой недельные цели, и он падёт.</p>
+   <div class="bestiary">${BEASTS.map(b=>{const n=C.T.kills[b.id]||0,cur=beastOf(monday(today())).id===b.id;return `<div class="beastcard ${n?'got':''}">${beastArt(b,'beast sm',b.name)}<div><b>${esc(b.name)}</b><small>${esc(b.title)}</small><small>${n?'Повержен: '+n+' '+plural(n,'раз','раза','раз'):cur?'Бродит на этой неделе':'Ещё не встречен'}</small></div></div>`}).join('')}</div></section>
   <section class="win pad"><h2 class="sec">Лестница масштабов</h2><p class="small" style="margin:0 0 8px;max-width:65ch">Уровень героини растёт от суммы опыта всех характеристик. Покупки в лавке его не снижают. Размеры настоящие.</p>
    <ol class="ladder">${RANKS.map((r,i)=>`<li class="${i===C.lvl?'cur':i>C.lvl?'lk':''}"><span>${i+1}</span><span>${esc(r[0])}</span><span class="sz">${r[1]}</span><span class="thr">${r[2]} XP</span></li>`).join('')}</ol></section>
  </div>`;
@@ -1015,13 +1140,13 @@ function achView(C){
 function shopView(C){
  const buys=(S.buys||[]).slice().reverse().slice(0,12);
  return `<div class="page">
-  <section><h2 class="sec">В кошельке ${fmt(C.balance)} золота</h2>
-  <p class="small" style="margin:0 0 12px;max-width:65ch">Золото приходит вместе с опытом: каждое очко опыта приносит монету. Ещё золото дают клятвы, серия, сундуки и босс. Названия и цены ниже можно менять.</p>
-  <div class="shop">${S.rewards.map(r=>{const can=C.balance>=r.cost;return `<div class="win card"><div><b>${esc(r.name)}</b></div><div class="pr">${r.cost} зол.</div><button class="btn" id="buy-${esc(r.id)}" data-act="buy" data-id="${esc(r.id)}" ${can?'':'disabled'}>${can?'Купить':'Не хватает '+(r.cost-C.balance)}</button></div>`}).join('')}</div></section>
+  <section><div class="tophead"><h2 class="sec" style="margin:0">Лавка странствующего торговца</h2><span class="purse">${coinArt}${fmt(C.balance)}</span></div>
+  <p class="small" style="margin:8px 0 14px;max-width:65ch">Каждый предмет здесь — настоящая награда для тебя. Редкость зависит от цены. Золото приходит вместе с опытом: каждое очко опыта приносит монету. Ещё золото дают клятвы, серия, сундуки и босс. Названия и цены ниже можно менять.</p>
+  <div class="shop">${S.rewards.map(r=>{const can=C.balance>=r.cost,ra=rarityOf(r.cost),it=ICONS[r.icon]||ICONS.chest;return `<div class="win card ${can?'':'poor'}" style="--r:${ra[2]}"><div class="slot">${iconArt(r.icon,'ico')}</div><div class="cardtxt"><span class="rar">${ra[1]}</span><b class="itn">${esc(it.name)}</b><span class="real">${esc(r.name)}</span></div><div class="buyrow"><span class="pr">${coinArt}${r.cost}</span><button class="btn" id="buy-${esc(r.id)}" data-act="buy" data-id="${esc(r.id)}" ${can?'':'disabled'}>${can?'Купить':'Ещё '+(r.cost-C.balance)}</button></div></div>`}).join('')}</div></section>
   ${buys.length?`<section class="win pad"><h2 class="sec">Покупки</h2><div class="tablewrap"><table><tbody>${buys.map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(shortDate(b.date))}</td><td class="n">−${b.cost}</td><td class="n"><button class="linkbtn" data-act="refund" data-v="${b.ts}">Вернуть</button></td></tr>`).join('')}</tbody></table></div></section>`:''}
-  <section class="win pad"><h2 class="sec">Изменить товары</h2>
-   ${S.rewards.map(r=>`<div class="inline" style="margin-bottom:8px"><input type="text" id="rn-${esc(r.id)}" aria-label="Название награды" data-chg="rname" data-id="${esc(r.id)}" value="${esc(r.name)}"><input type="number" style="flex:0 0 90px" id="rc-${esc(r.id)}" aria-label="Цена" data-chg="rcost" data-id="${esc(r.id)}" value="${r.cost}" min="1"><button class="btn red" id="rd-${esc(r.id)}" data-act="rdel" data-id="${esc(r.id)}">Убрать</button></div>`).join('')}
-   <div class="inline" style="margin-top:12px"><input type="text" id="newr-name" placeholder="Новая награда" aria-label="Название новой награды"><input type="number" style="flex:0 0 90px" id="newr-cost" placeholder="Цена" aria-label="Цена новой награды" min="1"><button class="btn" id="newr-add" data-act="radd">Добавить</button></div>
+  <section class="win pad"><h2 class="sec">Изменить товары</h2><p class="small" style="margin:0 0 10px">Слева твоя настоящая награда, справа цена и предмет, которым она выглядит в лавке.</p>
+   ${S.rewards.map(r=>`<div class="inline" style="margin-bottom:8px"><input type="text" id="rn-${esc(r.id)}" aria-label="Название награды" data-chg="rname" data-id="${esc(r.id)}" value="${esc(r.name)}"><input type="number" style="flex:0 0 90px" id="rc-${esc(r.id)}" aria-label="Цена" data-chg="rcost" data-id="${esc(r.id)}" value="${r.cost}" min="1"><select style="flex:0 0 190px" id="ri-${esc(r.id)}" aria-label="Предмет" data-chg="ricon" data-id="${esc(r.id)}">${Object.keys(ICONS).map(k=>`<option value="${k}" ${r.icon===k?'selected':''}>${esc(ICONS[k].name)}</option>`).join('')}</select><button class="btn red" id="rd-${esc(r.id)}" data-act="rdel" data-id="${esc(r.id)}">Убрать</button></div>`).join('')}
+   <div class="inline" style="margin-top:12px"><input type="text" id="newr-name" placeholder="Новая награда" aria-label="Название новой награды"><input type="number" style="flex:0 0 90px" id="newr-cost" placeholder="Цена" aria-label="Цена новой награды" min="1"><select style="flex:0 0 190px" id="newr-icon" aria-label="Предмет">${Object.keys(ICONS).map(k=>`<option value="${k}">${esc(ICONS[k].name)}</option>`).join('')}</select><button class="btn" id="newr-add" data-act="radd">Добавить</button></div>
   </section></div>`;
 }
 function rulesView(C){
@@ -1095,7 +1220,7 @@ function commit(fn,ev){
  STATS.forEach(s=>{if(a.sl[s.k]>b.sl[s.k])toast(s.name+': уровень '+a.sl[s.k],a.sl[s.k]>=TAL_LVL&&b.sl[s.k]<TAL_LVL?'Открыт талант «'+TAL[s.k][0]+'»':'')});
  const r1=b.days[view],r2=a.days[view];if(r1&&r2&&!r1.all&&r2.all)toast('Клятвы исполнены','+10 золота, +10 здоровья');
  if(a.lvl>b.lvl)levelUp(a.lvl);
- if(a.T.boss>b.T.boss)toast('Энтропия повержена','+'+bossGold()+' золота');
+ if(a.T.boss>b.T.boss)toast(beastOf(monday(view)).name+' повержен','+'+bossGold()+' золота, +20 ВОЛ, +10 ИНТ');
 }
 function dayLog(d){if(!S.days[d])S.days[d]={a:{},type:'normal'};if(!S.days[d].a)S.days[d].a={};return S.days[d]}
 function cleanup(d){const L=S.days[d];if(L&&!Object.keys(L.a||{}).length&&(L.type||'normal')==='normal'&&!L.chest&&!L.tdone&&!L.tpick&&!L.tnote&&!L.wk&&!L.qm&&!L.qe&&!L.ql&&!(L.q&&L.q.length))delete S.days[d]}
@@ -1141,7 +1266,7 @@ document.addEventListener('click',ev=>{
   buy(){const r=S.rewards.find(x=>x.id===id);if(!r)return;S.buys.push({name:r.name,cost:r.cost,date:today(),ts:Date.now()});toast('Куплено',r.name+' за '+r.cost+' золота')},
   refund(){S.buys=S.buys.filter(b=>String(b.ts)!==val);toast('Золото вернулось в кошелёк')},
   rdel(){S.rewards=S.rewards.filter(x=>x.id!==id)},
-  radd(){const n=$('#newr-name').value.trim(),c=parseInt($('#newr-cost').value,10);if(!n||!(c>0)){toast('Нужны название и цена больше нуля');return}S.rewards.push({id:uid('r'),name:n.slice(0,80),cost:c})},
+  radd(){const n=$('#newr-name').value.trim(),c=parseInt($('#newr-cost').value,10);if(!n||!(c>0)){toast('Нужны название и цена больше нуля');return}S.rewards.push({id:uid('r'),name:n.slice(0,80),cost:c,icon:$('#newr-icon').value})},
   cadd(){const n=$('#c-name').value.trim(),p=parseInt($('#c-xp').value,10);if(!n||!Number.isFinite(p)||p===0){toast('Нужны название и опыт, не ноль');return}S.custom.push({id:uid('c'),group:$('#c-group').value,kind:$('#c-kind').value,name:n.slice(0,80),note:'',xp:{[$('#c-stat').value]:Math.max(-50,Math.min(50,p))}});toast('Дело добавлено',n.slice(0,80))},
   cdel(){S.custom=S.custom.filter(x=>x.id!==id)},
   cqadd(){const n=$('#cq-name').value.trim(),p=parseInt($('#cq-pts').value,10);if(!n||!(p>0)){toast('Нужны название и опыт больше нуля');return}S.cq.push({id:uid('qc'),title:n.slice(0,80),stat:$('#cq-stat').value,pts:Math.min(200,p),rep:$('#cq-rep').checked});toast('Квест добавлен',n.slice(0,80))},
@@ -1163,6 +1288,7 @@ document.addEventListener('change',ev=>{
   if(k==='tnote'){const v=t.value.trim().slice(0,600),L=dayLog(view);if(v){L.tnote=v;if(!L.tpick)L.tpick=dayTopic(view).id}else{delete L.tnote;cleanup(view)}}
   if(k==='wnote'){const m=monday(view),W=weekRec(m),v=t.value.trim().slice(0,1500);if(v){W.note=v;if(!W.pick)W.pick=weekTopic(m).id}else delete W.note}
   if(k==='rname'&&t.value.trim()){const r=S.rewards.find(x=>x.id===id);if(r)r.name=t.value.trim().slice(0,80)}
+  if(k==='ricon'&&ICONS[t.value]){const r=S.rewards.find(x=>x.id===id);if(r)r.icon=t.value}
   if(k==='rcost'&&n>0){const r=S.rewards.find(x=>x.id===id);if(r)r.cost=n}
  });
 });
