@@ -296,6 +296,14 @@ textarea{min-height:90px;font:500 12px var(--mono)}
 @keyframes pop{from{transform:scale(.7);opacity:0}}
 #lvl h2{font:400 clamp(18px,5vw,30px)/1.4 var(--display)}
 #lvl .sz{font:700 16px var(--mono);color:var(--acc)}
+.chains{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.chain{display:grid;gap:8px;align-content:start;border:2px solid var(--line);border-radius:7px;padding:12px;background:var(--panel)}
+.chain.legend{border-color:var(--gold);background:var(--gold-soft)}
+.dots{display:flex;gap:6px;padding:4px}
+.dots i{width:11px;height:11px;border:2px solid var(--frame);transform:rotate(45deg);border-radius:2px}
+.dots i.on{background:var(--gold);border-color:var(--gold)}
+.divider{border-top:2px dashed var(--line);margin:4px 0}
+.scroll{display:grid;gap:8px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
 @media (max-width:480px){.bosswin .boss{grid-template-columns:80px minmax(0,1fr)}.beast{width:80px}.sprite.huge{width:160px}.card{grid-template-columns:64px minmax(0,1fr)}.slot{width:64px;height:64px}.ico{width:44px}.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
 </style>
@@ -444,8 +452,121 @@ const QL=mkQ('ql',[
  ['День «да»','Соглашайся весь день на все безопасные предложения и идеи',70,'cur,cha'],
  ['Сделай вещь своими руками','Табурет, сумку, светильник: от начала до конца',90,'cre,agi'],
  ['Полумарафон пешком','21 км за день, с остановками можно',100,'str,wil,vit']]);
-const AQ={};[QM,QE,QW,QB,QL].forEach(l=>l.forEach(x=>{AQ[x.id]=x}));
-const QKIND={qm:'Утренний квест',qe:'Вечерний квест',qw:'Квест недели',qb:'Доска',ql:'Легендарный квест',qc:'Свой квест'};
+/* ---------- Ещё больше нового: дополнительные квесты ---------- */
+const addQ=(list,p,items)=>items.forEach(x=>list.push({id:p+list.length,kind:p,title:x[0],hint:x[1],pts:x[2],st:(x[3]||'cur').split(',')}));
+addQ(QM,'qm',[
+ ['Завтрак у окна','Без телефона. Просто смотри, как просыпается улица',8,'vit,cur'],
+ ['Песня на чужом языке','Найди песню на языке, которого не знаешь, и поставь её первой',6,'cur,cre'],
+ ['Рассказ из шести слов','Опиши своё настроение историей ровно из шести слов',6,'cre'],
+ ['Цвет утреннего неба','Нарисуй его одним пятном или найди точное название оттенка',6,'cre,cur'],
+ ['Случайная статья','Открой в Википедии «Случайную статью» и дочитай её до конца',6,'int,cur'],
+ ['Утро наоборот','Сделай утренние дела в обратном порядке',6,'cur,wil'],
+ ['Кто поёт за окном','Определи по голосу хотя бы одну птицу через приложение',8,'cur,int'],
+ ['Латте-арт','Нарисуй что-нибудь на пенке. Кривое сердечко засчитывается',8,'cre,agi'],
+ ['Записка-сюрприз','Оставь кому-то тёплую записку: коллеге, соседу, родным',10,'cha,cre'],
+ ['Туристка в своём городе','Сделай по дороге один кадр так, будто приехала сюда впервые',8,'cre,cur'],
+ ['Минута на одной ноге','Пока чистишь зубы: сначала на левой, потом на правой',6,'agi,vit'],
+ ['Неожиданный наряд','Добавь к образу то, что давно не носила: шарф, брошь, яркие носки',6,'cre,cha'],
+ ['Вопрос дня','Запиши вопрос, на который хочешь найти ответ сегодня',6,'cur,int'],
+ ['Пешком одну остановку','Выйди раньше и дойди пешком',8,'str,cur']]);
+addQ(QE,'qe',[
+ ['Вечер при свечах','15 минут при свечах, без звуков и экранов',8,'vit,wil'],
+ ['Лимонад по-новому','С базиликом, имбирём или розмарином',10,'cre,cur'],
+ ['Ночной город','Пройдись или прокатись по городу после 21:00',12,'cur,agi'],
+ ['Перестановка','Поменяй местами три вещи в комнате и посмотри, что изменилось',8,'cre'],
+ ['Странный навык за 15 минут','Оригами, битбокс, свист двумя пальцами, крутить ручку',10,'agi,cur'],
+ ['Сказка другого народа','Прочитай вслух сказку страны, о которой мало знаешь',8,'cre,cur'],
+ ['Свидание с собой','Полчаса в кафе одной и без телефона',12,'wil,cur'],
+ ['Сними звёзды','Попробуй ночной режим камеры на тёмном небе',10,'cre,cur'],
+ ['Голосовое вместо текста','Расскажи другу историю своего дня голосом',8,'cha'],
+ ['Почини или сшей','Пришей пуговицу, заштопай, свяжи пару рядов',10,'cre,agi'],
+ ['Тренировка незнакомого жанра','Бокс, пилатес, зумба или растяжка по видео',12,'str,agi'],
+ ['Карта мечты','Нарисуй или наклей три места, где хочешь побывать',8,'cre,cur'],
+ ['Расспроси старших','Узнай у бабушки, дедушки или родителей, каким был их первый рабочий день',12,'cha'],
+ ['Запах детства','Найди и понюхай то, что пахнет детством. Запиши, что вспомнилось',6,'cur,cre'],
+ ['Мини-концерт','Спой или сыграй одну песню целиком. Зрители необязательны',10,'cre,cha'],
+ ['Опыт на кухне','Невьютоновская жидкость из крахмала и воды',10,'int,cre']]);
+addQ(QW,'qw',[
+ ['Один предмет семь раз','Каждый день рисуй одно и то же: кота, дерево, кружку. Сравни первый и последний',50,'cre,wil'],
+ ['Неделя первых разов','Каждый день одно дело, которое делаешь впервые. Записывай в книгу первых разов',60,'cur,wil'],
+ ['Выучи танец','Короткую связку на минуту по видео. В конце сними себя',50,'agi,cre'],
+ ['Вечер одной страны','Выбери страну: фильм, блюдо и музыка оттуда в один вечер',50,'cur,cha'],
+ ['Огород на подоконнике','Посади базилик, лук или кресс-салат',40,'cre,vit'],
+ ['Сделай зин','Мини-журнал на 8 страниц из одного листа, о чём угодно',50,'cre,int'],
+ ['История твоей улицы','Почему она так называется и что там было сто лет назад',40,'int,cur'],
+ ['Рассказ на страницу','Фантастика, в которой важна настоящая физика',50,'cre,int'],
+ ['Неделя холодного финала','Каждый день 30 секунд прохладной воды в конце душа',50,'wil,vit'],
+ ['Подарок своими руками','Сделай и подари без повода',50,'cre,cha'],
+ ['Мифы одного созвездия','Найди, что о нём рассказывали в трёх разных культурах',40,'cur,int'],
+ ['Фотопроект «Мой цвет»','Каждый день кадр одного цвета, в конце коллаж',40,'cre,cur']]);
+addQ(QB,'qb',[
+ ['Конная прогулка','Пробное занятие в конном клубе',45,'agi,cur'],
+ ['Гончарный круг','Слепи кривую чашку и гордись ей',45,'cre'],
+ ['Музей медицины или анатомии','Удивительно и немного жутко',35,'int,cur'],
+ ['Органный концерт','Или филармония с программой, которую никогда не слушала',35,'cur,cre'],
+ ['Стендап или импровизация','Сходи зрителем. Если смелая, то на открытый микрофон',35,'cha,cur'],
+ ['Батутный центр','Час прыжков, как в детстве',30,'agi,str'],
+ ['Чайная церемония','В чайной лавке, с рассказом мастера',25,'cur,vit'],
+ ['Ярмарка или фестиваль','Любой: еды, книг, ремёсел, комиксов',30,'cur,cha'],
+ ['Мастерская свечей или мыла','Сделай вещь, которой потом будешь пользоваться',35,'cre'],
+ ['Сапборд или байдарка','Летом на воде, зимой каякинг в бассейне',45,'str,agi'],
+ ['Каток под открытым небом','Вечером, с гирляндами и горячим чаем',30,'agi,vit'],
+ ['Погуляй с собакой из приюта','Многие приюты ищут волонтёров на выходные',40,'cha,vit'],
+ ['Опера или балет','Хотя бы дневной спектакль',40,'cur,cre'],
+ ['Экскурсия по крышам','С гидом, там, где это разрешено',45,'cur,str'],
+ ['Фотосессия с подругой','Необычное место и неожиданный образ',35,'cre,cha'],
+ ['Кулинарный мастер-класс','Пельмени, паста или суши с нуля',40,'cre,cha'],
+ ['Ночь в палатке','Хоть во дворе дачи',45,'vit,cur'],
+ ['Пробный урок барабанов','Или перкуссии в музыкальной студии',35,'cre,agi'],
+ ['Шахматы вживую','В клубе или в парке, с незнакомыми людьми',30,'int,cha'],
+ ['Каллиграфия','Напиши своё имя пером и тушью',25,'cre,wil'],
+ ['Радиоуправляемый полёт','Попробуй управлять дроном или моделью самолёта',35,'agi,int'],
+ ['Лекция в планетарии','Сходи на лекцию о том, чего ещё не знаешь',35,'int,cur']]);
+addQ(QL,'ql',[
+ ['Новый навык за один день','Жонглирование, три аккорда на гитаре, стойка у стены: 6 часов практики',90,'agi,wil,cre'],
+ ['Поход с ночёвкой','Костёр, звёзды и утренний туман',100,'str,vit,cur'],
+ ['Городской квест для друзей','Придумай загадки по городу и проведи по ним друзей',90,'cre,cha,int'],
+ ['Аэротруба или парашют','Аэротруба тоже засчитывается',100,'wil,agi'],
+ ['День тишины','Ни слова с утра до вечера, только жесты и записки',80,'wil,cur'],
+ ['Своя лекция','Расскажи друзьям 20 минут о теме из библиотеки',90,'int,cha'],
+ ['Рассвет и закат в один день','И проживи день между ними без экрана',90,'vit,wil,cur']]);
+
+/* Свиток случая: мини-приключения до 15 минут, выпадают по кнопке */
+const QR=[
+ ['Танцуй под первую песню из радио',6,'agi,cre'],['Напиши письмо себе десятилетней',8,'cre,wil'],
+ ['Найди в комнате предмет на каждую букву своего имени',6,'cur'],['20 приседаний прямо сейчас',6,'str'],
+ ['Три минуты смотри на облака лёжа',5,'vit,cur'],['Узнай, как сказать «спасибо» на пяти языках',6,'int,cha'],
+ ['Нарисуй себя супергероиней',8,'cre'],['Позвони кому-то и скажи, что скучаешь',8,'cha'],
+ ['Список из 10 вещей, которые тебя радуют',6,'cre,wil'],['Что случилось в этот день 100 лет назад?',6,'int,cur'],
+ ['Минуту держи книгу на голове',5,'agi'],['Перепиши любимую цитату красивым почерком',6,'cre'],
+ ['Съешь что-то с закрытыми глазами и угадай вкусы',6,'cur'],['Планка на одну минуту',6,'str,wil'],
+ ['Нарисуй карту выдуманной страны',8,'cre,cur'],['Сложи журавлика оригами',6,'agi,cre'],
+ ['Найди созвездие в приложении звёздной карты',6,'cur,int'],['Пять минут слушай звуки вокруг с закрытыми глазами',6,'wil,vit'],
+ ['Хайку о том, что за окном',6,'cre'],['Записка с комплиментом себе на зеркало',5,'cha,wil'],
+ ['Разбери один ящик стола',6,'wil'],['Смешное селфи для подруги',6,'cha'],
+ ['Выучи одну скороговорку',5,'cha,int'],['1000 шагов прямо сейчас',6,'str,vit'],
+ ['Придумай новое слово и его значение',6,'cre,int'],['Послушай записи звуков планет от NASA',5,'cur'],
+ ['Найди дома физический закон в действии и объясни его',8,'int'],['Три вопроса, на которые хочешь узнать ответ',5,'cur'],
+ ['Мелодия на стаканах с водой',8,'cre,int'],['Пройди по комнате на носочках',5,'agi'],
+ ['Нарисуй завтрашний день, каким хочешь его видеть',6,'cre,wil'],['Пять минут растяжки под любимую песню',6,'agi,vit'],
+ ['Научись щёлкать пальцами обеих рук',5,'agi'],['Найди песню 1970-х, которая тебе понравится',5,'cur,cre'],
+ ['Напиши благодарность человеку, который тебя чему-то научил',8,'cha,wil'],['Сделай бумажный самолётик и запусти с балкона… или по коридору',5,'agi,int']
+].map((x,i)=>({id:'qr'+i,kind:'qr',title:x[0],hint:'Прямо сейчас, до 15 минут',pts:x[1],st:x[2].split(',')}));
+const ROLLS_PER_DAY=3;
+
+/* Сюжетные цепочки: шаги открываются по очереди */
+const CHAINS=[
+ ['star','Путь звездочёта','cur,int',[['Найди Полярную звезду','По ковшу Большой Медведицы'],['Выучи три созвездия','И найди их на настоящем небе'],['Сходи в планетарий','Или на лекцию по астрономии'],['Посмотри в телескоп','Обсерватория, клуб любителей астрономии или свой'],['Найди Млечный Путь','За городом, в безлунную ночь']]],
+ ['food','Кулинарная одиссея','cre,cur',[['Блюдо Азии','Том ям, пад тай, бибимбап'],['Блюдо Африки','Шакшука, мафе, инджера'],['Блюдо Латинской Америки','Гуакамоле, севиче, арепы'],['Блюдо Европы, которое не пробовала','Гаспачо, рататуй, кнедлики'],['Ужин пяти стран','Позови друзей и приготовь по блюду с каждого шага']]],
+ ['city','Голос города','cur,cha',[['Прогулка без цели','По району, где ты никогда не была'],['Самый старый дом района','Найди его и узнай историю'],['Бесплатная экскурсия','Пешая, с гидом'],['Поговори со старожилом','Спроси, каким был район раньше'],['Проведи экскурсию сама','Покажи другу свой маршрут с историями']]],
+ ['skate','Путь скейтерши','agi,wil',[['Два километра без остановки','Ровная дорожка, спокойный темп'],['Разворот кик-тёрн','На месте, 10 раз подряд'],['Съезд с небольшой горки','В защите'],['Первый олли','Даже если колёса оторвались на сантиметр'],['Круг в скейт-парке','Целиком, по рампам']]],
+ ['lang','Полиглот-новичок','int,cha',[['Алфавит языка мечты','Выбери язык и выучи его письмо'],['50 слов','По 7–8 в день'],['Мультфильм на этом языке','С субтитрами'],['Пять предложений о себе','Письменно, без переводчика'],['Разговор с носителем','10 минут онлайн, например в языковом обмене']]],
+ ['body','Тело как инструмент','str,vit',[['Минута в планке',''],['10 отжиманий подряд','С колен для начала можно'],['Пробежка 3 км','Можно с шагом'],['Тренировка нового вида','Бокс, скалодром, плавание'],['5 км бегом','Без остановки']]],
+ ['art','Творческая искра','cre,cha',[['Рисунок за 10 минут','Любой предмет рядом'],['Четверостишие','О сегодняшнем дне'],['Видео-минута о своём дне','Смонтируй из коротких кадров'],['Коллаж из журналов','Тема: я через год'],['Домашняя выставка','Покажи свои работы друзьям']]]
+].map((c,ci)=>({id:c[0],name:c[1],st:c[2].split(','),steps:c[3].map((s,i)=>({id:'qh'+ci+'_'+i,kind:'qh',title:s[0],hint:s[1],pts:[15,25,30,40,70][i],st:c[2].split(','),chain:c[0],step:i}))}));
+
+const AQ={};[QM,QE,QW,QB,QL,QR].concat(CHAINS.map(c=>c.steps)).forEach(l=>l.forEach(x=>{AQ[x.id]=x}));
+const QKIND={qm:'Утренний квест',qe:'Вечерний квест',qw:'Квест недели',qb:'Доска',ql:'Легендарный квест',qc:'Свой квест',qr:'Свиток случая',qh:'Сюжет'};
 const EVENING_H=17;
 
 
@@ -505,7 +626,6 @@ const OATHS=[
  {id:'o_study',name:'Учёба',how:'Лекция или 5 задач',f:a=>(a.lecture||0)+(a.worklecture||0)>=1||(a.phys||0)+(a.math||0)>=5},
  {id:'o_move',name:'Движение',how:'Тренировка, прогулка или поездка',f:a=>!!(a.workout||a.walk||a.bike||a.skate)},
  {id:'o_read',name:'Чтение',how:'15 минут книги',f:a=>!!a.read},
- {id:'o_lang',name:'Язык',how:'10 минут иностранного',f:a=>!!a.lang},
  {id:'o_water',name:'Вода',how:'Полтора-два литра',f:a=>!!a.water},
  {id:'o_sat',name:'Суббота',how:'Допзанятие по физике',f:a=>!!a.sat,sat:1}];
 const RANKS=[
@@ -605,11 +725,12 @@ const plural=(n,a,b,c)=>{const m=Math.abs(n)%100,k=m%10;if(m>10&&m<20)return c;i
 /* ---------- Состояние ---------- */
 const LS='kvantovaya-saga-v1';
 const GROUP_STAT={study:'int',work:'wil',move:'str',body:'vit',soul:'cre',bad:'wil',extra:'cur'};
-function fresh(){return{v:2,start:today(),days:{},weeks:{},buys:[],rewards:DEF_REWARDS.map((r,i)=>({id:'r'+i,name:r[0],cost:r[1],icon:r[2]})),hidden:{},custom:[],cq:[],oathOff:{},goals:{lecture:3,tasks:20,move:4,oathDays:5},pen:{xp:4,hp:10},sound:true,updatedAt:0}}
+function fresh(){return{v:2,start:today(),days:{},weeks:{},buys:[],rewards:DEF_REWARDS.map((r,i)=>({id:'r'+i,name:r[0],cost:r[1],icon:r[2]})),hidden:{},custom:[],cq:[],firsts:[],oathOff:{},goals:{lecture:3,tasks:20,move:4,oathDays:5},pen:{xp:4,hp:10},sound:true,updatedAt:0}}
 function normalize(o){const f=fresh();const r=Object.assign(f,o,{goals:Object.assign(f.goals,o.goals||{}),pen:Object.assign(f.pen,o.pen||{})});
  /* Свои дела из «Квантового скачка» хранят баллы: переводим их в опыт характеристики */
  r.custom=(r.custom||[]).filter(c=>c&&c.id).map(c=>{if(c.xp)return c;const k=c.stat||GROUP_STAT[c.group]||'cur',p=+c.pts||2,v=Math.max(1,Math.round(Math.abs(p)/2));return Object.assign({},c,{group:GROUPS[c.group]?c.group:'soul',xp:{[k]:p<0?-v:v}})});
  const ICK=['orb','mug','dice','potion','book','chest','sword','crown'];(r.rewards||[]).forEach((w,i)=>{if(!w.icon)w.icon=(DEF_REWARDS.find(d=>d[0]===w.name)||[])[2]||ICK[i%ICK.length]});
+ if(!r.firsts)r.firsts=[];
  if(!r.oathOff)r.oathOff={};if(!r.cq)r.cq=[];return r}
 let S=fresh();
 try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch(e){}
@@ -687,6 +808,7 @@ function calcDay(d,prev,now,start,lv){
  if(L.tdone){const o={};addTo(o,{cur:4,int:3},tal('int')?2:1);addTo(xp,o);line('Тема дня изучена',o)}
  if(L.wk){const o={};addTo(o,{int:12,cur:12},tal('int')?2:1);addTo(xp,o);line('Тема недели изучена',o)}
  for(const id of (L.q||[])){const q=AQ[id];if(!q)continue;const o=qXP(q),g=['cha','cre'].some(k=>q.st.includes(k)&&tal(k))?10:0;addTo(xp,o);gold+=g;line(QKIND[q.kind]+': '+q.title,o,g)}
+ for(const f of (S.firsts||[]).filter(f=>f.d===d)){const o={cur:6,cre:2};addTo(xp,o);line('Впервые: '+f.text,o)}
  const os=oathsFor(d).map(o=>({o,done:o.f(a)})),all=os.length>0&&os.every(x=>x.done),normal=type==='normal',isPast=d<now;
  let streak=prev;
  if(all)streak=prev+1;else if(!normal)streak=prev;else if(isPast)streak=0;
@@ -701,7 +823,7 @@ function calcDay(d,prev,now,start,lv){
  const chestOk=xpT>=CHEST_AT,chestV=chestValue(d),chestOn=!!L.chest&&chestOk;
  if(chestOn)line('Находка из тайника',{},chestV);
  gold+=xpT+sG+(chestOn?chestV:0);
- const touched=Object.keys(a).length>0||!!L.tdone||!!L.wk||!!(L.q&&L.q.length);
+ const touched=(S.firsts||[]).some(f=>f.d===d)||Object.keys(a).length>0||!!L.tdone||!!L.wk||!!(L.q&&L.q.length);
  return{d,xp,xpT,gold,hpD,lines,os,all,miss:miss.length,streak,perfect,chestOk,chestV,chestOn,a,type,touched};
 }
 function bossState(mon,days){
@@ -714,11 +836,11 @@ function bossState(mon,days){
 const maxHpOf=lv=>100+5*((lv.vit||1)-1)+((lv.str||1)>=TAL_LVL?20:0);
 function computeAll(){
  syncAQ();
- const now=today(),keys=Object.keys(S.days).filter(d=>d<=now).sort();
+ const now=today(),keys=Object.keys(S.days).concat((S.firsts||[]).map(f=>f.d)).filter(d=>d<=now).sort();
  const first=keys[0]&&keys[0]<S.start?keys[0]:S.start;
  const days={},order=[],sxp={};let streak=0,gold=0,hp=100;
  const lvOf=()=>{const o={};STATS.forEach(s=>{o[s.k]=statLvl(sxp[s.k]||0)});return o};
- const T={lecture:0,tasks:0,rides:0,workout:0,read:0,lang:0,sat:0,work:0,perfect:0,boss:0,maxStreak:0,oathDays:0,topics:0,wtopics:0,adv:0,advw:0,legend:0,chests:0,faint:0,goldEarned:0,bigDay:0,kills:{}};
+ const T={lecture:0,tasks:0,rides:0,workout:0,read:0,lang:0,sat:0,work:0,perfect:0,boss:0,maxStreak:0,oathDays:0,topics:0,wtopics:0,adv:0,advw:0,legend:0,chests:0,faint:0,goldEarned:0,bigDay:0,kills:{},rolls:0};
  for(let d=first;d<=now;d=addDays(d,1)){
   const r=calcDay(d,streak,now,S.start,lvOf());streak=r.streak;
   for(const k in r.xp)sxp[k]=Math.max(0,(sxp[k]||0)+r.xp[k]);
@@ -728,11 +850,12 @@ function computeAll(){
   days[d]=r;order.push(d);
   const a=r.a,L=log(d),qq=L.q||[];
   T.lecture+=a.lecture||0;T.tasks+=(a.phys||0)+(a.math||0);T.rides+=(a.bike||0)+(a.skate||0);if(a.workout)T.workout++;if(a.read)T.read++;if(a.lang)T.lang++;if(a.sat)T.sat++;if(a.work)T.work++;
-  if(r.perfect)T.perfect++;if(r.all)T.oathDays++;if(L.tdone)T.topics++;if(L.wk)T.wtopics++;T.adv+=qq.length;T.advw+=qq.filter(id=>id.startsWith('qw')).length;T.legend+=qq.filter(id=>id.startsWith('ql')).length;if(r.chestOn)T.chests++;if(r.xpT>=150)T.bigDay++;
+  if(r.perfect)T.perfect++;if(r.all)T.oathDays++;if(L.tdone)T.topics++;if(L.wk)T.wtopics++;T.adv+=qq.length;T.advw+=qq.filter(id=>id.startsWith('qw')).length;T.legend+=qq.filter(id=>id.startsWith('ql')).length;T.rolls+=qq.filter(id=>id.startsWith('qr')).length;if(r.chestOn)T.chests++;if(r.xpT>=150)T.bigDay++;
   T.maxStreak=Math.max(T.maxStreak,streak);
  }
  const seen=new Set();
  for(const d of order){const m=monday(d);if(seen.has(m))continue;seen.add(m);if(bossState(m,days).win){const bz=beastOf(m);T.kills[bz.id]=(T.kills[bz.id]||0)+1;gold+=bossGold();T.goldEarned+=bossGold();T.boss++;addTo(sxp,{wil:20,int:10})}}
+ const dmA=doneDays();T.chains=CHAINS.filter(c=>c.steps.every(s=>dmA[s.id])).length;T.firsts=(S.firsts||[]).length;
  const sl=lvOf();curLv=sl;const lvs=STATS.map(s=>sl[s.k]);T.maxStat=Math.max(...lvs);T.minStat=Math.min(...lvs);T.sumStat=lvs.reduce((s,v)=>s+v,0);
  const totalXP=sumX(sxp);let lvl=0;RANKS.forEach((r,i)=>{if(totalXP>=r[2])lvl=i});
  const spent=(S.buys||[]).reduce((s,b)=>s+b.cost,0);
@@ -765,7 +888,12 @@ const ACH=[
  ['☼','Гармония','Все восемь характеристик на 3 уровне',T=>T.minStat,3],
  ['♛','Мастер','Любая характеристика на 10 уровне',T=>T.maxStat,10],
  ['¤','Сокровищница','Заработай 5000 золота за всё время',T=>T.goldEarned,5000],
- ['e⁻','Ионизация','Набери 150 опыта за один день',T=>T.bigDay,1]];
+ ['e⁻','Ионизация','Набери 150 опыта за один день',T=>T.bigDay,1],
+ ['☸','Сказание','Пройди сюжетную цепочку до конца',T=>T.chains,1],
+ ['✺','Сага о семи дорогах','Пройди все семь цепочек',T=>T.chains,7],
+ ['✿','Первооткрывательница','Запиши 10 первых разов',T=>T.firsts,10],
+ ['❀','Жизнь в цвете','Запиши 50 первых разов',T=>T.firsts,50],
+ ['⚂','Игра случая','Выполни 10 свитков случая',T=>T.rolls,10]];
 
 /* ---------- Пиксель-арт: героиня, бестиарий, предметы ---------- */
 const mir=h=>h.map(r=>r+[...r].reverse().join(''));
@@ -956,7 +1084,7 @@ function todayView(C){
     <button id="ty-s" data-act="type" data-v="sick" aria-pressed="${r.type==='sick'}">Болею</button></div></div>
   <div class="mainc">${oathPanel(r,isToday)}<div class="blocks">${groups}</div></div>
   <div class="side">
-   ${heroCard(C)}${lootCard(r)}${advBrief(d)}${topicBrief('day',d)}${topicBrief('week',d)}
+   ${heroCard(C)}${lootCard(r)}${advBrief(d)}${firstsCard(d,false)}${topicBrief('day',d)}${topicBrief('week',d)}
    ${r.chestOk?(r.chestOn?`<div class="chest" role="status">Сундук открыт<b>+${r.chestV} зол.</b></div>`:`<button class="chest wiggle" id="chest" data-act="chest">Открыть сундук дня<b>?</b></button>`):`<div class="chest" style="opacity:.7">Сундук откроется от ${CHEST_AT} опыта за день<b>${Math.max(0,r.xpT)}/${CHEST_AT}</b></div>`}
    <section class="win pad bosswin ${B.win?'slain':''}"><div class="eyebrow">Босс недели</div><div class="boss">${beastArt(BZ,'beast',BZ.name)}<div><h2 class="h">${esc(BZ.name)}</h2><div class="small">${esc(BZ.title)}</div>
     <div class="hpb ${B.win?'dead':''}" role="progressbar" aria-label="Здоровье босса" aria-valuenow="${B.win?0:Math.round((1-B.prog)*100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${B.win?100:(1-B.prog)*100}%"></i></div><div class="stmeta"><span>${B.win?'Повержен':'HP '+Math.round((1-B.prog)*100)+'/100'}</span><span>до воскресенья</span></div></div></div>
@@ -997,11 +1125,33 @@ function qCard(x,slot,doneDay,swap,extra){const done=!!doneDay;
  return `<div class="aq ${x.kind==='ql'?'legend':''}"><div class="quest ${done?'done':''}"><span class="mark">${done?'✓':''}</span><span><b>${esc(x.title)}</b>${x.hint?`<small>${esc(x.hint)}</small>`:''}${qChips(x)}</span></div>
   <div class="tbtns"><button class="btn ${done?'ghost':''}" id="qd-${slot}-${esc(x.id)}" data-act="qtoggle" data-id="${esc(x.id)}" data-slot="${slot}" data-d="${doneDay||''}">${done?'Отменить':'Выполнено'}</button>${!done&&swap?`<button class="linkbtn" id="qs-${slot}" data-act="qswap" data-slot="${slot}" data-id="${esc(x.id)}">Другой квест</button>`:''}${extra||''}</div></div>`}
 const lockedEve=`<div class="quest locked"><span class="mark">?</span><span><b>Вечерний квест ещё запечатан</b><small>Откроется в ${EVENING_H}:00. Загляни после работы.</small></span></div>`;
+
+function rollCard(d,sfx){
+ const L=log(d),cur=L.qr&&AQ[L.qr]?AQ[L.qr]:null,done=!!cur&&(L.q||[]).includes(cur.id),left=ROLLS_PER_DAY-(L.rolls||0);
+ const btn=left>0?`<button class="btn ${cur&&!done?'ghost':''}" id="roll-${sfx}" data-act="roll">${cur?'Развернуть другой':'Развернуть свиток'} · ${left} из ${ROLLS_PER_DAY}</button>`:`<span class="small">Свитки на сегодня закончились, завтра будут новые.</span>`;
+ if(!cur)return `<div class="scroll"><p class="hook">Разверни свиток, и случай подкинет маленькое приключение на 15 минут.</p><div class="tbtns">${btn}</div></div>`;
+ return `<div class="scroll"><div class="quest ${done?'done':''}"><span class="mark">${done?'✓':'⚂'}</span><span><b>${esc(cur.title)}</b><small>${esc(cur.hint)}</small>${qChips(cur)}</span></div>
+  <div class="tbtns">${done?'':`<button class="btn" id="qd-r-${sfx}" data-act="qtoggle" data-id="${cur.id}" data-slot="r" data-d="">Выполнено</button>`}${btn}</div></div>`;
+}
+function chainCard(c){
+ const dm=doneDays(),n=c.steps.filter(s=>dm[s.id]).length,next=c.steps.find(s=>!dm[s.id]),last=c.steps.slice().reverse().find(s=>dm[s.id]);
+ return `<div class="chain ${next?'':'legend'}"><div class="tophead"><b>${esc(c.name)}</b><span class="dots" aria-label="Пройдено шагов: ${n} из ${c.steps.length}">${c.steps.map(s=>`<i class="${dm[s.id]?'on':''}"></i>`).join('')}</span></div>
+  ${next?`<div class="small">Шаг ${n+1} из ${c.steps.length}${n+1===c.steps.length?', финал':''}</div>${qCard(next,'h',null,false)}`:`<p class="hook">Сказание завершено. Ты прошла весь путь.</p>`}
+  ${last?`<button class="linkbtn" style="color:var(--hp);font-size:13px" data-act="qtoggle" data-id="${last.id}" data-d="${dm[last.id]}">Отменить последний шаг</button>`:''}</div>`;
+}
+function firstsCard(d,full){
+ const sfx=full?'q':'s',list=(S.firsts||[]).filter(f=>full||f.d===d).slice().sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+ return `<section class="win pad topic"><div class="tophead"><h2 class="${full?'sec':'h'}" style="margin:0">Книга первых разов</h2><span class="chips" style="margin:0">${xpChips({cur:6,cre:2})}</span></div>
+  <p class="hook">${full?`Всё, что ты сделала впервые: ${(S.firsts||[]).length} ${plural((S.firsts||[]).length,'запись','записи','записей')}. Каждая даёт +6 ЛЮБ и +2 ТВО.`:'Сделала сегодня что-то впервые? Новое блюдо, новая улица, новое слово. Запиши.'}</p>
+  <div class="inline"><input type="text" id="first-${sfx}" maxlength="120" placeholder="Например, впервые попробовала маракуйю" aria-label="Что ты сделала впервые"><button class="btn" id="fadd-${sfx}" data-act="fadd" data-v="first-${sfx}">Записать</button></div>
+  ${list.length?`<ul class="found">${list.map(f=>`<li><div class="tophead"><span>✦ ${esc(f.text)}</span><span class="tbtns">${full?`<button class="linkbtn" data-act="openday" data-v="${f.d}">${esc(shortDate(f.d))}</button>`:''}<button class="linkbtn" style="color:var(--hp)" data-act="fdel" data-id="${esc(f.id)}">Убрать</button></span></div></li>`).join('')}</ul>`:''}</section>`;
+}
 function advBrief(d){
  const L=log(d),eo=eveningOpen(d);
  const row=(x,slot)=>{const done=(L.q||[]).includes(x.id);return `<div class="quest ${done?'done':''}"><button class="mark" id="qb-${slot}" data-act="qtoggle" data-id="${x.id}" data-slot="${slot}" data-d="${done?d:''}" aria-pressed="${done}" aria-label="${done?'Отменить':'Отметить'}: ${esc(x.title)}">${done?'✓':''}</button><span><b>${esc(x.title)}</b><small>${QKIND[x.kind]}</small>${qChips(x)}</span></div>`};
  return `<section class="win pad topic ${legendOn(d)?'legend':''}"><div class="tophead"><h2 class="h">Квесты дня</h2><button class="linkbtn" data-act="tab" data-v="quests">Доска квестов</button></div>
-  ${row(dayQ(d,'m'),'m')}${eo?row(dayQ(d,'e'),'e'):lockedEve}${legendOn(d)?row(dayQ(d,'l'),'l'):''}</section>`;
+  ${row(dayQ(d,'m'),'m')}${eo?row(dayQ(d,'e'),'e'):lockedEve}${legendOn(d)?row(dayQ(d,'l'),'l'):''}
+  <div class="divider"></div><div class="tophead"><h3 class="h" style="font-size:10px">Свиток случая</h3></div>${rollCard(d,'s')}</section>`;
 }
 function ownQuests(d){
  const L=log(d),dm=doneDays();
@@ -1032,6 +1182,14 @@ function questsView(C){
   </div>
   <section class="win pad topic ${legendOn(d)?'legend':''}"><div class="tophead"><h2 class="sec" style="margin:0">Легендарный квест</h2><span class="tag gold">редкий</span></div>
    ${legendOn(d)?qCard(ql,'l',dq(ql),true):`<p class="hook">Сегодня не выпал. Легендарный квест появляется примерно в ${(curLv.cur||1)>=TAL_LVL?LEGEND_P_TAL:LEGEND_P}% дней и даёт много опыта сразу нескольким характеристикам.</p>`}</section>
+  <div class="two">
+   <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Свиток случая</h2><span class="tag phys">до 15 минут</span></div>
+    <p class="small" style="margin:0">Маленькие спонтанные приключения. Можно развернуть до ${ROLLS_PER_DAY} свитков в день.</p>${rollCard(d,'q')}</section>
+   ${firstsCard(d,true)}
+  </div>
+  <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Сюжетные цепочки</h2><span class="tag gold">${CHAINS.filter(c=>c.steps.every(s=>doneDays()[s.id])).length} из ${CHAINS.length}</span></div>
+   <p class="hook">Истории из пяти шагов, от простого к большому. Следующий шаг открывается, когда сделан предыдущий. Финал даёт +70.</p>
+   <div class="chains">${CHAINS.map(chainCard).join('')}</div></section>
   <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Квесты недели</h2><span class="tag math">до воскресенья</span></div>
    <div class="qlist">${W.map((x,i)=>qCard(x,'w'+i,weekDoneDay(m,x.id),true)).join('')}</div>
    <div class="small">Большие дела на несколько дней. Отметь в тот день, когда закончишь.</div></section>
@@ -1155,11 +1313,12 @@ function rulesView(C){
  return `<div class="page">
   <section class="win pad"><h2 class="sec">Свод правил</h2><ol class="rulelist">
    <li><b>Опыт вместо баллов.</b> Каждое дело качает свои характеристики, это подписано на нём: лекция +6 ИНТ +1 ВОЛ, тренировка +6 СИЛ +2 ВЫН, поездка на скейте +5 ЛОВ +1 СИЛ.</li>
-   <li><b>Клятвы.</b> Обязательные дела дня: учёба, движение, чтение, язык, вода, а по субботам допзанятие. Отмечаются сами по делам. Все исполнены: +3 ВОЛ, +10 золота, +10 здоровья. Каждая нарушенная к полуночи: −${S.pen.xp} ВОЛ и −${S.pen.hp} здоровья.</li>
+   <li><b>Клятвы.</b> Обязательные дела дня: учёба, движение, чтение, вода, а по субботам допзанятие. Отмечаются сами по делам. Все исполнены: +3 ВОЛ, +10 золота, +10 здоровья. Каждая нарушенная к полуночи: −${S.pen.xp} ВОЛ и −${S.pen.hp} здоровья.</li>
    <li><b>Серия.</b> Дни подряд со всеми клятвами. Она увеличивает золото за день: от 3 дней +10%, от 7 +25%, от 14 +40%, от 30 +50%.</li>
    <li><b>Золото.</b> Каждое очко опыта приносит монету. Тратится в лавке, уровень от покупок не падает.</li>
    <li><b>Здоровье.</b> Хороший сон +10, правильное питание +5, все клятвы +10, больничный +15. Плохой сон и срыв в еде −10, залипание в телефоне −5. При нуле обморок: −50 золота, здоровье восстанавливается наполовину.</li>
    <li><b>Квесты.</b> Утренний, вечерний с ${EVENING_H}:00, два на неделю, доска без срока, свои и легендарный, который выпадает примерно в ${LEGEND_P}% дней.</li>
+   <li><b>Новое.</b> Свиток случая даёт маленькое приключение прямо сейчас, до трёх в день. Сюжетные цепочки ведут от простого шага к большому финалу. Каждая запись в книге первых разов приносит +6 ЛЮБ и +2 ТВО.</li>
    <li><b>Библиотека.</b> Свиток дня +4 ЛЮБ +3 ИНТ, фолиант недели +12 ИНТ +12 ЛЮБ.</li>
    <li><b>Сундук.</b> Открывается от ${CHEST_AT} опыта за день, внутри от 10 до 30 золота, редко 60.</li>
    <li><b>Босс недели.</b> Закрой пять недельных целей и забери +${bossGold()} золота, +20 ВОЛ и +10 ИНТ.</li>
@@ -1223,7 +1382,7 @@ function commit(fn,ev){
  if(a.T.boss>b.T.boss)toast(beastOf(monday(view)).name+' повержен','+'+bossGold()+' золота, +20 ВОЛ, +10 ИНТ');
 }
 function dayLog(d){if(!S.days[d])S.days[d]={a:{},type:'normal'};if(!S.days[d].a)S.days[d].a={};return S.days[d]}
-function cleanup(d){const L=S.days[d];if(L&&!Object.keys(L.a||{}).length&&(L.type||'normal')==='normal'&&!L.chest&&!L.tdone&&!L.tpick&&!L.tnote&&!L.wk&&!L.qm&&!L.qe&&!L.ql&&!(L.q&&L.q.length))delete S.days[d]}
+function cleanup(d){const L=S.days[d];if(L&&!Object.keys(L.a||{}).length&&(L.type||'normal')==='normal'&&!L.chest&&!L.tdone&&!L.tpick&&!L.tnote&&!L.wk&&!L.qm&&!L.qe&&!L.ql&&!L.qr&&!L.rolls&&!(L.q&&L.q.length))delete S.days[d]}
 function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36)}
 
 /* ---------- События ---------- */
@@ -1271,6 +1430,9 @@ document.addEventListener('click',ev=>{
   cdel(){S.custom=S.custom.filter(x=>x.id!==id)},
   cqadd(){const n=$('#cq-name').value.trim(),p=parseInt($('#cq-pts').value,10);if(!n||!(p>0)){toast('Нужны название и опыт больше нуля');return}S.cq.push({id:uid('qc'),title:n.slice(0,80),stat:$('#cq-stat').value,pts:Math.min(200,p),rep:$('#cq-rep').checked});toast('Квест добавлен',n.slice(0,80))},
   cqdel(){const c=(S.cq||[]).find(x=>x.id===id);if(c)c.gone=1},
+  roll(){const L=dayLog(view);if((L.rolls||0)>=ROLLS_PER_DAY)return;const s=qSeen(),pool=QR.filter(x=>!s.has(x.id)&&x.id!==L.qr),P=pool.length?pool:QR.filter(x=>x.id!==L.qr);L.qr=P[Math.floor(Math.random()*P.length)].id;L.rolls=(L.rolls||0)+1;toast('Свиток развёрнут',AQ[L.qr].title)},
+  fadd(){const inp=$('#'+val),v=inp?inp.value.trim():'';if(!v){toast('Напиши, что было впервые');return}if(!S.firsts)S.firsts=[];S.firsts.push({id:uid('f'),d:view,text:v.slice(0,120)});toast('Записано в книгу первых разов','+6 ЛЮБ, +2 ТВО')},
+  fdel(){S.firsts=(S.firsts||[]).filter(f=>f.id!==id)},
   import(){try{const o=JSON.parse($('#imp').value);if(!o||typeof o.days!=='object')throw 0;S=normalize(o);importMsg='Данные восстановлены.'}catch(e){importMsg='Текст не похож на копию данных. Вставь его целиком.'}},
   reset2(){S=fresh();view=today();confirmReset=false},
  };
@@ -1292,6 +1454,7 @@ document.addEventListener('change',ev=>{
   if(k==='rcost'&&n>0){const r=S.rewards.find(x=>x.id===id);if(r)r.cost=n}
  });
 });
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('first-')){e.preventDefault();const b=document.getElementById('fadd-'+e.target.id.slice(6));if(b)b.click()}});
 const tip=$('#tip');function hideTip(){tip.hidden=true}
 document.addEventListener('pointermove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){hideTip();return}tip.textContent=t.dataset.tip;tip.hidden=false;tip.style.left=Math.min(innerWidth-150,e.clientX+12)+'px';tip.style.top=Math.max(4,e.clientY-34)+'px'});
 
