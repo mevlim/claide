@@ -2,7 +2,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAfPdZhKXR-vibrcGlGlmxjwoYO1sZSr1I",
@@ -19,9 +19,10 @@
   const db = getFirestore(app);
 
   window.db = db;
-  window.firebaseSign = { doc, setDoc, getDoc };
+  window.firebaseSign = { doc, setDoc, getDoc, onSnapshot };
   console.log("Firebase initialized successfully");
-</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1c1b20"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Конспект"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1c1b20"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Конспект"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>Звёздный конспект</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1057,15 +1058,15 @@ try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch
 let tab='today',view=today(),saveMode='device',confirmReset=false,importMsg='',showExport=false;
 
 let baseline=null;
-/* ---------- Сохранение через Firebase Firestore ---------- */
+/* ---------- Полное сохранение и синхронизация через Firebase Firestore ---------- */
 let writing = false, dirty = false, timer = null;
 
 function persist() {
   S.updatedAt = Date.now();
-  // Всегда сохраняем локально для скорости
+  // Всегда сохраняем локально для мгновенной работы интерфейса
   try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
   
-  // Запускаем отправку в облако с небольшой задержкой (debounce)
+  // Отправляем в облако с небольшой задержкой, чтобы не перегружать сеть
   clearTimeout(timer);
   timer = setTimeout(flush, 1000);
 }
@@ -1076,7 +1077,6 @@ async function flush() {
   writing = true;
 
   try {
-    // Сохраняем состояние в общую коллекцию под фиксированным ID (или привязанным к вашему устройству)
     const docRef = window.firebaseSign.doc(window.db, "appData", "userProgress");
     await window.firebaseSign.setDoc(docRef, JSON.parse(JSON.stringify(S)));
     saveMode = 'account';
@@ -1094,23 +1094,37 @@ async function connect() {
   
   try {
     const docRef = window.firebaseSign.doc(window.db, "appData", "userProgress");
-    const docSnap = await window.firebaseSign.getDoc(docRef);
     
+    // 1. Загружаем данные при старте
+    const docSnap = await window.firebaseSign.getDoc(docRef);
     if (docSnap.exists()) {
       const d = docSnap.data();
-      // Если данные в облаке свежее локальных — подтягиваем их
       if ((d.updatedAt || 0) > (S.updatedAt || 0)) {
         S = normalize(JSON.parse(JSON.stringify(d)));
         try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
         if (typeof render === 'function') render();
       } else if ((S.updatedAt || 0) > (d.updatedAt || 0)) {
-        // Если локальные свежее — отправляем в облако
         flush();
       }
     } else {
-      // Если в облаке пусто — отправляем текущие данные
       if (S.updatedAt) flush();
     }
+
+    // 2. Включаем живое обновление (real-time синхронизация между устройствами)
+    if (window.firebaseSign.onSnapshot) {
+      window.firebaseSign.onSnapshot(docRef, (snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          // Если на другом устройстве данные новее, сразу обновляем экран здесь
+          if ((d.updatedAt || 0) > (S.updatedAt || 0)) {
+            S = normalize(JSON.parse(JSON.stringify(d)));
+            try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
+            if (typeof render === 'function') render();
+          }
+        }
+      });
+    }
+
     saveMode = 'account';
     if (typeof render === 'function') render();
   } catch (e) {
@@ -1122,7 +1136,7 @@ async function connect() {
 
 // Запускаем подключение при загрузке страницы
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(connect, 1500); // Даем Firebase пару секунд на инициализацию
+  setTimeout(connect, 1500);
 });
 /* ---------- Правила ---------- */
 const allActions=()=>ACTIONS.concat(S.custom||[]);
