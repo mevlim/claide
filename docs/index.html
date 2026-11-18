@@ -1057,32 +1057,73 @@ try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch
 let tab='today',view=today(),saveMode='device',confirmReset=false,importMsg='',showExport=false;
 
 let baseline=null;
-/* ---------- Сохранение ---------- */
-let remote=null,writing=false,dirty=false,timer=null;
-function persist(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(remote){clearTimeout(timer);timer=setTimeout(flush,700)}}
-async function flush(){if(!remote)return;if(writing){dirty=true;return}writing=true;
- try{await remote.set(JSON.parse(JSON.stringify(S)));saveMode='account'}
- catch(e){saveMode='device';if(e&&e.code==='invalid_argument')remote=null}
- writing=false;if(dirty){dirty=false;flush()}}
-async function connect(){
- if(!window.claude||!window.claude.use)return;
- try{
-  const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
-  if(!db||!user)return;const id=await user.id();if(!id)return;
-  const ref=db.doc('data/users/'+id+'/state');remote=ref;let first=true;
-  ref.onSnapshot(snap=>{
-    if(snap.metadata&&snap.metadata.hasPendingWrites)return;
-    const confirmed=!(snap.metadata&&snap.metadata.fromCache);
-    if(snap.exists){const d=snap.data();
-      if((d.updatedAt||0)>(S.updatedAt||0)){S=normalize(JSON.parse(JSON.stringify(d)));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}baseline=null;render()}
-      else if(confirmed&&first&&(S.updatedAt||0)>(d.updatedAt||0))flush();
-      if(confirmed){saveMode='account';render()}
-    }else if(confirmed&&first){if(S.updatedAt)flush();else{saveMode='account';render()}}
-    if(confirmed)first=false;
-  },()=>{remote=null;saveMode='device';render()});
- }catch(e){}
+/* ---------- Сохранение через Firebase Firestore ---------- */
+let writing = false, dirty = false, timer = null;
+
+function persist() {
+  S.updatedAt = Date.now();
+  // Всегда сохраняем локально для скорости
+  try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
+  
+  // Запускаем отправку в облако с небольшой задержкой (debounce)
+  clearTimeout(timer);
+  timer = setTimeout(flush, 1000);
 }
 
+async function flush() {
+  if (!window.db || !window.firebaseSign) return;
+  if (writing) { dirty = true; return; }
+  writing = true;
+
+  try {
+    // Сохраняем состояние в общую коллекцию под фиксированным ID (или привязанным к вашему устройству)
+    const docRef = window.firebaseSign.doc(window.db, "appData", "userProgress");
+    await window.firebaseSign.setDoc(docRef, JSON.parse(JSON.stringify(S)));
+    saveMode = 'account';
+  } catch (e) {
+    console.error("Ошибка сохранения в облако:", e);
+    saveMode = 'device';
+  }
+
+  writing = false;
+  if (dirty) { dirty = false; flush(); }
+}
+
+async function connect() {
+  if (!window.db || !window.firebaseSign) return;
+  
+  try {
+    const docRef = window.firebaseSign.doc(window.db, "appData", "userProgress");
+    const docSnap = await window.firebaseSign.getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const d = docSnap.data();
+      // Если данные в облаке свежее локальных — подтягиваем их
+      if ((d.updatedAt || 0) > (S.updatedAt || 0)) {
+        S = normalize(JSON.parse(JSON.stringify(d)));
+        try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
+        if (typeof render === 'function') render();
+      } else if ((S.updatedAt || 0) > (d.updatedAt || 0)) {
+        // Если локальные свежее — отправляем в облако
+        flush();
+      }
+    } else {
+      // Если в облаке пусто — отправляем текущие данные
+      if (S.updatedAt) flush();
+    }
+    saveMode = 'account';
+    if (typeof render === 'function') render();
+  } catch (e) {
+    console.error("Ошибка подключения к базе:", e);
+    saveMode = 'device';
+    if (typeof render === 'function') render();
+  }
+}
+
+// Запускаем подключение при загрузке страницы
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(connect, 1500); // Даем Firebase пару секунд на инициализацию
+});
 /* ---------- Правила ---------- */
 const allActions=()=>ACTIONS.concat(S.custom||[]);
 const oathsFor=d=>[];
