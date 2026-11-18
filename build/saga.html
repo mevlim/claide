@@ -1,0 +1,1577 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Квантовая сага</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: окна JRPG-меню. Сверху статус героини (HP, XP, золото), слева свиток дня с клятвами и делами, справа героиня, добыча, квесты и босс. Светлая тема: пергамент, тёмная: ночное подземелье. */
+:root{
+  --bg:#ece2cc; --panel:#fbf6ea; --ink:#2b2236; --muted:#6a5f74; --line:#d6c7aa; --frame:#2b2236; --shadow:#c9b994;
+  --acc:#5b34b8; --on-acc:#ffffff; --gold:#9a6200; --gold-soft:#f5e3b6; --hp:#c42a35; --hp-soft:#f6d8d4; --ok:#24703f; --ok-soft:#dbeedd; --xp:#2c5fd0;
+  --s-int:#2c5fd0; --s-str:#c42a35; --s-agi:#24804a; --s-vit:#bf600a; --s-wil:#7340c4; --s-cha:#b8317a; --s-cre:#0f7c83; --s-cur:#8c6a00;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M16 3 L29 16 L16 29 L3 16Z' fill='none' stroke='%23cdb98f' stroke-width='1' opacity='.5'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%23c2a874' opacity='.55'/%3E%3Crect x='0' y='0' width='2' height='2' fill='%23c2a874' opacity='.35'/%3E%3C/svg%3E"); --pattern-size:32px 32px;
+  --glow:radial-gradient(ellipse 80% 45% at 50% -8%,rgba(255,236,190,.95),transparent 70%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(214,170,120,.25),transparent 70%);
+  --hill:#d6c39d; --hill-op:.55;
+  --sky1:#9cc4e8; --sky2:#c4dcef; --sky3:#f3dcc0; --sky4:#f6c493; --star:#ffffff; --star-op:0; --sun:#ffd166; --sunglow:#ffe8a8; --sun-op:1; --moon:#f3f0d8; --moon2:#cfc9a8; --moon-op:0;
+  --cloud:#ffffff; --cloud-op:.9; --mtn1:#b3a4cc; --snow:#f7f3ff; --tower:#8e7ea8; --window:#ffd166; --mtn2:#7da07a; --tree:#4f7d4f; --trunk:#6a4326; --ground:#9a7a4f; --ground2:#7c5f3b; --grass:#79b863; --grass2:#5e9a4c;
+  --display:"Press Start 2P","Courier New",monospace;
+  --body:"Golos Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1229; --panel:#1a1f48; --ink:#eef0ff; --muted:#a9addb; --line:#353d7c; --frame:#e6e8ff; --shadow:#070818;
+  --acc:#b09aff; --on-acc:#14163a; --gold:#ffd166; --gold-soft:#3b3522; --hp:#ff6b75; --hp-soft:#46233b; --ok:#7fe0a2; --ok-soft:#1d3d3a; --xp:#82b2ff;
+  --s-int:#82b2ff; --s-str:#ff7c84; --s-agi:#72dd97; --s-vit:#ffae60; --s-wil:#c6a3ff; --s-cha:#ff8fca; --s-cre:#62d8de; --s-cur:#ffd166; --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect x='7' y='11' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='31' y='5' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='52' y='19' width='2' height='2' fill='%23ffffff' opacity='.7'/%3E%3Crect x='78' y='8' width='1' height='1' fill='%23ffe9a8' opacity='.7'/%3E%3Crect x='95' y='30' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='14' y='44' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='40' y='57' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='66' y='40' width='1' height='1' fill='%23ffffff' opacity='.4'/%3E%3Crect x='88' y='62' width='2' height='2' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='110' y='49' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='23' y='79' width='1' height='1' fill='%23ffe9a8' opacity='.6'/%3E%3Crect x='58' y='90' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='81' y='101' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='104' y='84' width='1' height='1' fill='%23c9d4ff' opacity='.5'/%3E%3Crect x='5' y='104' width='2' height='2' fill='%23ffffff' opacity='.5'/%3E%3Crect x='36' y='113' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='117' y='115' width='1' height='1' fill='%23ffe9a8' opacity='.5'/%3E%3Crect x='70' y='73' width='1' height='1' fill='%23ffffff' opacity='.6'/%3E%3C/svg%3E"); --pattern-size:120px 120px;
+  --glow:radial-gradient(ellipse 75% 40% at 50% 108%,rgba(122,80,230,.38),transparent 70%),radial-gradient(ellipse 50% 35% at 0% 0%,rgba(70,120,255,.2),transparent 70%);
+  --hill:#161a3e; --hill-op:1;
+  --sky1:#0a0d24; --sky2:#141a40; --sky3:#232a5e; --sky4:#3b2f6e; --star:#eef0ff; --star-op:1; --sun-op:0; --moon-op:1; --cloud:#5d66a8; --cloud-op:.3;
+  --mtn1:#283066; --snow:#7d8ad0; --tower:#171a3d; --window:#ffd98a; --mtn2:#18233f; --tree:#10192e; --trunk:#0d1220; --ground:#251f36; --ground2:#1a1628; --grass:#2e5a4c; --grass2:#22443a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1229; --panel:#1a1f48; --ink:#eef0ff; --muted:#a9addb; --line:#353d7c; --frame:#e6e8ff; --shadow:#070818;
+  --acc:#b09aff; --on-acc:#14163a; --gold:#ffd166; --gold-soft:#3b3522; --hp:#ff6b75; --hp-soft:#46233b; --ok:#7fe0a2; --ok-soft:#1d3d3a; --xp:#82b2ff;
+  --s-int:#82b2ff; --s-str:#ff7c84; --s-agi:#72dd97; --s-vit:#ffae60; --s-wil:#c6a3ff; --s-cha:#ff8fca; --s-cre:#62d8de; --s-cur:#ffd166; --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect x='7' y='11' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='31' y='5' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='52' y='19' width='2' height='2' fill='%23ffffff' opacity='.7'/%3E%3Crect x='78' y='8' width='1' height='1' fill='%23ffe9a8' opacity='.7'/%3E%3Crect x='95' y='30' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='14' y='44' width='1' height='1' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='40' y='57' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='66' y='40' width='1' height='1' fill='%23ffffff' opacity='.4'/%3E%3Crect x='88' y='62' width='2' height='2' fill='%23c9d4ff' opacity='.6'/%3E%3Crect x='110' y='49' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='23' y='79' width='1' height='1' fill='%23ffe9a8' opacity='.6'/%3E%3Crect x='58' y='90' width='1' height='1' fill='%23ffffff' opacity='.5'/%3E%3Crect x='81' y='101' width='1' height='1' fill='%23ffffff' opacity='.8'/%3E%3Crect x='104' y='84' width='1' height='1' fill='%23c9d4ff' opacity='.5'/%3E%3Crect x='5' y='104' width='2' height='2' fill='%23ffffff' opacity='.5'/%3E%3Crect x='36' y='113' width='1' height='1' fill='%23ffffff' opacity='.7'/%3E%3Crect x='117' y='115' width='1' height='1' fill='%23ffe9a8' opacity='.5'/%3E%3Crect x='70' y='73' width='1' height='1' fill='%23ffffff' opacity='.6'/%3E%3C/svg%3E"); --pattern-size:120px 120px;
+  --glow:radial-gradient(ellipse 75% 40% at 50% 108%,rgba(122,80,230,.38),transparent 70%),radial-gradient(ellipse 50% 35% at 0% 0%,rgba(70,120,255,.2),transparent 70%);
+  --hill:#161a3e; --hill-op:1;
+  --sky1:#0a0d24; --sky2:#141a40; --sky3:#232a5e; --sky4:#3b2f6e; --star:#eef0ff; --star-op:1; --sun-op:0; --moon-op:1; --cloud:#5d66a8; --cloud-op:.3;
+  --mtn1:#283066; --snow:#7d8ad0; --tower:#171a3d; --window:#ffd98a; --mtn2:#18233f; --tree:#10192e; --trunk:#0d1220; --ground:#251f36; --ground2:#1a1628; --grass:#2e5a4c; --grass2:#22443a; color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background-color:var(--bg);background-image:var(--glow),var(--pattern);background-size:100% 100%,100% 100%,var(--pattern-size);background-attachment:fixed,fixed,scroll;color:var(--ink);font:400 15px/1.45 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px;font-variant-numeric:tabular-nums}
+body::after{content:"";position:fixed;left:0;right:0;bottom:0;height:120px;z-index:-1;pointer-events:none;background:var(--hill);opacity:var(--hill-op);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='120' viewBox='0 0 600 120'%3E%3Cpath d='M0 120 V40 H8 V40 H16 V48 H24 V48 H32 V48 H40 V40 H48 V40 H56 V40 H64 V48 H72 V56 H80 V56 H88 V48 H96 V40 H104 V32 H112 V32 H120 V40 H128 V40 H136 V48 H144 V48 H152 V48 H160 V56 H168 V72 H176 V80 H184 V96 H192 V96 H200 V96 H208 V80 H216 V80 H224 V80 H232 V80 H240 V80 H248 V72 H256 V64 H264 V56 H272 V56 H280 V64 H288 V72 H296 V80 H304 V80 H312 V64 H320 V56 H328 V48 H336 V48 H344 V48 H352 V40 H360 V32 H368 V24 H376 V16 H384 V24 H392 V32 H400 V48 H408 V56 H416 V56 H424 V56 H432 V56 H440 V64 H448 V72 H456 V72 H464 V72 H472 V64 H480 V56 H488 V56 H496 V64 H504 V72 H512 V80 H520 V88 H528 V88 H536 V88 H544 V88 H552 V88 H560 V96 H568 V88 H576 V80 H584 V64 H592 V48 H600 V120 Z' fill='%23000'/%3E%3C/svg%3E") left bottom/600px 120px repeat-x;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='120' viewBox='0 0 600 120'%3E%3Cpath d='M0 120 V40 H8 V40 H16 V48 H24 V48 H32 V48 H40 V40 H48 V40 H56 V40 H64 V48 H72 V56 H80 V56 H88 V48 H96 V40 H104 V32 H112 V32 H120 V40 H128 V40 H136 V48 H144 V48 H152 V48 H160 V56 H168 V72 H176 V80 H184 V96 H192 V96 H200 V96 H208 V80 H216 V80 H224 V80 H232 V80 H240 V80 H248 V72 H256 V64 H264 V56 H272 V56 H280 V64 H288 V72 H296 V80 H304 V80 H312 V64 H320 V56 H328 V48 H336 V48 H344 V48 H352 V40 H360 V32 H368 V24 H376 V16 H384 V24 H392 V32 H400 V48 H408 V56 H416 V56 H424 V56 H432 V56 H440 V64 H448 V72 H456 V72 H464 V72 H472 V64 H480 V56 H488 V56 H496 V64 H504 V72 H512 V80 H520 V88 H528 V88 H536 V88 H544 V88 H552 V88 H560 V96 H568 V88 H576 V80 H584 V64 H592 V48 H600 V120 Z' fill='%23000'/%3E%3C/svg%3E") left bottom/600px 120px repeat-x}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:4px}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
+.px{font-family:var(--display);line-height:1.55;letter-spacing:0}
+.wrap{max-width:1120px;margin:0 auto}
+.win{background:radial-gradient(circle at 9px 9px,var(--gold) 0 2px,transparent 2.6px),radial-gradient(circle at calc(100% - 9px) 9px,var(--gold) 0 2px,transparent 2.6px),radial-gradient(circle at 9px calc(100% - 9px),var(--gold) 0 2px,transparent 2.6px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),var(--gold) 0 2px,transparent 2.6px),var(--panel);border:3px solid var(--frame);border-radius:9px;box-shadow:inset 0 0 0 3px var(--panel),inset 0 0 0 5px var(--line),4px 4px 0 var(--shadow)}
+.win.legend{background:var(--gold-soft)}
+.pad{padding:16px 18px}
+.h{font:400 12px/1.5 var(--display)}
+.small{font-size:13px;color:var(--muted)}
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding-block:12px 0;margin-inline:-4px;padding-inline:4px;border-bottom:3px solid var(--frame)}
+.toprow{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center}
+.brand{font:400 12px/1.6 var(--display);color:var(--acc)}
+.who{display:flex;gap:10px;align-items:center;min-width:0}
+.who b{display:block;font:600 14px/1.2 var(--body)}
+.who small{color:var(--muted);font-size:12.5px}
+.bars{flex:1 1 260px;display:grid;gap:6px;min-width:0}
+.barrow{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center}
+.barrow .lab{font-size:9px}
+.barrow .num{font:500 12px var(--mono);color:var(--muted);white-space:nowrap}
+.bar{height:12px;background:var(--bg);border:2px solid var(--frame);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c,var(--xp));transition:width .35s}
+.bar.hp i{background:var(--hp)}
+.bar.sm{height:8px;border-width:1.5px}
+.stats{display:flex;gap:18px}
+.stat{line-height:1.1}
+.stat b{display:block;font:400 16px/1.4 var(--display)}
+.stat small{color:var(--muted);font-size:11.5px}
+.gold{color:var(--gold)}.hpc{color:var(--hp)}
+.tabrow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.tabs{display:flex;gap:2px;flex:1;min-width:0;align-self:flex-end;overflow-x:auto;scrollbar-width:none}
+.tab{background:none;border:0;padding:8px 12px;font-weight:600;font-size:14px;color:var(--muted);border-radius:7px 7px 0 0;white-space:nowrap;min-height:40px}
+.tab[aria-selected="true"]{background:var(--frame);color:var(--bg)}
+.tab[aria-selected="true"]::before{content:"▶ ";font-size:10px}
+.themebtn{flex:none;width:40px;height:40px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;background:var(--panel);color:var(--ink);border:2px solid var(--frame);border-radius:7px;padding:0}
+/* sprite */
+.sprite{display:block;flex:none;height:auto}
+.sprite.mini{width:44px;border:2px solid var(--frame);border-radius:6px;background:var(--panel)}
+.sprite.big{width:120px;filter:drop-shadow(3px 3px 0 var(--shadow))}
+.sprite.huge{width:260px;max-width:100%;filter:drop-shadow(5px 5px 0 var(--shadow))}
+.coin{width:1em;height:1em;display:inline-block;vertical-align:-.12em;margin-right:.3em}
+.gico{width:26px;height:26px;flex:none}
+.ghead{display:flex;gap:10px;align-items:center}
+.eyebrow{font:400 9px/1.6 var(--display);color:var(--hp);margin-bottom:8px}
+.bosswin .boss{grid-template-columns:110px minmax(0,1fr)}
+.beast{display:block;width:110px;height:auto;filter:drop-shadow(3px 3px 0 var(--shadow))}
+.bosswin:not(.slain) .beast{animation:hover 2.4s ease-in-out infinite}
+@keyframes hover{50%{transform:translateY(-4px)}}
+.slain .beast{filter:grayscale(1) opacity(.45);transform:rotate(-12deg)}
+.lore{margin:8px 0 4px;font-size:13px;font-style:italic;color:var(--muted)}
+.bestiary{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.beastcard{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border:2px dashed var(--line);border-radius:7px}
+.beastcard.got{border:2px solid var(--gold);background:var(--gold-soft)}
+.beastcard:not(.got) .beast{filter:brightness(0) opacity(.35)}
+.beastcard b{display:block}.beastcard small{display:block;color:var(--muted);font-size:12.5px;line-height:1.3}
+.beast.sm{width:72px}
+/* layout */
+.today{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px 22px;margin-top:16px;align-items:start}
+.dayhead{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.mainc,.side{display:grid;gap:16px;min-width:0}
+@media (max-width:860px){.today{grid-template-columns:minmax(0,1fr)}.top{position:static}}
+.daynav{display:flex;align-items:center;gap:6px}
+.iconbtn{width:40px;height:40px;background:var(--panel);border:2px solid var(--frame);border-radius:7px;font-weight:700;font-size:17px;line-height:1}
+.iconbtn:disabled{opacity:.3;cursor:default}
+.daytitle{font:400 12px/1.5 var(--display);min-width:0}
+.todaybtn{background:none;border:0;color:var(--acc);font-weight:600;text-decoration:underline;padding:8px 4px}
+.seg{display:inline-flex;border:2px solid var(--frame);border-radius:7px;overflow:hidden;background:var(--panel);flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 10px;font-size:13px;font-weight:500;min-height:36px}
+.seg button+button{border-left:2px solid var(--frame)}
+.seg button[aria-pressed="true"]{background:var(--frame);color:var(--bg)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.alert{background:var(--hp-soft);border:2px solid var(--hp);border-radius:7px;padding:9px 12px;font-size:14px}
+.alert.calm{background:var(--ok-soft);border-color:var(--ok)}
+.tophead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+/* oaths */
+.oathlist{list-style:none;margin:10px 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.oathlist li{display:flex;gap:9px;align-items:center;border:2px dashed var(--line);border-radius:7px;padding:7px 9px}
+.oathlist li.done{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.oathlist b{display:block;font-size:14px}
+.oathlist small{display:block;color:var(--muted);font-size:12px;line-height:1.25}
+.gem{flex:none;width:24px;height:24px;transform:rotate(45deg);border:2px solid var(--frame);border-radius:3px;display:flex;align-items:center;justify-content:center}
+.gem span{transform:rotate(-45deg);font-weight:700;font-size:13px}
+.done .gem{background:var(--ok);border-color:var(--ok);color:var(--panel)}
+/* actions */
+.blocks{display:grid;gap:16px}
+.block{overflow:hidden}
+.ghead{padding:10px 16px;border-bottom:2px solid var(--line)}
+.ghead.bad .h{color:var(--hp)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:9px 14px 9px 16px;min-height:62px}
+.row:last-child{border-bottom:0}
+.row.off{opacity:.55}
+.rname{min-width:0}
+.rname b{font-weight:600;display:block}
+.rname small{color:var(--muted);font-size:12.5px;display:block;line-height:1.3}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.chip{--c:var(--muted);font:700 11px/1.6 var(--mono);border:1.5px solid var(--c);color:var(--c);border-radius:4px;padding:0 5px;white-space:nowrap}
+.chip.hp{--c:var(--hp)}
+.chip.gd{--c:var(--gold)}
+.chips.big .chip{font-size:12.5px;padding:2px 7px}
+.ctl{display:flex;align-items:center;gap:4px}
+.ctl output{min-width:30px;text-align:center;font:400 13px var(--display)}
+.step{width:40px;height:40px;background:none;border:2px solid var(--frame);border-radius:7px;font-size:19px;font-weight:700;line-height:1}
+.step.plus{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.step:disabled{opacity:.3;cursor:default}
+.step:not(:disabled):active{transform:scale(.94)}
+.tick{width:44px;height:44px;background:none;border:2px solid var(--frame);border-radius:7px;font-weight:700;font-size:20px;padding:0}
+.tick[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.tick.badt[aria-pressed="true"]{background:var(--hp);border-color:var(--hp);color:var(--panel)}
+.row.choice{grid-template-columns:minmax(0,1fr)}
+.choices{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:2px solid var(--frame);background:none;border-radius:7px;padding:6px 10px;font-size:13.5px;font-weight:500;min-height:42px;display:grid;gap:3px;text-align:left}
+.opt .chips{margin:0}
+.opt[aria-pressed="true"]{background:var(--frame);color:var(--bg)}
+.opt[aria-pressed="true"] .chip{--c:var(--bg)}
+/* side */
+.hc{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.mini8{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin:12px 0 8px}
+.m8{display:grid;grid-template-columns:34px minmax(0,1fr) 22px;gap:6px;align-items:center}
+.m8 .ab{font-size:8px;color:var(--c)}
+.m8 .lv{font-size:9px;text-align:right}
+.m8 .bar i{background:var(--c)}
+.loot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 6px}
+.loot b{display:block;font:400 17px/1.4 var(--display)}
+.loot small{color:var(--muted);font-size:12px}
+.quest{display:flex;gap:10px;align-items:flex-start}
+.quest .mark{flex:none;width:30px;height:30px;border:2px solid var(--frame);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.quest.done .mark{background:var(--ok);border-color:var(--ok);color:var(--panel)}
+.quest.locked .mark{border-style:dashed;color:var(--muted)}
+.quest small{display:block;color:var(--muted);font-size:12.5px;line-height:1.3;margin-top:2px;font-weight:400}
+button.mark{background:none;color:inherit;padding:0;width:36px!important;height:36px!important}
+.chest{width:100%;background:var(--gold-soft);border:3px solid var(--gold);border-radius:9px;padding:11px 14px;display:flex;gap:10px;align-items:center;text-align:left;font-weight:600;min-height:54px;color:var(--ink)}
+.chest b{margin-left:auto;font:400 13px var(--display);color:var(--gold);white-space:nowrap}
+.chest.wiggle{animation:wig 1.4s ease-in-out infinite}
+@keyframes wig{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-1deg)}95%{transform:rotate(1deg)}}
+.boss{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.bossart{width:56px;height:56px;display:block}
+.hpb{height:14px;background:var(--bg);border:2px solid var(--frame);border-radius:3px;margin:6px 0 10px;overflow:hidden}
+.hpb i{display:block;height:100%;background:var(--hp);transition:width .35s}
+.hpb.dead i{background:var(--ok)}
+.goal{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;font-size:13.5px;margin-top:6px}
+.goal span:nth-child(2){font:500 12.5px var(--mono)}
+.goal .gbar{grid-column:1/-1;height:5px;background:var(--line);border-radius:2px;overflow:hidden}
+.goal .gbar i{display:block;height:100%;background:var(--acc)}
+.lines{list-style:none;margin:0;padding:0}
+.lines li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px;align-items:start}
+.lines li:last-child{border-bottom:0}
+.lines .chips{margin:0;justify-content:flex-end}
+.total{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:3px double var(--frame);margin-top:8px;padding-top:8px;font:400 11px/1.6 var(--display)}
+/* pages */
+.page{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin-top:18px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;align-items:start}
+.sec{font:400 13px/1.5 var(--display);margin-bottom:10px}
+.topic{display:grid;gap:9px;align-content:start;min-width:0}
+.tag{flex:none;font:500 11.5px var(--mono);border:1.5px solid currentColor;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.tag.space{color:var(--s-int)}.tag.phys{color:var(--s-str)}.tag.math{color:var(--s-agi)}.tag.gold{color:var(--gold)}
+.hook{margin:0;font-size:14px;max-width:65ch}
+.ttl{font:700 18px/1.25 var(--body)}
+.ask{font-weight:600;color:var(--acc)}
+.tbtns{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.ext{color:var(--acc);font-weight:600;padding:8px 0}
+textarea.tnote{font:400 14px/1.4 var(--body);min-height:72px;resize:vertical}
+.found{list-style:none;margin:14px 0 0;padding:0}
+.found li{padding:10px 0;border-top:1px solid var(--line)}
+.fnote{margin:2px 0 0;font-style:italic;overflow-wrap:anywhere;white-space:pre-wrap}
+.aq{display:grid;gap:8px;align-content:start;min-width:0}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.board .aq{border:2px solid var(--line);border-radius:7px;padding:12px;background:var(--panel)}
+.qlist{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.aq.legend,.win.legend{background:var(--gold-soft)}
+.win.legend{border-color:var(--gold)}
+.board .aq.legend{border-color:var(--gold)}
+.btn{background:var(--acc);color:var(--on-acc);border:2px solid var(--acc);border-radius:7px;padding:8px 13px;font-weight:600;min-height:42px}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--frame)}
+.btn.red{background:none;color:var(--hp);border-color:var(--hp)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.linkbtn{background:none;border:0;color:var(--acc);font-weight:600;text-decoration:underline;padding:4px 0;text-align:left}
+/* hero page */
+.herotop{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.herotop{grid-template-columns:minmax(0,1fr)}}
+.heroid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.heroname{font:400 clamp(14px,2.6vw,19px)/1.5 var(--display)}
+.radar{display:block;width:100%;max-width:400px;margin:4px auto 0;height:auto;grid-column:1/-1}
+.radar text{font:700 12px var(--mono);fill:var(--ink)}
+.rring,.raxis{fill:none;stroke:var(--line);stroke-width:1}
+.rpoly{fill:var(--acc);fill-opacity:.22;stroke:var(--acc);stroke-width:2;stroke-linejoin:round}
+.rdot{fill:var(--acc)}
+.stats8{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.statc{padding:14px;display:grid;gap:7px;align-content:start}
+.sthead{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+.sthead small{display:block;color:var(--muted);font-size:12px;line-height:1.25}
+.stab{width:44px;height:44px;border:3px solid var(--c);color:var(--c);border-radius:6px;display:flex;align-items:center;justify-content:center;font:400 9px var(--display)}
+.stlv{font:400 20px var(--display);color:var(--c)}
+.statc .bar i{background:var(--c)}
+.stmeta{display:flex;justify-content:space-between;gap:8px;font:500 11.5px var(--mono);color:var(--muted)}
+.talent{border-top:1px dashed var(--line);padding-top:7px;color:var(--muted)}
+.talent b{display:block;font-size:13.5px}
+.talent small{display:block;font-size:12.5px;line-height:1.3}
+.talent.on{color:var(--ink)}.talent.on b{color:var(--gold)}
+/* journal, trophies, shop, rules */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;overflow:hidden}
+.tile{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tile b{display:block;font:400 15px/1.6 var(--display)}
+.tile small{color:var(--muted);font-size:12.5px}
+.chartwrap{overflow-x:auto}
+.chart{display:block;width:100%;min-width:520px;height:auto}
+.chart text{font:500 11px var(--mono);fill:var(--muted)}
+.chart .gridl{stroke:var(--line);stroke-width:1}
+.chart .base{stroke:var(--frame);stroke-width:1.5}
+.chart .up{fill:var(--xp)}.chart .dn{fill:var(--hp)}
+.chart .hit{fill:transparent;cursor:pointer}
+.chart .hit:hover{fill:var(--line);opacity:.5}
+#tip{position:fixed;z-index:30;background:var(--frame);color:var(--bg);font-size:12.5px;padding:5px 8px;border-radius:4px;pointer-events:none;max-width:220px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;color:var(--muted);text-align:left;font-weight:600;padding:6px 8px;border-bottom:2px solid var(--frame);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}
+.badge{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;align-items:center;padding:12px;background:var(--panel);border:2px solid var(--line);border-radius:7px}
+.badge.got{border-color:var(--gold)}
+.sym{width:48px;height:48px;border:2px dashed var(--muted);border-radius:6px;transform:rotate(45deg) scale(.8);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.sym span{transform:rotate(-45deg);font:700 19px var(--mono)}
+.badge.got .sym{border:3px solid var(--gold);background:var(--gold-soft);color:var(--gold)}
+.badge b{display:block;line-height:1.2}
+.badge small{color:var(--muted);font-size:12.5px;line-height:1.25;display:block}
+.prog{height:5px;background:var(--line);margin-top:6px;border-radius:2px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--acc)}
+.ladder{list-style:none;margin:0;padding:0}
+.ladder li{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto;gap:10px;padding:7px 6px;border-bottom:1px solid var(--line);align-items:baseline}
+.ladder .sz{font:500 12.5px var(--mono);color:var(--muted);white-space:nowrap}
+.ladder .thr{font:500 12.5px var(--mono);white-space:nowrap;min-width:64px;text-align:right}
+.ladder .lk{color:var(--muted)}
+.ladder .cur{background:var(--gold-soft);font-weight:700}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.card{padding:16px;display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px 14px;align-items:center;border-color:var(--r)}
+.slot{width:76px;height:76px;border:3px solid var(--r);border-radius:8px;background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--r) 22%,var(--panel)) 0 45%,var(--panel) 75%);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px var(--panel),inset 0 0 0 4px color-mix(in srgb,var(--r) 35%,var(--panel))}
+.ico{width:52px;height:auto;display:block}
+.cardtxt{display:grid;gap:2px;min-width:0}
+.rar{font:400 8px/1.6 var(--display);color:var(--r)}
+.itn{font:700 15px/1.25 var(--body)}
+.real{font-size:13px;color:var(--muted);line-height:1.3}
+.buyrow{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:2px dashed var(--line);padding-top:10px}
+.card .pr{font:400 13px var(--display);color:var(--gold);display:flex;align-items:center}
+.purse{font:400 14px var(--display);color:var(--gold);display:flex;align-items:center}
+.rulelist{margin:0;padding-left:18px;display:grid;gap:6px;max-width:68ch}
+.field{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+input[type=number],input[type=text],select,textarea{background:var(--panel);border:2px solid var(--frame);border-radius:6px;padding:7px 8px;width:100%;min-height:40px}
+textarea{min-height:90px;font:500 12px var(--mono)}
+.inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.inline>*{flex:1 1 130px;min-width:0}
+.inline .btn{flex:0 0 auto}
+.chk{display:flex;gap:8px;align-items:center;min-height:36px}
+.chk input{width:20px;height:20px;accent-color:var(--acc)}
+.setrow{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.setrow .chips{margin-top:3px}
+.setrow input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc);justify-self:center}
+/* overlays */
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:25;display:grid;gap:8px;width:min(92vw,380px)}
+.toast{background:var(--panel);color:var(--ink);border:3px solid var(--frame);border-radius:8px;padding:10px 13px;font-weight:500;animation:up .25s ease-out;box-shadow:4px 4px 0 var(--shadow)}
+.toast b{display:block;font:400 10px/1.6 var(--display);color:var(--acc)}
+@keyframes up{from{transform:translateY(8px);opacity:0}}
+.fl{position:fixed;z-index:26;pointer-events:none;font:400 13px var(--display);color:var(--xp);animation:fl .9s ease-out forwards;white-space:nowrap}
+.fl.neg{color:var(--hp)}
+@keyframes fl{to{transform:translateY(-46px);opacity:0}}
+#lvl{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+#lvl .inner{display:grid;gap:14px;justify-items:center;max-width:480px;animation:pop .5s cubic-bezier(.2,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+#lvl h2{font:400 clamp(18px,5vw,30px)/1.4 var(--display)}
+#lvl .sz{font:700 16px var(--mono);color:var(--acc)}
+.chains{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.chain{display:grid;gap:8px;align-content:start;border:2px solid var(--line);border-radius:7px;padding:12px;background:var(--panel)}
+.chain.legend{border-color:var(--gold);background:var(--gold-soft)}
+.dots{display:flex;gap:6px;padding:4px}
+.dots i{width:11px;height:11px;border:2px solid var(--frame);transform:rotate(45deg);border-radius:2px}
+.dots i.on{background:var(--gold);border-color:var(--gold)}
+.divider{border-top:2px dashed var(--line);margin:4px 0}
+.scroll{display:grid;gap:8px}
+.stage{position:relative;width:100%;aspect-ratio:120/72;max-width:100%;border:3px solid var(--frame);border-radius:7px;overflow:hidden;box-shadow:inset 0 0 0 2px var(--panel),3px 3px 0 var(--shadow);background:var(--sky2)}
+.stage .scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage .sprite{position:absolute;left:50%;bottom:3%;height:84%;width:auto;transform:translateX(-50%);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.25))}
+.stage.sm{width:150px;flex:none}
+.stage .fireflies{animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
+@media (max-width:480px){.sprite.huge{width:200px}.bosswin .boss{grid-template-columns:80px minmax(0,1fr)}.beast{width:80px}.sprite.huge{width:160px}.card{grid-template-columns:64px minmax(0,1fr)}.slot{width:64px;height:64px}.ico{width:44px}.stats{gap:14px}.row{padding-inline:12px}.mini8{grid-template-columns:1fr}.loot b{font-size:14px}.heroid{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<div class="wrap"><div id="app"></div></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="tip" hidden></div>
+<div id="lvl" hidden></div>
+
+<script>
+"use strict";
+const THEME_KEY='kvantovaya-saga-theme';
+const curTheme=()=>document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+const themeIcon=t=>t==='dark'?'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" fill="currentColor"/></svg>';
+function themeBtn(){const t=curTheme(),l=t==='dark'?'Включить светлую тему':'Включить тёмную тему';return `<button class="themebtn" id="themebtn" data-act="theme" aria-label="${l}" title="${l}">${themeIcon(t)}</button>`}
+function toggleTheme(){const n=curTheme()==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem(THEME_KEY,n)}catch(e){}render()}
+try{const t=localStorage.getItem(THEME_KEY);if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Приключения: утренние, вечерние, недельные, легендарные квесты и доска. [название, подсказка, баллы, характеристики] ---------- */
+const mkQ=(p,l)=>l.map((x,i)=>({id:p+i,kind:p,title:x[0],hint:x[1],pts:x[2],st:(x[3]||'cur').split(',')}));
+const QM=mkQ('qm',[
+ ['Выйди на остановку раньше','Дойди пешком и рассмотри улицу, мимо которой обычно проезжаешь',10,'cur,str'],
+ ['Необычный завтрак','Съешь утром то, чего никогда не пробовала на завтрак: шакшуку, мисо-суп, кашу из киноа',10,'cur,cre'],
+ ['Охота за цветом','Выбери цвет до выхода из дома и сфотографируй по дороге 5 вещей этого цвета',10,'cre,cur'],
+ ['Доброе утро на трёх языках','Узнай, как это звучит, и скажи кому-нибудь одно из них',8,'int,cha'],
+ ['Зарядка под чужую музыку','10 минут движения под жанр, который ты никогда не слушаешь',10,'str,cur'],
+ ['Новый поворот','Измени маршрут на работу хотя бы на одну улицу',8,'cur'],
+ ['Три ожидания','Напиши от руки три вещи, которых ждёшь от сегодняшнего дня',6,'wil'],
+ ['Незнакомый чай','Пуэр, ройбос, матча, каркаде: что-то, чего ты ещё не пила',8,'cur'],
+ ['Определи облака','Посмотри на небо 2 минуты и узнай, как называются сегодняшние облака',8,'int,cur'],
+ ['Другой рукой','Почисти зубы или причешись непривычной рукой',6,'agi'],
+ ['Вопрос коллеге','Спроси на работе то, чего никогда не спрашивала. Например, какой была чья-то первая работа',10,'cha'],
+ ['Как зовут это растение','Найди по дороге растение и узнай его название через определитель',10,'int,cur'],
+ ['Холодный финал','Последние 30 секунд душа сделай прохладными',10,'wil,vit'],
+ ['Подкаст наугад','В дороге включи выпуск на тему, о которой ничего не знаешь',8,'int,cur'],
+ ['Задача до завтрака','Одна задача по физике, пока телефон ещё спит',10,'int,wil'],
+ ['Комплимент незнакомцу','Искренний и короткий: баристе, водителю, охраннику',10,'cha'],
+ ['Пять минут растяжки','Сразу после пробуждения, до телефона',8,'agi,vit'],
+ ['Запомни сон','Запиши, что снилось, в двух строчках',6,'cre'],
+ ['Слово дня','Найди в словаре незнакомое слово и употреби его сегодня в разговоре',8,'int,cha'],
+ ['Без лифта и эскалатора','Весь день только по лестницам',8,'str,wil'],
+ ['Стакан воды до кофе','И ещё один до обеда',6,'vit'],
+ ['Пять тысяч шагов до обеда','Шагомер в телефоне в помощь',10,'str,vit'],
+ ['Голос прошлого века','Послушай в дороге запись песни или речи старше 1960 года',8,'cur'],
+ ['Нарисуй завтрак','Скетч за минуту, прежде чем съесть',8,'cre'],
+ ['Утро без новостей','Не открывай ленты и новости до полудня',10,'wil']]);
+const QE=mkQ('qe',[
+ ['Пешком от работы до библиотеки','Возьми там книгу с полки, к которой раньше не подходила',15,'str,int'],
+ ['Спорт на полчаса','Бег, турник, йога, танцы — что угодно, лишь бы вспотеть',15,'str,vit'],
+ ['Ужин страны, где ты не была','Грузия, Перу, Вьетнам, Марокко: найди простой рецепт',15,'cre,cur'],
+ ['Рисунок за 10 минут','Чашка, рука, вид из окна. Красота не важна',10,'cre'],
+ ['Звонок из прошлого','Позвони тому, с кем давно не говорила',12,'cha'],
+ ['Найди планету','Посмотри по карте неба, что видно сегодня, и найди это глазами',12,'cur,int'],
+ ['Выучи фокус','С монетой или картами. Покажи кому-нибудь',12,'agi,cha'],
+ ['Незнакомая улица','Прокатись на велосипеде или скейте там, где никогда не была',15,'agi,cur'],
+ ['Фрукт-загадка','Купи фрукт или овощ, которого никогда не ела, и попробуй',10,'cur'],
+ ['Письмо себе через год','Запечатай и поставь напоминание на эту дату',12,'cre,wil'],
+ ['Час без экрана','Последний час перед сном без телефона и ноутбука',12,'wil,vit'],
+ ['Новый узел','Выучи булинь или восьмёрку. Пригодится',8,'agi'],
+ ['Самолётик-рекордсмен','Сложи самолётик новой конструкции и измерь дальность полёта',10,'int,agi'],
+ ['Альбом целиком','Послушай альбом в незнакомом жанре от первого трека до последнего',10,'cur,cre'],
+ ['Объясни за две минуты','Расскажи кому-нибудь физическое явление. Если поняли, засчитано',12,'int,cha'],
+ ['Дверь, мимо которой ходишь','Зайди в кафе или магазин, мимо которого всегда проходишь',10,'cur'],
+ ['Партия с незнакомцем','Сыграй онлайн в шахматы или го',8,'int'],
+ ['Танец на кухне','Три песни подряд, никто не смотрит',8,'agi,cre'],
+ ['Звёздная прогулка','Выйди после заката на 20 минут и посчитай, сколько звёзд видно',10,'cur,vit'],
+ ['Планка на рекорд','Засеки время. В следующий раз продержись на 10 секунд дольше',10,'str,wil'],
+ ['Зайди в книжный','Полистай раздел, куда никогда не заходила: поэзия, кулинария, философия',10,'cur,int'],
+ ['Напиши хокку','Три строки о сегодняшнем дне: 5, 7 и 5 слогов',8,'cre'],
+ ['Скажи спасибо вслух','Скажи близкому человеку, за что ты его ценишь',10,'cha'],
+ ['Головоломка на 15 минут','Судоку, кубик Рубика или задача на логику',8,'int'],
+ ['Йога-нидра перед сном','15 минут лёжа, по записи',8,'vit,wil'],
+ ['Испытание равновесия','Постой на одной ноге с закрытыми глазами. Сколько секунд вышло?',8,'agi'],
+ ['Карта звуков','Сядь у окна на 5 минут и запиши все звуки, что слышишь',6,'cur,cre']]);
+const QW=mkQ('qw',[
+ ['Выучи 50 слов на незнакомом языке','Возьми язык, которого никогда не касалась: исландский, суахили, японский. По 7–8 слов в день',60,'int,cur'],
+ ['Выучи стихотворение наизусть','От 12 строк. В конце недели прочитай его кому-нибудь вслух',50,'int,cre'],
+ ['Прочитай историю одного открытия','Как открыли пенициллин, рентген или радиоактивность. Перескажи за 3 минуты',40,'int,cur'],
+ ['Сходи в музей, где никогда не была','Краеведческий, технический, музей науки или маленький частный',60,'cur,int'],
+ ['Выучи чужой алфавит','Корейский хангыль учится за выходные. Ещё варианты: греческий, грузинский',50,'int'],
+ ['Научись жонглировать тремя мячами','Подойдут апельсины или свёрнутые носки. Цель: 10 бросков подряд',60,'agi,wil'],
+ ['Испеки хлеб с нуля','Мука, вода, соль, дрожжи и немного терпения',50,'cre,wil'],
+ ['Найди на небе три созвездия','Выучи, как они выглядят, и найди их вживую в ясную ночь',50,'cur,int'],
+ ['Сделай дома физический опыт','Батарейка из лимона, электромагнит из гвоздя, радуга из стакана воды',50,'int,cre'],
+ ['Попробуй новый вид спорта','Скалодром, бадминтон, плавание, ролики, настольный теннис',60,'str,agi'],
+ ['Фильм из незнакомой страны','Иран, Корея, Бразилия, Исландия. С субтитрами',40,'cur'],
+ ['Сыграй мелодию на инструменте','Укулеле, синтезатор в приложении или губная гармошка. Хотя бы 8 тактов',50,'cre,agi'],
+ ['Прочитай о жизни учёной','Лиза Мейтнер, Эмми Нётер, Вера Рубин, Сесилия Пейн. Что она открыла и чего ей это стоило?',40,'int,cur'],
+ ['Пройди пешком незнакомый район','Без цели, по улицам, где ни разу не была. Найди там одну интересную деталь',40,'str,cur'],
+ ['Неделя новой привычки','Каждый день одно новое дело: 5 минут растяжки, дневник или медитация',50,'wil,vit'],
+ ['Рассказ неизвестного автора','Выбери в библиотеке по обложке или по случайной странице',40,'cur,int'],
+ ['Событие в последний момент','Концерт, лекция, выставка или открытый микрофон, о котором узнала на этой неделе',50,'cha,cur'],
+ ['Стойка на руках у стены','Или колесо. Тренируй по 10 минут в день',50,'str,agi'],
+ ['Пять дней без сахара','Фрукты можно. Запиши, как поменялось самочувствие',50,'vit,wil'],
+ ['Мини-доклад для друга','Выбери тему из раздела «Темы», нарисуй схему на листе и расскажи',50,'int,cha'],
+ ['Каждый день новое блюдо','Пять дней, пять рецептов, которых ещё не готовила',50,'cre,vit'],
+ ['50 000 шагов за неделю','Около 7 тысяч в день',50,'str,vit'],
+ ['Выучи азбуку Морзе','Отстучи своё имя и SOS, расшифруй сообщение от друга',40,'int,agi'],
+ ['Сфотографируй неделю','Один кадр в день на одну тему. Собери коллаж',40,'cre,cur'],
+ ['Пять разговоров с незнакомцами','Коротких: в очереди, в парке, на остановке',50,'cha,wil']]);
+const QB=mkQ('qb',[
+ ['Ботанический сад или оранжерея','Найди самое странное растение и узнай, откуда оно',30,'cur'],
+ ['Сходи в планетарий','Или в открытую обсерваторию, если такая есть в городе',35,'cur,int'],
+ ['Блошиный рынок','Купи вещь с историей дешевле 200 рублей',25,'cur,cha'],
+ ['Встреть рассвет на улице','Термос с чаем обязателен',30,'vit,wil'],
+ ['Сходи на скалодром','В первый раз с инструктором, это недорого',35,'str,agi'],
+ ['Самое старое здание района','Узнай, кто его построил и что там было',25,'int,cur'],
+ ['Посади косточку','Авокадо, лимон, финик. Отметь день, когда проклюнется',20,'cre,wil'],
+ ['Кино наугад','Сходи одна на сеанс фильма, о котором ничего не знаешь',25,'cur'],
+ ['Фотопрогулка «Физика вокруг»','20 кадров: отражения, тени, радуга в луже, разводы на мыльной плёнке',30,'cre,int'],
+ ['Электричка до незнакомой станции','Погуляй там час и вернись',40,'cur,str'],
+ ['Новый трюк на скейте','На ступеньку выше того, что умеешь сейчас',40,'agi'],
+ ['Квиз или вечер настолок','В антикафе, клубе или библиотеке',30,'int,cha'],
+ ['Незнакомая кухня','Поешь в ресторане эфиопской, корейской, перуанской или узбекской кухни',30,'cur'],
+ ['Запусти воздушного змея','Можно сделать самой из пакета и реек',30,'cre,agi'],
+ ['Карта района по памяти','Нарисуй, потом сверь с настоящей и найди, где ошиблась',20,'int,cre'],
+ ['День волонтёрства','Приют для животных, субботник, благотворительный фонд',40,'cha,wil'],
+ ['Пешая экскурсия по городу','Бесплатные экскурсии бывают почти везде',35,'cur,int'],
+ ['Сходи в бассейн','Проплыви хотя бы 500 метров',30,'str,vit'],
+ ['Открытая лекция','В университете, библиотеке или музее, на тему не из школьной программы',30,'int,cur'],
+ ['Дальний веломаршрут','Больше 15 км, туда, где ещё не была',35,'agi,str'],
+ ['День без телефона','С утра до вечера. Запиши, что заметила',40,'wil'],
+ ['Мастер-класс руками','Керамика, каллиграфия, столярка, витраж',45,'cre'],
+ ['Тир или стрельба из лука','Попади в центр мишени хотя бы раз',30,'agi,wil'],
+ ['Каток','Проедь круг задом наперёд',30,'agi,str'],
+ ['Караоке','Спой песню, которую стыдно петь',30,'cha,cre'],
+ ['Баня или сауна','С холодной водой после',25,'vit,wil'],
+ ['Квест-комната','Выберитесь до конца таймера',35,'int,cha'],
+ ['Музей науки или экспериментариум','Нажми каждую кнопку на каждом экспонате',35,'int,cur'],
+ ['Пикник с собой','Плед, книга, термос. Час без телефона',25,'vit,cur'],
+ ['Пеший поход на 10 км','По тропе за городом',45,'str,vit'],
+ ['Пробный урок танцев','Сальса, свинг, хип-хоп, контемпорари',40,'agi,cha'],
+ ['Открытка от руки','Напиши и отправь настоящей почтой',20,'cha,cre'],
+ ['Зоопарк или контактная ферма','Узнай одно странное свойство одного животного',25,'cur'],
+ ['Ночная прогулка с фонариком','В парке или у реки, вдвоём',25,'cur,wil']]);
+const QL=mkQ('ql',[
+ ['Встреть рассвет на высоте','Холм, крыша, смотровая площадка. Фонарик, термос, тёплая куртка',80,'str,vit,cur'],
+ ['День в другом городе','Электричка или автобус туда и обратно за один день',90,'cur,cha'],
+ ['Выступи перед людьми','Открытый микрофон, клуб, стихотворение перед друзьями',90,'cha,cre,wil'],
+ ['Сутки без жалоб','Поймала себя на жалобе — отсчёт начинается заново',70,'wil'],
+ ['Ужин на пятерых','По рецептам страны, где ты не была. Позови гостей',80,'cre,cha'],
+ ['Олимпиадная задача','Возьми задачу Всероссийской олимпиады по физике прошлых лет. В решение можно заглянуть только через час',90,'int,wil'],
+ ['40 км на велосипеде','Вода, перекус и запасная камера с собой',90,'agi,str,vit'],
+ ['Найди Млечный Путь','Выезд за город, туда, где не видно фонарей',90,'cur,vit'],
+ ['Проведи урок','Научи кого-то тому, что умеешь: скейт, задача, рецепт',80,'cha,int'],
+ ['День «да»','Соглашайся весь день на все безопасные предложения и идеи',70,'cur,cha'],
+ ['Сделай вещь своими руками','Табурет, сумку, светильник: от начала до конца',90,'cre,agi'],
+ ['Полумарафон пешком','21 км за день, с остановками можно',100,'str,wil,vit']]);
+/* ---------- Ещё больше нового: дополнительные квесты ---------- */
+const addQ=(list,p,items)=>items.forEach(x=>list.push({id:p+list.length,kind:p,title:x[0],hint:x[1],pts:x[2],st:(x[3]||'cur').split(',')}));
+addQ(QM,'qm',[
+ ['Завтрак у окна','Без телефона. Просто смотри, как просыпается улица',8,'vit,cur'],
+ ['Песня на чужом языке','Найди песню на языке, которого не знаешь, и поставь её первой',6,'cur,cre'],
+ ['Рассказ из шести слов','Опиши своё настроение историей ровно из шести слов',6,'cre'],
+ ['Цвет утреннего неба','Нарисуй его одним пятном или найди точное название оттенка',6,'cre,cur'],
+ ['Случайная статья','Открой в Википедии «Случайную статью» и дочитай её до конца',6,'int,cur'],
+ ['Утро наоборот','Сделай утренние дела в обратном порядке',6,'cur,wil'],
+ ['Кто поёт за окном','Определи по голосу хотя бы одну птицу через приложение',8,'cur,int'],
+ ['Латте-арт','Нарисуй что-нибудь на пенке. Кривое сердечко засчитывается',8,'cre,agi'],
+ ['Записка-сюрприз','Оставь кому-то тёплую записку: коллеге, соседу, родным',10,'cha,cre'],
+ ['Туристка в своём городе','Сделай по дороге один кадр так, будто приехала сюда впервые',8,'cre,cur'],
+ ['Минута на одной ноге','Пока чистишь зубы: сначала на левой, потом на правой',6,'agi,vit'],
+ ['Неожиданный наряд','Добавь к образу то, что давно не носила: шарф, брошь, яркие носки',6,'cre,cha'],
+ ['Вопрос дня','Запиши вопрос, на который хочешь найти ответ сегодня',6,'cur,int'],
+ ['Пешком одну остановку','Выйди раньше и дойди пешком',8,'str,cur']]);
+addQ(QE,'qe',[
+ ['Вечер при свечах','15 минут при свечах, без звуков и экранов',8,'vit,wil'],
+ ['Лимонад по-новому','С базиликом, имбирём или розмарином',10,'cre,cur'],
+ ['Ночной город','Пройдись или прокатись по городу после 21:00',12,'cur,agi'],
+ ['Перестановка','Поменяй местами три вещи в комнате и посмотри, что изменилось',8,'cre'],
+ ['Странный навык за 15 минут','Оригами, битбокс, свист двумя пальцами, крутить ручку',10,'agi,cur'],
+ ['Сказка другого народа','Прочитай вслух сказку страны, о которой мало знаешь',8,'cre,cur'],
+ ['Свидание с собой','Полчаса в кафе одной и без телефона',12,'wil,cur'],
+ ['Сними звёзды','Попробуй ночной режим камеры на тёмном небе',10,'cre,cur'],
+ ['Голосовое вместо текста','Расскажи другу историю своего дня голосом',8,'cha'],
+ ['Почини или сшей','Пришей пуговицу, заштопай, свяжи пару рядов',10,'cre,agi'],
+ ['Тренировка незнакомого жанра','Бокс, пилатес, зумба или растяжка по видео',12,'str,agi'],
+ ['Карта мечты','Нарисуй или наклей три места, где хочешь побывать',8,'cre,cur'],
+ ['Расспроси старших','Узнай у бабушки, дедушки или родителей, каким был их первый рабочий день',12,'cha'],
+ ['Запах детства','Найди и понюхай то, что пахнет детством. Запиши, что вспомнилось',6,'cur,cre'],
+ ['Мини-концерт','Спой или сыграй одну песню целиком. Зрители необязательны',10,'cre,cha'],
+ ['Опыт на кухне','Невьютоновская жидкость из крахмала и воды',10,'int,cre']]);
+addQ(QW,'qw',[
+ ['Один предмет семь раз','Каждый день рисуй одно и то же: кота, дерево, кружку. Сравни первый и последний',50,'cre,wil'],
+ ['Неделя первых разов','Каждый день одно дело, которое делаешь впервые. Записывай в книгу первых разов',60,'cur,wil'],
+ ['Выучи танец','Короткую связку на минуту по видео. В конце сними себя',50,'agi,cre'],
+ ['Вечер одной страны','Выбери страну: фильм, блюдо и музыка оттуда в один вечер',50,'cur,cha'],
+ ['Огород на подоконнике','Посади базилик, лук или кресс-салат',40,'cre,vit'],
+ ['Сделай зин','Мини-журнал на 8 страниц из одного листа, о чём угодно',50,'cre,int'],
+ ['История твоей улицы','Почему она так называется и что там было сто лет назад',40,'int,cur'],
+ ['Рассказ на страницу','Фантастика, в которой важна настоящая физика',50,'cre,int'],
+ ['Неделя холодного финала','Каждый день 30 секунд прохладной воды в конце душа',50,'wil,vit'],
+ ['Подарок своими руками','Сделай и подари без повода',50,'cre,cha'],
+ ['Мифы одного созвездия','Найди, что о нём рассказывали в трёх разных культурах',40,'cur,int'],
+ ['Фотопроект «Мой цвет»','Каждый день кадр одного цвета, в конце коллаж',40,'cre,cur']]);
+addQ(QB,'qb',[
+ ['Конная прогулка','Пробное занятие в конном клубе',45,'agi,cur'],
+ ['Гончарный круг','Слепи кривую чашку и гордись ей',45,'cre'],
+ ['Музей медицины или анатомии','Удивительно и немного жутко',35,'int,cur'],
+ ['Органный концерт','Или филармония с программой, которую никогда не слушала',35,'cur,cre'],
+ ['Стендап или импровизация','Сходи зрителем. Если смелая, то на открытый микрофон',35,'cha,cur'],
+ ['Батутный центр','Час прыжков, как в детстве',30,'agi,str'],
+ ['Чайная церемония','В чайной лавке, с рассказом мастера',25,'cur,vit'],
+ ['Ярмарка или фестиваль','Любой: еды, книг, ремёсел, комиксов',30,'cur,cha'],
+ ['Мастерская свечей или мыла','Сделай вещь, которой потом будешь пользоваться',35,'cre'],
+ ['Сапборд или байдарка','Летом на воде, зимой каякинг в бассейне',45,'str,agi'],
+ ['Каток под открытым небом','Вечером, с гирляндами и горячим чаем',30,'agi,vit'],
+ ['Погуляй с собакой из приюта','Многие приюты ищут волонтёров на выходные',40,'cha,vit'],
+ ['Опера или балет','Хотя бы дневной спектакль',40,'cur,cre'],
+ ['Экскурсия по крышам','С гидом, там, где это разрешено',45,'cur,str'],
+ ['Фотосессия с подругой','Необычное место и неожиданный образ',35,'cre,cha'],
+ ['Кулинарный мастер-класс','Пельмени, паста или суши с нуля',40,'cre,cha'],
+ ['Ночь в палатке','Хоть во дворе дачи',45,'vit,cur'],
+ ['Пробный урок барабанов','Или перкуссии в музыкальной студии',35,'cre,agi'],
+ ['Шахматы вживую','В клубе или в парке, с незнакомыми людьми',30,'int,cha'],
+ ['Каллиграфия','Напиши своё имя пером и тушью',25,'cre,wil'],
+ ['Радиоуправляемый полёт','Попробуй управлять дроном или моделью самолёта',35,'agi,int'],
+ ['Лекция в планетарии','Сходи на лекцию о том, чего ещё не знаешь',35,'int,cur']]);
+addQ(QL,'ql',[
+ ['Новый навык за один день','Жонглирование, три аккорда на гитаре, стойка у стены: 6 часов практики',90,'agi,wil,cre'],
+ ['Поход с ночёвкой','Костёр, звёзды и утренний туман',100,'str,vit,cur'],
+ ['Городской квест для друзей','Придумай загадки по городу и проведи по ним друзей',90,'cre,cha,int'],
+ ['Аэротруба или парашют','Аэротруба тоже засчитывается',100,'wil,agi'],
+ ['День тишины','Ни слова с утра до вечера, только жесты и записки',80,'wil,cur'],
+ ['Своя лекция','Расскажи друзьям 20 минут о теме из библиотеки',90,'int,cha'],
+ ['Рассвет и закат в один день','И проживи день между ними без экрана',90,'vit,wil,cur']]);
+
+/* Свиток случая: мини-приключения до 15 минут, выпадают по кнопке */
+const QR=[
+ ['Танцуй под первую песню из радио',6,'agi,cre'],['Напиши письмо себе десятилетней',8,'cre,wil'],
+ ['Найди в комнате предмет на каждую букву своего имени',6,'cur'],['20 приседаний прямо сейчас',6,'str'],
+ ['Три минуты смотри на облака лёжа',5,'vit,cur'],['Узнай, как сказать «спасибо» на пяти языках',6,'int,cha'],
+ ['Нарисуй себя супергероиней',8,'cre'],['Позвони кому-то и скажи, что скучаешь',8,'cha'],
+ ['Список из 10 вещей, которые тебя радуют',6,'cre,wil'],['Что случилось в этот день 100 лет назад?',6,'int,cur'],
+ ['Минуту держи книгу на голове',5,'agi'],['Перепиши любимую цитату красивым почерком',6,'cre'],
+ ['Съешь что-то с закрытыми глазами и угадай вкусы',6,'cur'],['Планка на одну минуту',6,'str,wil'],
+ ['Нарисуй карту выдуманной страны',8,'cre,cur'],['Сложи журавлика оригами',6,'agi,cre'],
+ ['Найди созвездие в приложении звёздной карты',6,'cur,int'],['Пять минут слушай звуки вокруг с закрытыми глазами',6,'wil,vit'],
+ ['Хайку о том, что за окном',6,'cre'],['Записка с комплиментом себе на зеркало',5,'cha,wil'],
+ ['Разбери один ящик стола',6,'wil'],['Смешное селфи для подруги',6,'cha'],
+ ['Выучи одну скороговорку',5,'cha,int'],['1000 шагов прямо сейчас',6,'str,vit'],
+ ['Придумай новое слово и его значение',6,'cre,int'],['Послушай записи звуков планет от NASA',5,'cur'],
+ ['Найди дома физический закон в действии и объясни его',8,'int'],['Три вопроса, на которые хочешь узнать ответ',5,'cur'],
+ ['Мелодия на стаканах с водой',8,'cre,int'],['Пройди по комнате на носочках',5,'agi'],
+ ['Нарисуй завтрашний день, каким хочешь его видеть',6,'cre,wil'],['Пять минут растяжки под любимую песню',6,'agi,vit'],
+ ['Научись щёлкать пальцами обеих рук',5,'agi'],['Найди песню 1970-х, которая тебе понравится',5,'cur,cre'],
+ ['Напиши благодарность человеку, который тебя чему-то научил',8,'cha,wil'],['Сделай бумажный самолётик и запусти с балкона… или по коридору',5,'agi,int']
+].map((x,i)=>({id:'qr'+i,kind:'qr',title:x[0],hint:'Прямо сейчас, до 15 минут',pts:x[1],st:x[2].split(',')}));
+const ROLLS_PER_DAY=3;
+
+/* Сюжетные цепочки: шаги открываются по очереди */
+const CHAINS=[
+ ['star','Путь звездочёта','cur,int',[['Найди Полярную звезду','По ковшу Большой Медведицы'],['Выучи три созвездия','И найди их на настоящем небе'],['Сходи в планетарий','Или на лекцию по астрономии'],['Посмотри в телескоп','Обсерватория, клуб любителей астрономии или свой'],['Найди Млечный Путь','За городом, в безлунную ночь']]],
+ ['food','Кулинарная одиссея','cre,cur',[['Блюдо Азии','Том ям, пад тай, бибимбап'],['Блюдо Африки','Шакшука, мафе, инджера'],['Блюдо Латинской Америки','Гуакамоле, севиче, арепы'],['Блюдо Европы, которое не пробовала','Гаспачо, рататуй, кнедлики'],['Ужин пяти стран','Позови друзей и приготовь по блюду с каждого шага']]],
+ ['city','Голос города','cur,cha',[['Прогулка без цели','По району, где ты никогда не была'],['Самый старый дом района','Найди его и узнай историю'],['Бесплатная экскурсия','Пешая, с гидом'],['Поговори со старожилом','Спроси, каким был район раньше'],['Проведи экскурсию сама','Покажи другу свой маршрут с историями']]],
+ ['skate','Путь скейтерши','agi,wil',[['Два километра без остановки','Ровная дорожка, спокойный темп'],['Разворот кик-тёрн','На месте, 10 раз подряд'],['Съезд с небольшой горки','В защите'],['Первый олли','Даже если колёса оторвались на сантиметр'],['Круг в скейт-парке','Целиком, по рампам']]],
+ ['lang','Полиглот-новичок','int,cha',[['Алфавит языка мечты','Выбери язык и выучи его письмо'],['50 слов','По 7–8 в день'],['Мультфильм на этом языке','С субтитрами'],['Пять предложений о себе','Письменно, без переводчика'],['Разговор с носителем','10 минут онлайн, например в языковом обмене']]],
+ ['body','Тело как инструмент','str,vit',[['Минута в планке',''],['10 отжиманий подряд','С колен для начала можно'],['Пробежка 3 км','Можно с шагом'],['Тренировка нового вида','Бокс, скалодром, плавание'],['5 км бегом','Без остановки']]],
+ ['art','Творческая искра','cre,cha',[['Рисунок за 10 минут','Любой предмет рядом'],['Четверостишие','О сегодняшнем дне'],['Видео-минута о своём дне','Смонтируй из коротких кадров'],['Коллаж из журналов','Тема: я через год'],['Домашняя выставка','Покажи свои работы друзьям']]]
+].map((c,ci)=>({id:c[0],name:c[1],st:c[2].split(','),steps:c[3].map((s,i)=>({id:'qh'+ci+'_'+i,kind:'qh',title:s[0],hint:s[1],pts:[15,25,30,40,70][i],st:c[2].split(','),chain:c[0],step:i}))}));
+
+const AQ={};[QM,QE,QW,QB,QL,QR].concat(CHAINS.map(c=>c.steps)).forEach(l=>l.forEach(x=>{AQ[x.id]=x}));
+const QKIND={qm:'Утренний квест',qe:'Вечерний квест',qw:'Квест недели',qb:'Доска',ql:'Легендарный квест',qc:'Свой квест',qr:'Свиток случая',qh:'Сюжет'};
+const EVENING_H=17;
+
+
+
+/* Квесты, которые требуют рабочего дня: в выходные не выпадают */
+['Новый поворот','Вопрос коллеге','Пешком от работы до библиотеки'].forEach(t=>Object.values(AQ).forEach(x=>{if(x.title===t)x.work=1}));
+const isWknd=s=>dow(s)>=5;
+/* ---------- Характеристики ---------- */
+const STATS=[
+ ['int','Интеллект','ИНТ','Лекции, задачи, язык, книги, темы','Мудрая','Учёная'],
+ ['str','Сила','СИЛ','Тренировки, прогулки, поездки','Могучая','Воительница'],
+ ['agi','Ловкость','ЛОВ','Велосипед, скейт, растяжка, трюки','Быстрая','Странница'],
+ ['vit','Выносливость','ВЫН','Сон, еда, вода, отбой','Неутомимая','Целительница'],
+ ['wil','Воля','ВОЛ','Работа, помидоры, клятвы, босс','Стойкая','Стражница'],
+ ['cha','Обаяние','ОБА','Люди, разговоры, выступления','Обаятельная','Сказительница'],
+ ['cre','Творчество','ТВО','Рисунок, музыка, дневник, готовка','Вдохновенная','Алхимик'],
+ ['cur','Любопытство','ЛЮБ','Новые места, вкусы, открытия','Любопытная','Исследовательница']
+].map(s=>({k:s[0],name:s[1],ab:s[2],src:s[3],adj:s[4],cls:s[5],col:'var(--s-'+s[0]+')'}));
+const SN={};STATS.forEach(s=>{SN[s.k]=s});
+const TAL_LVL=5;
+const TAL={int:['Цепкая память','Темы дня и недели дают вдвое больше опыта'],str:['Закалка','Максимум здоровья +20'],agi:['Попутный ветер','Каждая поездка даёт ещё +2 ЛОВ'],vit:['Второе дыхание','Плохой сон больше не отнимает здоровье'],wil:['Железная воля','Нарушенная клятва наказывает вдвое мягче'],cha:['Душа компании','Квесты на обаяние дают ещё +10 золота'],cre:['Муза','Квесты на творчество дают ещё +10 золота'],cur:['Карта сокровищ','На доске 9 квестов вместо 6, легендарный квест выпадает чаще']};
+const needXP=n=>15*(n-1)*n;
+const statLvl=xp=>{let l=1;while(xp>=needXP(l+1))l++;return l};
+const qXP=x=>{const o={};x.st.forEach((k,i)=>{o[k]=(o[k]||0)+(i?Math.round(x.pts/2):x.pts)});return o};
+const LEGEND_P=20,LEGEND_P_TAL=35;
+let curLv={};
+function syncAQ(){Object.keys(AQ).forEach(k=>{if(k.startsWith('qc'))delete AQ[k]});(S.cq||[]).forEach(c=>{AQ[c.id]={id:c.id,kind:'qc',title:c.title,hint:c.hint||'',pts:c.pts,st:[c.stat||'cur'],rep:!!c.rep,gone:!!c.gone}})}
+
+/* ---------- Дела: что каждое качает ---------- */
+const GROUPS={study:'Учёба',work:'Работа',move:'Тренировки и дорога',body:'Тело и режим',soul:'Душа',bad:'Проклятия'};
+const ACTIONS=[
+ {id:'lecture',group:'study',kind:'count',name:'Лекция по физике',note:'За каждую просмотренную',xp:{int:6,wil:1}},
+ {id:'phys',group:'study',kind:'count',name:'Задача по физике',note:'За каждую решённую',xp:{int:2}},
+ {id:'math',group:'study',kind:'count',name:'Задача по математике',note:'За каждую решённую',xp:{int:2}},
+ {id:'lang',group:'study',kind:'toggle',name:'Иностранный язык',note:'10 минут: слова, приложение, урок',xp:{int:3,cur:2}},
+ {id:'read',group:'study',kind:'toggle',name:'Чтение книги',note:'15 минут, не учебник',xp:{int:2,cur:2}},
+ {id:'sat',group:'study',kind:'toggle',name:'Допзанятие по физике',note:'Только по субботам',xp:{int:12,wil:5},satOnly:1},
+ {id:'mistakes',group:'study',kind:'toggle',name:'Разбор ошибок',note:'Прошлась по задачам, где ошиблась',xp:{int:3,wil:2}},
+ {id:'review',group:'study',kind:'toggle',name:'Повторение конспекта',note:'Хотя бы 15 минут',xp:{int:3}},
+ {id:'work',group:'work',kind:'toggle',wdOnly:1,name:'Поход на работу',note:'Сходила и отработала как планировалось',xp:{wil:6,cha:2}},
+ {id:'worklecture',group:'work',kind:'count',wdOnly:1,name:'Лекция на работе',note:'За каждую прослушанную',xp:{int:3,wil:1}},
+ {id:'focus',group:'work',kind:'count',name:'Помидор',note:'25 минут без телефона',xp:{wil:3}},
+ {id:'workout',group:'move',kind:'toggle',name:'Тренировка',note:'От 20 минут: зал, бег, йога, турник, танцы',xp:{str:6,vit:2}},
+ {id:'bike',group:'move',kind:'count',name:'Поездка на велосипеде',note:'За каждую',xp:{agi:4,str:2}},
+ {id:'skate',group:'move',kind:'count',name:'Поездка на скейте',note:'За каждую',xp:{agi:5,str:1}},
+ {id:'walk',group:'move',kind:'toggle',name:'Прогулка пешком',note:'От 30 минут',xp:{str:2,vit:2}},
+ {id:'stretch',group:'move',kind:'toggle',name:'Растяжка',note:'10 минут',xp:{agi:2,vit:1}},
+ {id:'sleep',group:'body',kind:'choice',name:'Сон',note:'Влияет на здоровье',options:[['good','7–9 часов',{vit:5},10],['ok','6–7 часов',{vit:1},0],['bad','Меньше 6',{vit:-3},-10]]},
+ {id:'food',group:'body',kind:'choice',name:'Питание',note:'Как прошёл день в целом',options:[['good','Правильное',{vit:4},5],['ok','Так себе',{},0],['bad','Сорвалась',{vit:-3},-10]]},
+ {id:'water',group:'body',kind:'toggle',name:'Вода',note:'Полтора-два литра',xp:{vit:2}},
+ {id:'early',group:'body',kind:'toggle',name:'Отбой до полуночи',note:'',xp:{vit:2,wil:2}},
+ {id:'talk',group:'soul',kind:'toggle',name:'Разговор с близким',note:'Голосом или вживую, не перепиской',xp:{cha:4}},
+ {id:'create',group:'soul',kind:'toggle',name:'Творчество',note:'Рисунок, музыка, текст, рукоделие',xp:{cre:5}},
+ {id:'diary',group:'soul',kind:'toggle',name:'Дневник',note:'Три строчки о дне',xp:{cre:2,wil:1}},
+ {id:'scroll',group:'bad',kind:'toggle',name:'Залипла в телефоне',note:'Больше двух часов за день',xp:{wil:-5},hp:-5},
+ {id:'skip',group:'bad',kind:'toggle',name:'Отменила занятие',note:'Было в планах, но не случилось',xp:{wil:-5,int:-2}},
+];
+/* Клятвы: обязательные дела дня. Отмечаются сами по делам */
+const OATHS=[
+ {id:'o_study',name:'Учёба',how:'Лекция или 5 задач',f:a=>(a.lecture||0)+(a.worklecture||0)>=1||(a.phys||0)+(a.math||0)>=5},
+ {id:'o_move',name:'Движение',how:'Тренировка, прогулка или поездка',f:a=>!!(a.workout||a.walk||a.bike||a.skate)},
+ {id:'o_read',name:'Чтение',how:'15 минут книги',f:a=>!!a.read},
+ {id:'o_water',name:'Вода',how:'Полтора-два литра',f:a=>!!a.water},
+ {id:'o_sat',name:'Суббота',how:'Допзанятие по физике',f:a=>!!a.sat,sat:1}];
+const RANKS=[
+ ['Кварк','меньше 10⁻¹⁸ м',0],['Протон','10⁻¹⁵ м',100],['Атом','10⁻¹⁰ м',250],['Молекула ДНК','2·10⁻⁹ м',450],
+ ['Вирус','10⁻⁷ м',700],['Клетка','10⁻⁵ м',1000],['Песчинка','10⁻³ м',1400],['Велосипед','2 м',1900],
+ ['Эверест','8,8·10³ м',2500],['Земля','1,3·10⁷ м',3200],['Солнце','1,4·10⁹ м',4000],['Солнечная система','~10¹³ м',5000],
+ ['Млечный Путь','~10²¹ м',6500],['Наблюдаемая Вселенная','8,8·10²⁶ м',8500]];
+const DEF_REWARDS=[['Серия сериала',60,'orb'],['Кофе или десерт вне дома',80,'mug'],['Час игр',100,'dice'],['Вечер без дел и без вины',200,'potion'],['Новая книга',400,'book'],['Большая покупка себе',1000,'chest']];
+
+/* ---------- Темы для любопытства: заголовок, зацепка, что выяснить, запрос для поиска ---------- */
+const CATS={space:'Космос',phys:'Физика',math:'Математика'};
+const T_SPACE=[
+ ['Почему Венера горячее Меркурия','Меркурий ближе к Солнцу, но самая горячая планета это Венера: около 465 °C днём и ночью.','Что такое неуправляемый парниковый эффект?','Атмосфера Венеры'],
+ ['Гора втрое выше Эвереста','Олимп на Марсе поднимается примерно на 21 км, а его основание шириной около 600 км.','Почему на Марсе вулканы вырастают такими огромными?','Олимп (Марс)'],
+ ['Сатурн мог бы плавать','Средняя плотность Сатурна меньше плотности воды. Нашёлся бы океан побольше, и планета не утонула бы.','Как узнают массу планеты, которую нельзя взвесить?','Сатурн'],
+ ['Звезда размером с город','Нейтронная звезда шириной около 20 км тяжелее Солнца. Чайная ложка её вещества весит миллиарды тонн.','Что не даёт ей сжаться ещё сильнее?','Нейтронная звезда'],
+ ['Луна от нас убегает','Каждый год Луна отдаляется от Земли примерно на 3,8 см, а земные сутки понемногу удлиняются.','При чём здесь приливы?','Приливное ускорение'],
+ ['Обратная сторона Луны не тёмная','Мы всегда видим одну половину Луны, но солнце освещает обе по очереди.','Что такое приливный захват?','Приливный захват'],
+ ['Откуда взялось золото','Значительная часть золота, по современным данным, родилась при слияниях нейтронных звёзд.','Что такое r-процесс?','R-процесс'],
+ ['Эхо Большого взрыва','Всё небо слабо светится в микроволнах. Этот свет идёт к нам около 13,8 млрд лет.','Как его нашли случайно и при чём тут голуби?','Реликтовое излучение'],
+ ['Самый дальний посланник','«Вояджер-1» летит с 1977 года. Его сигнал идёт до Земли почти сутки.','Что записано на его золотой пластинке?','Вояджер-1'],
+ ['Элемент, найденный на Солнце','Гелий заметили в спектре Солнца в 1868 году, а на Земле нашли только в 1895-м.','Как спектр рассказывает о составе звезды?','Гелий'],
+ ['Где висит телескоп «Уэбб»','Он находится в 1,5 млн км от Земли, в точке, где притяжение Солнца и Земли работает в его пользу.','Что такое точки Лагранжа?','Точки Лагранжа'],
+ ['Плутон и его партнёр','Плутон и Харон вращаются вокруг общей точки, и эта точка лежит вне Плутона.','Где находится такая точка у Земли и Луны?','Барицентр'],
+ ['Голубой закат на Марсе','На Марсе дневное небо рыжеватое, а закат голубой. На Земле всё наоборот.','Из-за чего у Марса так получается?','Атмосфера Марса'],
+ ['МКС всё время падает','На высоте МКС притяжение всего примерно на 10% слабее земного. Невесомость там от свободного падения.','С какой скоростью надо лететь, чтобы падать мимо Земли?','Первая космическая скорость'],
+ ['Чудовище в центре Галактики','В центре Млечного Пути находится чёрная дыра массой около 4 млн Солнц.','Как её нашли по движению соседних звёзд?','Стрелец A*']];
+const T_PHYS=[
+ ['Почему небо голубое','Воздух рассеивает синий свет гораздо сильнее красного.','Почему тогда небо не фиолетовое?','Рэлеевское рассеяние'],
+ ['Кипяток без огня','При низком давлении вода закипает при комнатной температуре.','При какой температуре кипит вода на Эвересте?','Температура кипения'],
+ ['Мы почти пустые','Если ядро атома увеличить до горошины, сам атом станет размером со стадион.','Почему тогда рука не проходит сквозь стол?','Принцип Паули'],
+ ['Почему велосипед не падает','Велосипед держится на ходу даже без рук, и один гироскопический эффект этого не объясняет.','Какую роль играет форма вилки и рулевая ось?','Велосипед|Почему велосипед не падает'],
+ ['Сквозь стену','Квантовая частица может пройти барьер, на который ей не хватает энергии. Без этого Солнце светило бы иначе.','Как туннелирование помогает термоядерным реакциям?','Туннельный эффект'],
+ ['Эйнштейн в твоём телефоне','Часы на спутниках GPS уходят вперёд примерно на 38 микросекунд в сутки. Без поправки ошибка росла бы на километры.','Какая часть эффекта от скорости, а какая от гравитации?','GPS|GPS теория относительности'],
+ ['Как кошка падает на лапы','Кошка переворачивается в воздухе, хотя оттолкнуться ей не от чего.','Как ей это удаётся без внешнего момента сил?','Приземление на лапы|Как кошка приземляется на лапы физика'],
+ ['Горячая вода замерзает быстрее?','Эффект Мпембы обсуждают десятки лет, а учёные всё ещё спорят, существует ли он.','Почему этот опыт так трудно повторить?','Эффект Мпембы'],
+ ['Как скейт взлетает без рук','Олли выглядит как магия, но это последовательность ударов, вращения и трения.','Что делает передняя нога и зачем нужна шкурка?','Скейтбординг|Олли физика трюка'],
+ ['Свет со скоростью велосипеда','В 1999 году свет в ультрахолодном газе замедлили примерно до 17 м/с.','Что такое конденсат Бозе — Эйнштейна?','Конденсат Бозе — Эйнштейна'],
+ ['Частицы-призраки','Каждую секунду сквозь ноготь проходят десятки миллиардов нейтрино от Солнца.','Как поймать то, что почти ни с чем не взаимодействует?','Нейтрино'],
+ ['Почему лёд скользкий','Школьное объяснение про таяние от давления не работает, а окончательного ответа до сих пор нет.','Какие объяснения обсуждают сейчас?','Лёд|Почему лёд скользкий'],
+ ['Зачем Шрёдингеру кот','Знаменитого кота придумали не как объяснение, а как возражение.','Что именно автор хотел показать этим примером?','Кот Шрёдингера'],
+ ['Демон против энтропии','Воображаемый демон сортирует молекулы и как будто нарушает второе начало термодинамики.','Почему у него всё же ничего не выйдет?','Демон Максвелла'],
+ ['Сирена и далёкие галактики','Одно и то же явление меняет тон сирены и краснит свет далёких галактик.','Как эффект Доплера помог открыть расширение Вселенной?','Эффект Доплера']];
+const T_MATH=[
+ ['Парадокс дней рождения','Среди 23 человек совпадение дней рождения вероятнее, чем его отсутствие.','Почему интуиция тут так сильно ошибается?','Парадокс дней рождения'],
+ ['Три двери','Ты выбрала дверь, ведущий открыл другую, пустую. Менять выбор выгоднее, и это злит почти всех.','Как выиграть в два раза чаще?','Парадокс Монти Холла'],
+ ['Лента с одной стороной','Склей полоску с перекрутом, и у неё останется одна сторона и один край.','Что будет, если разрезать её вдоль посередине? Попробуй на бумаге','Лента Мёбиуса'],
+ ['Бесконечности разного размера','Действительных чисел больше, чем натуральных, хотя тех и других бесконечно много.','В чём идея диагонального аргумента?','Диагональный аргумент Кантора'],
+ ['Отель, где всегда есть место','В бесконечном отеле все номера заняты, но нового гостя всё равно можно поселить.','Как поселить бесконечный автобус гостей?','Парадокс Гильберта о Гранд-отеле'],
+ ['Лист бумаги до Луны','Лист толщиной 0,1 мм, сложенный 42 раза, стал бы толще расстояния до Луны.','Сколько сгибов понадобится, чтобы достать до Солнца?','Экспоненциальный рост'],
+ ['Золотое сечение: правда и мифы','Про него написано много красивого и не всё верно.','Где оно есть на самом деле, а где его придумали?','Золотое сечение'],
+ ['Числа в подсолнухе','Спирали семян в подсолнухе часто идут числами Фибоначчи.','Какая выгода от этого самому растению?','Филлотаксис'],
+ ['Самая красивая формула','Равенство e^(iπ) + 1 = 0 связывает пять главных чисел математики.','Что значит возвести число в мнимую степень?','Формула Эйлера|Тождество Эйлера'],
+ ['Семь мостов','Эйлер доказал, что по мостам Кёнигсберга нельзя пройти, пройдя по каждому ровно один раз. Так начались графы.','Как быстро проверить любую такую схему?','Задача о семи мостах Кёнигсберга'],
+ ['Какой длины берег','Чем мельче линейка, тем длиннее выходит берег Британии.','Что такое фрактальная размерность?','Парадокс береговой линии'],
+ ['Четыре краски','Любой карте хватит четырёх цветов. Доказать это в 1976 году помог компьютер.','Почему многие математики не сразу приняли такое доказательство?','Проблема четырёх красок'],
+ ['Простые числа и твои пароли','Перемножить два больших простых числа легко, а разложить результат обратно очень трудно.','Как на этом держится шифрование?','RSA'],
+ ['Закон первой цифры','В реальных данных единица стоит первой примерно в 30% случаев, а девятка меньше чем в 5%.','Как этот закон помогает ловить подделки?','Закон Бенфорда'],
+ ['Теорема о еже','Ежа нельзя причесать гладко: где-то обязательно останется вихор.','Что это значит для ветра на Земле?','Теорема о причёсывании ежа']];
+const TOPICS=[];T_SPACE.forEach((_,i)=>[['space',T_SPACE],['phys',T_PHYS],['math',T_MATH]].forEach(([c,l])=>{const x=l[i];TOPICS.push({id:c+i,cat:c,title:x[0],hook:x[1],ask:x[2],q:x[3]})}));
+const WEEKLY=[
+ ['space','Чёрные дыры','Объект, откуда не выбраться даже свету. Их уже сфотографировали и слышали их столкновения.',['Что такое горизонт событий?','Что случилось бы с человеком при падении в чёрную дыру?','Как на самом деле получили снимок чёрной дыры?'],'Чёрная дыра'],
+ ['phys','Двухщелевой опыт','Опыт, который Фейнман считал сердцем квантовой механики: одна частица ведёт себя как волна.',['Какую картину дают отдельные электроны?','Что меняется, если следить за щелями?','Почему «наблюдение» здесь не значит «посмотрел человек»?'],'Двухщелевой опыт'],
+ ['math','Топология: кружка равна бублику','Раздел математики, где фигуры можно мять как пластилин, но нельзя рвать.',['Почему кружка и бублик для топологии одно и то же?','Что такое гомеоморфизм простыми словами?','Сколько дырок у футболки?'],'Топология'],
+ ['space','Жизнь и смерть звёзд','Атомы твоего тела когда-то были внутри звёзд, и это не метафора.',['Как рождается звезда?','Что решает, станет она белым карликом, нейтронной звездой или чёрной дырой?','Откуда берутся элементы тяжелее железа?'],'Звёздная эволюция'],
+ ['phys','Энтропия и стрела времени','Законы механики работают в обе стороны, а разбитая чашка сама не собирается. Почему?',['Что такое энтропия в формулировке Больцмана?','Почему она связана с направлением времени?','Что такое тепловая смерть Вселенной?'],'Энтропия'],
+ ['math','Дилемма заключённого','Двое разумных игроков приходят к результату, который хуже для обоих.',['Что такое равновесие Нэша?','Какая стратегия победила на турнире Аксельрода?','Где эта логика встречается в жизни?'],'Дилемма заключённого'],
+ ['space','Как нашли тысячи чужих планет','Планету у другой звезды почти не видно, но она себя выдаёт.',['Как работает транзитный метод?','Что такое зона обитаемости?','Как ищут признаки жизни в атмосфере планеты?'],'Экзопланета'],
+ ['phys','Теория относительности без формул','Скорость света одинакова для всех, и из этого выходят странные вещи со временем и длиной.',['Почему движущиеся часы идут медленнее?','Что такое парадокс близнецов и как он решается?','Откуда берётся E = mc²?'],'Специальная теория относительности'],
+ ['math','Комплексные числа','Корень из минус единицы придумали ради кубических уравнений, а теперь без него нет физики и электротехники.',['Как комплексное число выглядит на плоскости?','Что умножение на i делает с точкой?','Зачем они нужны в квантовой механике?'],'Комплексное число'],
+ ['space','Тёмная материя и тёмная энергия','Примерно 95% содержимого Вселенной мы не видим напрямую.',['Как вращение галактик намекает на тёмную материю?','Как открыли ускоренное расширение Вселенной?','Какие ещё есть объяснения?'],'Тёмная материя'],
+ ['phys','Как устроен лазер','Вся современная связь и медицина держатся на идее, которую Эйнштейн описал в 1917 году.',['Что такое вынужденное излучение?','Зачем нужна инверсия населённостей?','Чем свет лазера отличается от света лампы?'],'Лазер'],
+ ['math','Преобразование Фурье','Любой сигнал можно разложить на простые волны. На этом работают музыка, снимки и Wi-Fi.',['Что значит разложить сигнал на частоты?','Как это помогает сжимать музыку и фото?','Как это связано с квантовой неопределённостью?'],'Преобразование Фурье'],
+ ['space','Как долететь до Марса','К Марсу не летят по прямой и не вылетают когда угодно.',['Что такое гомановская траектория?','Почему окно запуска открывается раз примерно в 26 месяцев?','Что такое гравитационный манёвр?'],'Гомановская траектория'],
+ ['phys','Стандартная модель','Вся известная материя укладывается в короткую таблицу частиц.',['Какие есть кварки и лептоны?','Какие силы переносят бозоны?','Зачем искали бозон Хиггса?'],'Стандартная модель'],
+ ['math','Теорема Байеса','Положительный тест ещё не значит, что ты болеешь. Об этом говорит одна короткая формула.',['Как обновлять вероятность при новых данных?','Что такое ошибка базовой частоты?','Посчитай пример с редкой болезнью и точным тестом'],'Теорема Байеса'],
+ ['math','Теоремы Гёделя','В 1931 году Гёдель показал, что у математики есть принципиальные границы.',['Что значит «истинно, но недоказуемо»?','При чём тут парадокс лжеца?','Что теоремы не означают, вопреки популярным пересказам?'],'Теоремы Гёделя о неполноте']
+].map((x,i)=>({id:'w'+i,cat:x[0],title:x[1],hook:x[2],qs:x[3],q:x[4]}));
+
+
+/* ---------- Даты ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const dow=s=>(parse(s).getDay()+6)%7; // 0=пн
+const monday=s=>addDays(s,-dow(s));
+const isSat=s=>dow(s)===5;
+const today=()=>iso(new Date());
+const longDate=s=>parse(s).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+const shortDate=s=>parse(s).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sg=n=>(n>0?'+':n<0?'−':'')+Math.abs(n);
+const plural=(n,a,b,c)=>{const m=Math.abs(n)%100,k=m%10;if(m>10&&m<20)return c;if(k===1)return a;if(k>=2&&k<=4)return b;return c};
+
+/* ---------- Состояние ---------- */
+const LS='kvantovaya-saga-v1';
+const GROUP_STAT={study:'int',work:'wil',move:'str',body:'vit',soul:'cre',bad:'wil',extra:'cur'};
+function fresh(){return{v:2,start:today(),days:{},weeks:{},buys:[],rewards:DEF_REWARDS.map((r,i)=>({id:'r'+i,name:r[0],cost:r[1],icon:r[2]})),hidden:{},custom:[],cq:[],firsts:[],oathOff:{},goals:{lecture:3,tasks:20,move:4,oathDays:5},pen:{xp:4,hp:10},sound:true,updatedAt:0}}
+function normalize(o){const f=fresh();const r=Object.assign(f,o,{goals:Object.assign(f.goals,o.goals||{}),pen:Object.assign(f.pen,o.pen||{})});
+ /* Свои дела из «Квантового скачка» хранят баллы: переводим их в опыт характеристики */
+ r.custom=(r.custom||[]).filter(c=>c&&c.id).map(c=>{if(c.xp)return c;const k=c.stat||GROUP_STAT[c.group]||'cur',p=+c.pts||2,v=Math.max(1,Math.round(Math.abs(p)/2));return Object.assign({},c,{group:GROUPS[c.group]?c.group:'soul',xp:{[k]:p<0?-v:v}})});
+ const ICK=['orb','mug','dice','potion','book','chest','sword','crown'];(r.rewards||[]).forEach((w,i)=>{if(!w.icon)w.icon=(DEF_REWARDS.find(d=>d[0]===w.name)||[])[2]||ICK[i%ICK.length]});
+ if(!r.firsts)r.firsts=[];
+ if(!r.oathOff)r.oathOff={};if(!r.cq)r.cq=[];return r}
+let S=fresh();
+try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw))}catch(e){}
+let tab='today',view=today(),saveMode='device',confirmReset=false,importMsg='',showExport=false;
+
+let baseline=null;
+/* ---------- Сохранение ---------- */
+let remote=null,writing=false,dirty=false,timer=null;
+function persist(){S.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(remote){clearTimeout(timer);timer=setTimeout(flush,700)}}
+async function flush(){if(!remote)return;if(writing){dirty=true;return}writing=true;
+ try{await remote.set(JSON.parse(JSON.stringify(S)));saveMode='account'}
+ catch(e){saveMode='device';if(e&&e.code==='invalid_argument')remote=null}
+ writing=false;if(dirty){dirty=false;flush()}}
+async function connect(){
+ if(!window.claude||!window.claude.use)return;
+ try{
+  const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
+  if(!db||!user)return;const id=await user.id();if(!id)return;
+  const ref=db.doc('data/users/'+id+'/state');remote=ref;let first=true;
+  ref.onSnapshot(snap=>{
+    if(snap.metadata&&snap.metadata.hasPendingWrites)return;
+    const confirmed=!(snap.metadata&&snap.metadata.fromCache);
+    if(snap.exists){const d=snap.data();
+      if((d.updatedAt||0)>(S.updatedAt||0)){S=normalize(JSON.parse(JSON.stringify(d)));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}baseline=null;render()}
+      else if(confirmed&&first&&(S.updatedAt||0)>(d.updatedAt||0))flush();
+      if(confirmed){saveMode='account';render()}
+    }else if(confirmed&&first){if(S.updatedAt)flush();else{saveMode='account';render()}}
+    if(confirmed)first=false;
+  },()=>{remote=null;saveMode='device';render()});
+ }catch(e){}
+}
+
+/* ---------- Правила ---------- */
+const allActions=()=>ACTIONS.concat(S.custom||[]);
+const oathsFor=d=>OATHS.filter(o=>!S.oathOff[o.id]&&(!o.sat||isSat(d)));
+const addTo=(t,o,m)=>{m=m==null?1:m;for(const k in o){const v=Math.round(o[k]*m);if(v)t[k]=(t[k]||0)+v}};
+const sumX=o=>Object.values(o||{}).reduce((s,v)=>s+v,0);
+const bossGold=()=>80;
+const dayNum=s=>{const[y,m,d]=s.split('-').map(Number);return Math.round(Date.UTC(y,m-1,d)/864e5)};
+const seenDays=()=>new Set(Object.values(S.days).filter(L=>L.tdone&&L.tpick).map(L=>L.tpick));
+const seenWeeks=()=>new Set(Object.values(S.weeks||{}).filter(W=>W.day&&W.pick).map(W=>W.pick));
+function nextTopic(list,from,seen,skip){const N=list.length;for(let i=0;i<N;i++){const t=list[(from+i)%N];if(!seen.has(t.id)&&t.id!==skip)return t}return list[from%N]}
+function dayTopic(d){const L=log(d);if(L.tpick){const t=TOPICS.find(x=>x.id===L.tpick);if(t)return t}return nextTopic(TOPICS,dayNum(d),seenDays())}
+function weekTopic(m){const W=(S.weeks||{})[m];if(W&&W.pick){const t=WEEKLY.find(x=>x.id===W.pick);if(t)return t}return nextTopic(WEEKLY,Math.floor(dayNum(m)/7),seenWeeks())}
+const weekRec=m=>{if(!S.weeks)S.weeks={};if(!S.weeks[m])S.weeks[m]={};return S.weeks[m]};
+const doneDays=()=>{const m={};Object.keys(S.days).sort().forEach(d=>(S.days[d].q||[]).forEach(id=>{m[id]=d}));return m};
+const qSeen=()=>new Set(Object.keys(doneDays()));
+const QLIST={m:QM,e:QE,l:QL};
+function dayQ(d,slot){const L=log(d),pin=L['q'+slot],list=QLIST[slot];if(pin&&AQ[pin])return AQ[pin];return nextTopic(isWknd(d)?list.filter(x=>!x.work):list,hash(slot+d),qSeen())}
+const legendOn=d=>!!log(d).ql||(log(d).q||[]).some(id=>id.startsWith('ql'))||hash('L'+d)%100<((curLv.cur||1)>=TAL_LVL?LEGEND_P_TAL:LEGEND_P);
+function weekQ(m){const W=(S.weeks||{})[m]||{};if(W.qp&&W.qp.length===2&&W.qp.every(id=>AQ[id]))return W.qp.map(id=>AQ[id]);
+ const s=qSeen(),a=nextTopic(QW,hash('w'+m),s);let b=nextTopic(QW,hash('x'+m),s,a.id);if(b.id===a.id)b=QW[(QW.indexOf(a)+1)%QW.length];return[a,b]}
+function weekDoneDay(m,id){for(let i=0;i<7;i++){const d=addDays(m,i);if((log(d).q||[]).includes(id))return d}return null}
+function boardQ(){const dm=doneDays(),order=QB.slice().sort((a,b)=>hash('b'+a.id)-hash('b'+b.id));return{open:order.filter(x=>!dm[x.id]).slice(0,(curLv.cur||1)>=TAL_LVL?9:6),done:QB.filter(x=>dm[x.id]).length}}
+const eveningOpen=d=>d<today()||new Date().getHours()>=EVENING_H;
+const streakPct=s=>s>=30?50:s>=14?40:s>=7?25:s>=3?10:0;
+const log=d=>S.days[d]||{a:{},type:'normal'};
+const chestValue=d=>{const h=hash('c'+d)%100;return h<5?60:10+(hash('v'+d)%5)*5};
+const CHEST_AT=40;
+
+function calcDay(d,prev,now,start,lv){
+ lv=lv||{};const tal=k=>(lv[k]||1)>=TAL_LVL;
+ const L=log(d),a=L.a||{},type=L.type||'normal',lines=[],xp={};
+ let hpD=0,gold=0,negAct=false;
+ const line=(t,x,g,h)=>lines.push({t,x:x||{},g:g||0,h:h||0});
+ for(const x of allActions()){
+  const v=a[x.id];if(!v)continue;
+  if(x.kind==='choice'){const o=x.options.find(o=>o[0]===v);if(!o)continue;let h=o[3];if(x.id==='sleep'&&h<0&&tal('vit'))h=0;addTo(xp,o[2]);hpD+=h;if(sumX(o[2])||h)line(x.name+': '+o[1].toLowerCase(),o[2],0,h);continue}
+  const m=x.kind==='count'?v:1,o={};addTo(o,x.xp,m);
+  if((x.id==='bike'||x.id==='skate')&&tal('agi'))addTo(o,{agi:2},m);
+  if(sumX(o)<0)negAct=true;
+  addTo(xp,o);const h=(x.hp||0)*m;hpD+=h;
+  line(x.name+(m>1?' × '+m:''),o,0,h);
+ }
+ if(L.tdone){const o={};addTo(o,{cur:4,int:3},tal('int')?2:1);addTo(xp,o);line('Тема дня изучена',o)}
+ if(L.wk){const o={};addTo(o,{int:12,cur:12},tal('int')?2:1);addTo(xp,o);line('Тема недели изучена',o)}
+ for(const id of (L.q||[])){const q=AQ[id];if(!q)continue;const o=qXP(q),g=['cha','cre'].some(k=>q.st.includes(k)&&tal(k))?10:0;addTo(xp,o);gold+=g;line(QKIND[q.kind]+': '+q.title,o,g)}
+ for(const f of (S.firsts||[]).filter(f=>f.d===d)){const o={cur:6,cre:2};addTo(xp,o);line('Впервые: '+f.text,o)}
+ const os=oathsFor(d).map(o=>({o,done:o.f(a)})),all=os.length>0&&os.every(x=>x.done),normal=type==='normal',isPast=d<now;
+ let streak=prev;
+ if(all)streak=prev+1;else if(!normal)streak=prev;else if(isPast)streak=0;
+ if(all){const o={wil:3};addTo(xp,o);gold+=10;hpD+=10;line('Все клятвы исполнены',o,10,10)}
+ const miss=isPast&&normal&&d>=start?os.filter(x=>!x.done):[];
+ if(miss.length){const k=tal('wil')?.5:1,o={wil:-Math.round(S.pen.xp*k)*miss.length},h=-Math.round(S.pen.hp*k)*miss.length;addTo(xp,o);hpD+=h;line('Нарушены клятвы: '+miss.map(x=>x.o.name.toLowerCase()).join(', '),o,0,h)}
+ if(type==='sick'){hpD+=15;line('Отдых на больничном',{},0,15)}
+ const perfect=all&&a.sleep==='good'&&a.food==='good'&&!negAct;
+ if(perfect){const o={vit:3,wil:3};addTo(xp,o);gold+=15;line('Идеальный день',o,15)}
+ const xpT=sumX(xp),pct=streakPct(streak),sG=Math.round(Math.max(0,xpT)*pct/100);
+ if(sG)line('Серия клятв '+streak+' '+plural(streak,'день','дня','дней')+': +'+pct+'% золота',{},sG);
+ const chestOk=xpT>=CHEST_AT,chestV=chestValue(d),chestOn=!!L.chest&&chestOk;
+ if(chestOn)line('Находка из тайника',{},chestV);
+ gold+=xpT+sG+(chestOn?chestV:0);
+ const touched=(S.firsts||[]).some(f=>f.d===d)||Object.keys(a).length>0||!!L.tdone||!!L.wk||!!(L.q&&L.q.length);
+ return{d,xp,xpT,gold,hpD,lines,os,all,miss:miss.length,streak,perfect,chestOk,chestV,chestOn,a,type,touched};
+}
+function bossState(mon,days){
+ const w={lecture:0,tasks:0,move:0,sat:0,od:0};
+ for(let i=0;i<7;i++){const d=addDays(mon,i),a=log(d).a||{};w.lecture+=a.lecture||0;w.tasks+=(a.phys||0)+(a.math||0);w.move+=(a.bike||0)+(a.skate||0)+(a.workout?1:0)+(a.walk?1:0);if(a.sat)w.sat=1;if(days&&days[d]&&days[d].all)w.od++}
+ const g=S.goals,parts=[['Лекции по физике',w.lecture,g.lecture],['Задачи, физика и математика',w.tasks,g.tasks],['Тренировки, прогулки и поездки',w.move,g.move],['Дни со всеми клятвами',w.od,g.oathDays],['Субботнее допзанятие',w.sat,1]];
+ const prog=parts.reduce((s,p)=>s+Math.min(1,p[1]/Math.max(1,p[2])),0)/parts.length;
+ return{parts,prog,win:parts.every(p=>p[1]>=p[2])};
+}
+const maxHpOf=lv=>100+5*((lv.vit||1)-1)+((lv.str||1)>=TAL_LVL?20:0);
+function computeAll(){
+ syncAQ();
+ const now=today(),keys=Object.keys(S.days).concat((S.firsts||[]).map(f=>f.d)).filter(d=>d<=now).sort();
+ const first=keys[0]&&keys[0]<S.start?keys[0]:S.start;
+ const days={},order=[],sxp={};let streak=0,gold=0,hp=100;
+ const lvOf=()=>{const o={};STATS.forEach(s=>{o[s.k]=statLvl(sxp[s.k]||0)});return o};
+ const T={lecture:0,tasks:0,rides:0,workout:0,read:0,lang:0,sat:0,work:0,perfect:0,boss:0,maxStreak:0,oathDays:0,topics:0,wtopics:0,adv:0,advw:0,legend:0,chests:0,faint:0,goldEarned:0,bigDay:0,kills:{},rolls:0};
+ for(let d=first;d<=now;d=addDays(d,1)){
+  const r=calcDay(d,streak,now,S.start,lvOf());streak=r.streak;
+  for(const k in r.xp)sxp[k]=Math.max(0,(sxp[k]||0)+r.xp[k]);
+  const mx=maxHpOf(lvOf());hp=Math.max(0,Math.min(mx,hp+r.hpD));
+  if(d<now&&hp<=0){r.faint=true;r.lines.push({t:'Обморок: героиня осталась без сил',x:{},g:-50,h:0});r.gold-=50;hp=Math.round(mx/2);T.faint++}
+  r.hpEnd=hp;gold+=r.gold;if(r.gold>0)T.goldEarned+=r.gold;
+  days[d]=r;order.push(d);
+  const a=r.a,L=log(d),qq=L.q||[];
+  T.lecture+=a.lecture||0;T.tasks+=(a.phys||0)+(a.math||0);T.rides+=(a.bike||0)+(a.skate||0);if(a.workout)T.workout++;if(a.read)T.read++;if(a.lang)T.lang++;if(a.sat)T.sat++;if(a.work)T.work++;
+  if(r.perfect)T.perfect++;if(r.all)T.oathDays++;if(L.tdone)T.topics++;if(L.wk)T.wtopics++;T.adv+=qq.length;T.advw+=qq.filter(id=>id.startsWith('qw')).length;T.legend+=qq.filter(id=>id.startsWith('ql')).length;T.rolls+=qq.filter(id=>id.startsWith('qr')).length;if(r.chestOn)T.chests++;if(r.xpT>=150)T.bigDay++;
+  T.maxStreak=Math.max(T.maxStreak,streak);
+ }
+ const seen=new Set();
+ for(const d of order){const m=monday(d);if(seen.has(m))continue;seen.add(m);if(bossState(m,days).win){const bz=beastOf(m);T.kills[bz.id]=(T.kills[bz.id]||0)+1;gold+=bossGold();T.goldEarned+=bossGold();T.boss++;addTo(sxp,{wil:20,int:10})}}
+ const dmA=doneDays();T.chains=CHAINS.filter(c=>c.steps.every(s=>dmA[s.id])).length;T.firsts=(S.firsts||[]).length;
+ const sl=lvOf();curLv=sl;const lvs=STATS.map(s=>sl[s.k]);T.maxStat=Math.max(...lvs);T.minStat=Math.min(...lvs);T.sumStat=lvs.reduce((s,v)=>s+v,0);
+ const totalXP=sumX(sxp);let lvl=0;RANKS.forEach((r,i)=>{if(totalXP>=r[2])lvl=i});
+ const spent=(S.buys||[]).reduce((s,b)=>s+b.cost,0);
+ return{days,order,sxp,sl,gold,spent,balance:gold-spent,hp,maxHp:maxHpOf(sl),lvl,totalXP,T,streak};
+}
+const ACH=[
+ ['λ','Первый квант','Посмотри первую лекцию',T=>T.lecture,1],
+ ['Σ','Десять лекций','Лекций по физике за всё время',T=>T.lecture,10],
+ ['Ψ','Полсотни лекций','Лекций по физике за всё время',T=>T.lecture,50],
+ ['F','Сотня задач','Физика и математика вместе',T=>T.tasks,100],
+ ['∞','Тысяча задач','Физика и математика вместе',T=>T.tasks,1000],
+ ['⚔','Верная клятвам','7 дней подряд все клятвы',T=>T.maxStreak,7],
+ ['♜','Нерушимая','30 дней подряд все клятвы',T=>T.maxStreak,30],
+ ['☠','Охотница','Победи первого босса недели',T=>T.boss,1],
+ ['❂','Бестиарий','Победи всех шесть боссов',T=>BEASTS.filter(b=>T.kills[b.id]).length,6],
+ ['♚','Гроза чудовищ','Победи 5 боссов',T=>T.boss,5],
+ ['★','Идеальный день','Все клятвы, хороший сон и еда, без проклятий',T=>T.perfect,1],
+ ['¶','Книжная душа','30 дней с чтением',T=>T.read,30],
+ ['Я','Полиглот','30 дней с иностранным языком',T=>T.lang,30],
+ ['v','Дорожная пыль','50 поездок на велосипеде или скейте',T=>T.rides,50],
+ ['♦','Сталь','30 тренировок',T=>T.workout,30],
+ ['ħ','Суббота святая','4 субботних допзанятия',T=>T.sat,4],
+ ['☄','Искательница приключений','Выполни 10 квестов',T=>T.adv,10],
+ ['✦','Сто новых опытов','Выполни 100 квестов',T=>T.adv,100],
+ ['W','Неделя открытий','Выполни 5 квестов недели',T=>T.advw,5],
+ ['⚜','Легенда','Выполни легендарный квест',T=>T.legend,1],
+ ['?','Любопытная','Изучи 10 тем дня',T=>T.topics,10],
+ ['Ω','Полный курс','Изучи все 16 тем недели',T=>T.wtopics,16],
+ ['✧','Первый талант','Любая характеристика на 5 уровне',T=>T.maxStat,5],
+ ['☼','Гармония','Все восемь характеристик на 3 уровне',T=>T.minStat,3],
+ ['♛','Мастер','Любая характеристика на 10 уровне',T=>T.maxStat,10],
+ ['¤','Сокровищница','Заработай 5000 золота за всё время',T=>T.goldEarned,5000],
+ ['e⁻','Ионизация','Набери 150 опыта за один день',T=>T.bigDay,1],
+ ['☸','Сказание','Пройди сюжетную цепочку до конца',T=>T.chains,1],
+ ['✺','Сага о семи дорогах','Пройди все семь цепочек',T=>T.chains,7],
+ ['✿','Первооткрывательница','Запиши 10 первых разов',T=>T.firsts,10],
+ ['❀','Жизнь в цвете','Запиши 50 первых разов',T=>T.firsts,50],
+ ['⚂','Игра случая','Выполни 10 свитков случая',T=>T.rolls,10]];
+
+/* ---------- Пиксель-арт: героиня, бестиарий, предметы ---------- */
+const mir=h=>h.map(r=>r+[...r].reverse().join(''));
+function pix(rows,pal,cls,label,vb){
+ const W=vb?vb[0]:rows[0].length,H=vb?vb[1]:rows.length;let o='';
+ rows.forEach((row,y)=>{let x=0;while(x<row.length){const c=row[x];if(!pal[c]){x++;continue}let n=1;while(row[x+n]===c)n++;o+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${pal[c]}"/>`;x+=n}});
+ return `<svg class="${cls||''}" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>${o}</svg>`;
+}
+const OUT='#1d1424';
+/* Бестиарий: босс недели меняется по кругу */
+const BEASTS=[
+ {id:'entropy',name:'Энтропия',title:'Пожирательница порядка',lore:'Растёт из немытой посуды, брошенных дел и недописанных конспектов.',
+  pal:{b:'#8a5cd6',B:'#5a3796',l:'#c3a6f5',w:'#ffffff',e:'#1d1424',r:'#c4324a',t:'#fff3e6',g:'#ffd166'},
+  r:mir(["............","...g......g.","..........kk","........kkbb","......kkbbll",".....kbbblll","....kbbbbbll","...kbbbbbbbb","...kbbbbbbbb","..kbbwwwbbbb","..kbwweekbbb","..kbwweekbbb",".kbbbwwwbbbb",".kBbbbbbbbbb",".kBbbkkkkkkk",".kBbkrtrtrtr",".kBbkrrrrrrr",".kBBbkrrrrrr","kBBBbbkkkkkk","kBBBBbbbbbbb","kkBBBBBbbbbb",".kkBkBBBkBBB","..k.k.kk.kk.","............"])},
+ {id:'slime',name:'Слизень Лени',title:'Король диванных подушек',lore:'Шепчет «ещё пять минуточек» и медленно затекает под одеяло.',
+  pal:{b:'#5cc46a',B:'#2f8a45',l:'#b8f0a8',w:'#ffffff',e:'#1d1424',r:'#2a5c33',g:'#e8f6ff'},
+  r:mir(["............","............","............","............","..........kk","........kkll","......kkbbll",".....kbbbbbb","....kbbbbbbb","...kbbbbbbbb","...kbbkkkbbb","..kbbbweebbb","..kbbbbbbbbb",".kbbbbbbbbbb",".kbbbbbbbbkk",".kbBbbbbbbbb","kbBBbbbbbbbb","kbBBBbbbbbbb","kBBBBBBbbbbb","kBBBBBBBBBBB",".kkkkkkkkkkk","............","............","............"])},
+ {id:'eye',name:'Око Ленты',title:'Страж бесконечной прокрутки',lore:'Смотрит из экрана и не моргает. Питается украденными часами.',
+  pal:{b:'#3d7bd9',B:'#234c94',l:'#9cc6ff',w:'#f4f8ff',e:'#1d1424',g:'#f26b8a'},
+  r:mir(["............","......kkkkkk","....kkbbbbbb","...kbbllbbbb","..kbbllbbbbb","..kbbbbbwwww",".kbbbbwwwwww",".kbbbwwwgggg",".kbbwwwggeee",".kbbwwwggeee",".kbbbwwwgggg",".kbbbbwwwwww","..kbbbbbwwww","..kbbbbbbbbb","...kbbbbbbbb","....kkbbbbbb","....kbkkbkkb","...kb.kb.kb.","..kb..kb..kb","..kb...kb.kb","...k...kb..k","........k...","............","............"])},
+ {id:'ghost',name:'Призрак Прокрастинации',title:'Хранитель вечного «завтра»',lore:'Носит часы, которые всегда показывают «ещё успеешь».',
+  pal:{l:'#e6e1f7',b:'#b9b0dc',w:'#fffbe6',e:'#1d1424',y:'#e8b33a'},
+  r:mir(["............","........kkkk","......kkllll",".....kllllll","....klllllll","....kllkklll","...kllkeekll","...kllkeekll","...klllkklll","...kllllllll","..klllllllyy","..kllllllyww","..klllllywww",".kllllllywwe",".kllllllywwe",".klllllllyww",".kbllllllly",".kbllllllll","kbbllllllll","kbbllllllll","kbbkllllkll","kk.kblk.kbl","....kk...kk","............"].map(r=>(r+'............').slice(0,12)))},
+ {id:'golem',name:'Голем Усталости',title:'Каменная тяжесть понедельника',lore:'Сложен из несданных отчётов. Слабеет от сна и прогулок.',
+  pal:{l:'#c5c1ba',b:'#8f8a83',B:'#5e5a55',g:'#ffb347'},
+  r:mir(["............","............","......kkkkkk",".....kllllll",".....klbbbbb",".....kbbbbbb",".....kbggbbb",".....kbbbbbb","...kkkbkkkkk","..kllkbbbbbb",".klbbkbllbbb",".kbbbkbbbbBb",".kbbBkbbbbbb",".kbbbkbBbbbb",".kkkkkbbbbbb",".kllk.kbbbbb",".kbbk.kbbBbb",".kkkk.kkkkkk","......kbbk..","......kbbk..",".....kbbbk..",".....kkkkk..","............","............"])},
+ {id:'dragon',name:'Дракончик Хаоса',title:'Поджигатель дедлайнов',lore:'Дышит срочными делами. Боится списков и помидоров.',
+  pal:{b:'#d9483b',B:'#912a22',l:'#ffc48a',y:'#f5e6c8',w:'#fff3c4',e:'#1d1424',r:'#5a1414',t:'#ffffff'},
+  r:mir(["..k.........","..kk........","..kyk.......","...kyk..kkkk","...kybkkbbbb","....kbbbbbbb","...kbbbbbbbb","..kbbweebbbb","..kbbweebbbb",".kbbbbbbbbbb",".kbbBbbbllll",".kbBkbllllll","..kBbllkllll","..kBblllllll","..kkbkkkkkkk","...kbtkrrrrr","...kbbkrrrrr","....kbbkkkkk",".....kbbbbbb","......kkkkkk","............","............","............","............"])}];
+const beastOf=mon=>BEASTS[Math.floor(dayNum(mon)/7)%BEASTS.length];
+const beastArt=(b,cls,label)=>pix(b.r,Object.assign({k:OUT},b.pal),cls,label);
+
+/* Предметы лавки */
+const ICONS={
+ orb:{name:'Хрустальный шар',pal:{l:'#d8f3ff',w:'#ffffff',b:'#6fc3f0',B:'#3a86c4',y:'#e8b33a',Y:'#a87418'},
+  r:["....kkkk....","..kkllbbkk..",".klwlbbbbbk.",".kllbbbbbbk.","kbbbbbbbbbbk","kbbbbbbbBbbk",".kbbbbbbBbk.",".kbbbbbBBbk.","..kkbbbbkk..","..kyyyyyyk..",".kyYyyyyYyk.",".kkkkkkkkkk."]},
+ mug:{name:'Кружка из таверны',pal:{w:'#fff8e8',b:'#a8693a',B:'#6e4120',y:'#b9b2a8'},
+  r:["...w.w......","..wwwwww....",".kwwwwwwk...",".kbbbbbbkkk.",".kbybbybk.k.",".kbybbybk.k.",".kbybbybk.k.",".kbbbbbbkkk.",".kbybbybk...",".kBbbbbBk...","..kkkkkk....","............"]},
+ dice:{name:'Кости удачи',pal:{w:'#fbf6ea',B:'#c9bfa8',e:'#c42a35'},
+  r:["............",".kkkkkkkkk..",".kwwwwwwwkk.",".kweewwwwkBk",".kweewwwwkBk",".kwwwwwwwkBk",".kwwwwwwwkBk",".kwwwwweekBk",".kwwwwweekBk",".kwwwwwwwkk.",".kkkkkkkkk..","............"]},
+ potion:{name:'Зелье отдыха',pal:{g:'#8a5a2b',w:'#d8eef7',b:'#d94d8a',B:'#9c2a5e',l:'#ffb8d9'},
+  r:["....kkkk....","....kggk....",".....kk.....","....kwwk....","...kwbbwk...","..kbbbbbbk..",".kblbbbbbbk.",".kllbbbbbbk.",".kbbbbbbbBk.",".kbbbbbbBBk.","..kBBBBBBk..","...kkkkkk..."]},
+ book:{name:'Древний фолиант',pal:{b:'#3d6fc4',B:'#25478a',y:'#e8b33a',w:'#f4efe0'},
+  r:["............","..kkkkkkkkk.",".kbbbbbbbbbk",".kbyyyyyybbk",".kbybbbbybbk",".kbyyyyyybbk",".kbbbbbbbbbk",".kbbbyybbbbk",".kbbbbbbbbbk",".kBwwwwwwwwk",".kkkkkkkkkkk","............"]},
+ chest:{name:'Сундук сокровищ',pal:{b:'#a8693a',B:'#6e4120',y:'#e8b33a'},
+  r:["............","..kkkkkkkk..",".kbbbbbbbbk.","kbbbbbbbbbbk","kyyyyyyyyyyk","kbbbkyykbbbk","kbbbkyykbbbk","kBBBBkkBBBBk","kyyyyyyyyyyk","kBBBBBBBBBBk","kkkkkkkkkkkk","............"]},
+ sword:{name:'Клинок героини',pal:{w:'#f4f8ff',l:'#9aa6bd',y:'#e8b33a',b:'#6a4326'},
+  r:["..........kk",".........kwk","........kwlk",".......kwlk.","......kwlk..",".....kwlk...","..k.kwlk....","..kkwlk.....","...kyk......","..kbkyk.....",".kbk.kk.....",".kk........."]},
+ crown:{name:'Корона',pal:{y:'#f0c75e',Y:'#b8862a',r:'#d6404e'},
+  r:["............","k....kk....k","kk..kyyk..kk","kyk.kyyk.kyk","kyykyyyykyyk","kyyyyryyyyyk","kyyryyyyryyk","kYyyyyyyyyYk","kYYYYYYYYYYk","kkkkkkkkkkkk","............","............"]}};
+const iconArt=(id,cls)=>{const it=ICONS[id]||ICONS.chest;return pix(it.r,Object.assign({k:OUT},it.pal),cls)};
+const RARITY=[[100,'Обычный','var(--muted)'],[250,'Необычный','var(--s-agi)'],[500,'Редкий','var(--s-int)'],[900,'Эпический','var(--s-wil)'],[1e9,'Легендарный','var(--gold)']];
+const rarityOf=c=>RARITY.find(r=>c<r[0]);
+
+/* ---------- Героиня 40×56: рисуется заливками материалов, контур и светотень считаются автоматически ---------- */
+const HERO2_HALF=[
+ "....................",
+ "..............hhhhhh",
+ "...........hhhhhhhhh",
+ ".........hhhhhhhhhhh",
+ "........hhhhhjhhhhhh",
+ ".......hhhhhjjhhhhhh",
+ ".......hhhhjjhhhhhhh",
+ "......hhhhhhhhhhHhhh",
+ "......hhhhhhhhhHhhhh",
+ "......hyyyyyyyyyyyyg",
+ "......hhhhhhhhhhhhhh",
+ "......hhhhhhhHhhhhhh",
+ "......hhhhhhHshhhHss",
+ "......hhhhHsssssHsss",
+ "......hhhhsHHHssssss",
+ "......hhhhseeeeessss",
+ "......hhhhsswiiissss",
+ "......hhhhswiIIissss",
+ "......hhhhswiiiissss",
+ "......hhhhsseeeessss",
+ "......hHhhsccssssssN",
+ "......hjhhssssssssss",
+ ".......hhhsssssssssM",
+ ".......hhhHsssssssss",
+ ".......hhhHHssssssss",
+ "......hhhhHHHHssssss",
+ "......hhhhHHHHHHHsss",
+ "......hhhhHHHHHHHsss",
+ ".....llhhhhooooooaas",
+ "....lllhhhhoooooooay",
+ "....lloohhhoooooooyy",
+ "....loooohhooooooooa",
+ "....looooohooooooooa",
+ "...llooooolooooooooa",
+ "...lloooollooooooooa",
+ "...lloooollooooooooa",
+ "...llaaaallloooooooa",
+ "...llsssslllbbbbbbby",
+ "...llssslllooooooooa",
+ "...llllllloooooooooa",
+ "..llllllllooFooooooa",
+ "..lllllllooFooFooooa",
+ "..llllllloFoooFooooa",
+ "..lllllloFoooFoooooa",
+ "...lllllaaaaaaaaaaaa",
+ "....lll......pppp...",
+ ".............pppp...",
+ ".............pppp...",
+ ".............pppp...",
+ "............bbbbb...",
+ "............ttttt...",
+ "............ttttt...",
+ "...........tttttt...",
+ "...........tttttt..."];
+if(HERO2_HALF.some(r=>r.length!==20))console.error('hero row');
+const HERO2=HERO2_HALF.map(r=>{r=(r+'....................').slice(0,20);return r+[...r].reverse().join('')});
+const HERO2_FIX=[[24,16,'w'],[27,16,'i']];
+const ITEM2={
+ int:{x:41,y:31,r:["xxxxxxxxx.","xyyxxxxxxq","xyxxxxxxxq","xxxxyyyxxq","xxxxyxyxxq","xxxxyyyxxq","xxxxxxxxxq","xyxxxxxxxq","xyyxxxxxxq","xxxxxxxxxq","qqqqqqqqq."]},
+ str:{x:36,y:8,r:["....m....","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","...mmm...","..ymmmy..","yyyyyyyyy","...bbb...","...bbb...","...bbb...","...bbb...","..yyyyy.."]},
+ agi:{x:6,y:54,r:[".rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr.","rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr","....mmm..................................mmm.","....mmm..................................mmm."]},
+ vit:{x:41,y:30,r:["..bbbb..","..bbbb..","...vv...","...vv...","..vvvv..",".rrrrrr.","rrrrrrrr","rrrrrrrr","rrrrrrrr","rrrrrrrr",".rrrrrr.","..rrrr.."]},
+ wil:{x:2,y:29,r:["xxxxxxxxxx","xxxxyyxxxx","xxxxyyxxxx","xyyyyyyyyx","xyyyyyyyyx","xxxxyyxxxx","xxxxyyxxxx","xxxxyyxxxx",".xxxyyxxx.",".xxxyyxxx.","..xxyyxx..","...xyyx...","....xx...."]},
+ cha:{x:40,y:26,r:[".rr..rr.","rrrrrrrr","rrrrrrrr",".rrrrrr.","..rrrr..","...nn...","...nn.nn","...nnnn.","...nn...","..nn....","..nn...."]},
+ cre:{x:40,y:18,r:["..x..",".xxx.",".xxx.",".xxx.",".xxx.",".mmm.",".mmm.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb.","..bb."]},
+ cur:{x:40,y:31,r:["...bbb...","..b...b..","...bbb...",".yyyyyyy.",".yfffffy.",".yfffffy.",".yfffffy.",".yfffffy.",".yyyyyyy.","..yyyyy.."]}};
+const SH=(base)=>[`color-mix(in srgb,${base} 60%,#120a1a)`,base,`color-mix(in srgb,${base} 68%,#ffffff)`];
+const HERO2_CACHE={};
+const GRP={h:'h',H:'h',j:'h',s:'s',N:'s',F:'o',c:'s',e:'s',w:'s',i:'s',I:'s',M:'s',o:'o',a:'o',y:'o',b:'o',g:'h'};
+const HAIRG=['h','H','j','y','g'];
+function heroArt(sxp,cls,crop){
+ const o=STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0)),has=k=>(sxp[k]||0)>0;
+ const k1=has(o[0].k)?o[0].k:'',k2=has(o[1].k)?o[1].k:'',key=k1+'|'+k2+'|'+cls+'|'+(crop?1:0);
+ if(HERO2_CACHE[key])return HERO2_CACHE[key];
+ const ART_COL={int:'#2c5fd0',str:'#c42a35',agi:'#24804a',vit:'#c9650e',wil:'#7340c4',cha:'#b8317a',cre:'#0f7c83',cur:'#b08a10'};
+ const c1=k1?ART_COL[k1]:'#8a8296',c2=k2?ART_COL[k2]:'#c9a36a';
+ const M={h:['#3d2218','#6b3d26','#a8673d'],s:['#d29a76','#f3cba6','#ffe3c9'],o:SH(c1),a:SH(c2),l:SH(`color-mix(in srgb,${c2} 70%,#1d1424)`),x:SH(c1),
+  y:['#a87418','#e8b33a','#ffe08a'],b:['#432a17','#6a4326','#8f5f3a'],p:['#241f38','#3d3656','#575078'],t:['#321f12','#5a3a22','#7d5434'],
+  m:['#7d88a0','#c9d1e0','#f4f8ff'],r:['#8e2230','#d6404e','#ff8a96'],n:['#2b6b3a','#3f9a5a','#7fd08e'],f:['#e0a020','#ffd166','#fff6c4'],q:['#c9bfa8','#f4efe0','#ffffff'],v:['#7fb0c8','#cfeaff','#ffffff']};
+ const FIX={k:'#1d1424',e:'#1d1424',I:'#1d1424',w:'#ffffff',i:'#4a7fd0',H:'#3d2218',m2:'#b8565a',N:'#d29a76',c:'#f0a39a',g:'#e0405a'};
+ const W=52,H=60,G=Array.from({length:H},()=>Array(W).fill('.'));
+ HERO2.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')G[y][x+6]=c==='m'?'M':c}));
+ HERO2_FIX.forEach(([x,y,c])=>{G[y][x+6]=c});
+ if(k1){const it=ITEM2[k1];it.r.forEach((r,y)=>[...r].forEach((c,x)=>{const gy=it.y+y,gx=it.x+x;if(c!=='.'&&G[gy]&&gx<W)G[gy][gx]=c}))}
+ const at=(x,y)=>(G[y]&&G[y][x])||'.';
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(G[y][x]==='.'&&[at(x-1,y),at(x+1,y),at(x,y-1),at(x,y+1)].some(c=>c!=='.'&&c!=='k'))G[y][x]='k';
+ let out='';
+ for(let y=0;y<H;y++){let x=0;while(x<W){const col=colorAt(x,y);if(!col){x++;continue}let n=1;while(x+n<W&&colorAt(x+n,y)===col)n++;out+=`<rect x="${x}" y="${y}" width="${n+.03}" height="1.03" style="fill:${col}"/>`;x+=n}}
+ function colorAt(x,y){const c=G[y][x];if(c==='.')return null;if(c==='M')return FIX.m2;if(c==='j')return M.h[2];if(c==='F')return M.o[0];if(FIX[c])return FIX[c];const m=M[c];if(!m)return null;
+  const grp=GRP[c]||c,same=ch=>(GRP[ch]||ch)===grp;
+  if(c==='s'&&HAIRG.includes(at(x,y-1)))return m[0];
+  if(!same(at(x,y+1))||!same(at(x+1,y)))return m[0];
+  if(!same(at(x,y-1))||!same(at(x-1,y)))return m[2];
+  return m[1]}
+ return HERO2_CACHE[key]=`<svg class="${cls||''}" viewBox="${crop?'10 0 32 30':'0 0 '+W+' '+H}" shape-rendering="crispEdges" aria-hidden="true">${out}</svg>`;
+}
+
+const topStats=sxp=>STATS.slice().sort((a,b)=>(sxp[b.k]||0)-(sxp[a.k]||0));
+/* ---------- Задник: пиксельный пейзаж за героиней. Днём рассвет, ночью звёзды (цвета из темы) ---------- */
+let STAGE_CACHE=null;
+function stageSVG(){
+ if(STAGE_CACHE)return STAGE_CACHE;
+ const W=120,H=72,SKY=58;
+ const R=(x,y,w,h,f,ex)=>`<rect x="${x}" y="${y}" width="${w+.02}" height="${h+.02}" style="fill:${f}${ex||''}"/>`;
+ const rnd=s=>(hash(s)%10000)/10000;
+ const noise=(x,s)=>{const i=Math.floor(x),f=x-i,u=f*f*(3-2*f);return rnd(s+i)*(1-u)+rnd(s+(i+1))*u};
+ let o=`<defs>${[1,2,3].map(i=>`<pattern id="stg-d${i}" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" style="fill:var(--sky${i})"/><rect width="1" height="1" style="fill:var(--sky${i+1})"/><rect x="1" y="1" width="1" height="1" style="fill:var(--sky${i+1})"/></pattern>`).join('')}</defs>`;
+ /* небо полосами с дизерингом на стыках */
+ const bands=[[0,16,'var(--sky1)'],[16,4,'url(#stg-d1)'],[20,10,'var(--sky2)'],[30,4,'url(#stg-d2)'],[34,8,'var(--sky3)'],[42,4,'url(#stg-d3)'],[46,SKY-46,'var(--sky4)']];
+ bands.forEach(b=>{o+=`<rect x="0" y="${b[0]}" width="${W}" height="${b[1]+.02}" style="fill:${b[2]}"/>`});
+ /* звёзды */
+ let st='';for(let i=0;i<46;i++){const x=Math.floor(rnd('sx'+i)*W),y=Math.floor(rnd('sy'+i)*36),big=rnd('sb'+i)>.86;
+  st+=big?R(x-1,y,3,1,'var(--star)')+R(x,y-1,1,3,'var(--star)'):R(x,y,1,1,'var(--star)')}
+ o+=`<g style="opacity:var(--star-op)">${st}</g>`;
+ /* солнце и луна */
+ const disc=(cx,cy,r,f)=>{let s='';for(let y=-r;y<=r;y++){const w=Math.round(Math.sqrt(r*r-y*y));s+=R(cx-w,cy+y,2*w+1,1,f)}return s};
+ o+=`<g style="opacity:var(--sun-op)">${disc(94,20,9,'var(--sunglow)')}${disc(94,20,6,'var(--sun)')}</g>`;
+ o+=`<g style="opacity:var(--moon-op)">${disc(94,9,6,'var(--moon)')}${disc(97,7,5,'var(--sky1)')}${R(90,11,2,1,'var(--moon2)')}${R(91,13,1,1,'var(--moon2)')}</g>`;
+ /* облака */
+ const cloud=(x,y,s)=>R(x+2*s,y,6*s,1,'var(--cloud)')+R(x,y+1,11*s,2,'var(--cloud)')+R(x+3*s,y-1,3*s,1,'var(--cloud)');
+ o+=`<g style="opacity:var(--cloud-op)">${cloud(10,14,1)}${cloud(60,8,1)}${cloud(38,24,1)}</g>`;
+ /* дальние горы со снежными шапками */
+ for(let x=0;x<W;x++){const y=Math.round(30+noise(x/11,'m1')*16+noise(x/4,'m1b')*3);o+=R(x,y,1,SKY-y+6,'var(--mtn1)');if(y<36)o+=R(x,y,1,Math.min(3,36-y),'var(--snow)')}
+ /* башня на дальнем хребте */
+ o+=R(16,20,6,22,'var(--tower)')+R(15,18,8,3,'var(--tower)')+R(15,17,1,1,'var(--tower)')+R(17,17,1,1,'var(--tower)')+R(19,17,1,1,'var(--tower)')+R(21,17,1,1,'var(--tower)')+R(18,12,2,5,'var(--tower)')+R(18,25,2,3,'var(--window)')+R(18,32,2,2,'var(--window)');
+ /* ближние холмы */
+ for(let x=0;x<W;x++){const y=Math.round(44+noise(x/8,'m2')*9);o+=R(x,y,1,SKY-y+6,'var(--mtn2)')}
+ /* деревья на холмах */
+ [6,12,27,33,86,104,111].forEach((x,i)=>{const y=Math.round(44+noise(x/8,'m2')*9)-1,h=4+(i%3);o+=R(x,y-h,3,h,'var(--tree)')+R(x+1,y-h-2,1,2,'var(--tree)')+R(x+1,y,1,2,'var(--trunk)')});
+ /* земля */
+ o+=R(0,SKY,W,H-SKY,'var(--ground)')+R(0,SKY,W,1,'var(--grass)')+R(0,SKY+1,W,1,'var(--grass2)');
+ for(let i=0;i<40;i++){const x=Math.floor(rnd('g'+i)*W);o+=R(x,SKY-1,1,1,'var(--grass)');if(i%3===0)o+=R(x+1,SKY-2,1,2,'var(--grass)')}
+ for(let i=0;i<18;i++){const x=Math.floor(rnd('st'+i)*W),y=SKY+3+Math.floor(rnd('sty'+i)*(H-SKY-4));o+=R(x,y,2,1,'var(--ground2)')}
+ /* площадка под героиней */
+ o+=R(42,SKY+6,36,2,'var(--ground2)')+R(46,SKY+8,28,1,'var(--ground2)')+R(40,SKY+5,40,1,'var(--grass2)');
+ /* светлячки */
+ let ff='';for(let i=0;i<12;i++){const x=Math.floor(rnd('f'+i)*W),y=40+Math.floor(rnd('fy'+i)*16);ff+=R(x,y,1,1,'var(--window)')}
+ o+=`<g style="opacity:var(--star-op)"><g class="fireflies">${ff}</g></g>`;
+ return STAGE_CACHE=`<svg class="scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`;
+}
+
+function heroClass(sxp){
+ if(!sxp||!Object.values(sxp).some(v=>v>0))return 'Начинающая искательница';
+ const o=topStats(sxp);return (sxp[o[1].k]||0)>0?o[1].adj+' '+o[0].cls.toLowerCase():o[0].cls;
+}
+
+/* ---------- Отрисовка ---------- */
+const $=s=>document.querySelector(s);
+const coinArt=pix(["..kkkk..",".kyyyyk.","kyywyyYk","kywyyyYk","kyyyyyYk","kyyyyYYk",".kYYYYk.","..kkkk.."],{k:OUT,y:'#f0c75e',Y:'#b8862a',w:'#fff6cf'},'coin');
+const GICON={study:'book',work:'chest',move:'sword',body:'potion',soul:'orb',bad:'dice'};
+const xpChips=o=>Object.entries(o||{}).filter(e=>e[1]).map(([k,v])=>`<span class="chip" style="--c:${SN[k].col}" title="${esc(SN[k].name)}">${sg(v)} ${SN[k].ab}</span>`).join('');
+const coin=g=>g?`<span class="chip gd">${sg(g)} зол.</span>`:'';
+const heart=h=>h?`<span class="chip hp">${sg(h)} ♥</span>`:'';
+const fmt=n=>String(n).replace('-','−');
+function header(C){
+ const r=RANKS[C.lvl],nx=RANKS[C.lvl+1];
+ const pct=nx?Math.max(0,Math.min(100,(C.totalXP-r[2])/(nx[2]-r[2])*100)):100;
+ const tabs=[['today','Сегодня'],['hero','Героиня'],['quests','Квесты'],['topics','Библиотека'],['journal','Летопись'],['ach','Трофеи'],['shop','Лавка'],['rules','Правила']];
+ return `<header class="top"><div class="toprow">
+  <div class="brand">Квантовая<br>сага</div>
+  <button class="who linkbtn" style="text-decoration:none;color:inherit" data-act="tab" data-v="hero">${heroArt(C.sxp,'sprite mini',1)}<span><b>${esc(heroClass(C.sxp))}</b><small>Ур. ${C.lvl+1} · ${esc(r[0])}</small></span></button>
+  <div class="bars">
+   <div class="barrow"><span class="px lab hpc">HP</span><div class="bar hp" role="progressbar" aria-label="Здоровье" aria-valuenow="${C.hp}" aria-valuemin="0" aria-valuemax="${C.maxHp}"><i style="width:${C.hp/C.maxHp*100}%"></i></div><span class="num">${C.hp}/${C.maxHp}</span></div>
+   <div class="barrow"><span class="px lab" style="color:var(--xp)">XP</span><div class="bar" role="progressbar" aria-label="Опыт до следующего уровня" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="num">${C.totalXP}${nx?' / '+nx[2]:''}</span></div>
+  </div>
+  <div class="stats"><div class="stat"><b class="gold">${coinArt}${fmt(C.balance)}</b><small>золото</small></div><div class="stat"><b>${C.streak}</b><small>серия клятв</small></div></div>
+ </div><div class="tabrow"><nav class="tabs" role="tablist" aria-label="Разделы">${tabs.map(t=>`<button class="tab" role="tab" id="tab-${t[0]}" data-act="tab" data-v="${t[0]}" aria-selected="${tab===t[0]}">${t[1]}</button>`).join('')}</nav>${themeBtn()}</div></header>`;
+}
+function rowHTML(x,d,L){
+ const a=L.a||{},v=a[x.id];
+ if(x.kind==='choice')return `<div class="row choice"><div class="rname"><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div>
+  <div class="choices" role="group" aria-label="${esc(x.name)}">${x.options.map(o=>`<button class="opt" id="o-${x.id}-${o[0]}" data-act="choice" data-id="${x.id}" data-v="${o[0]}" aria-pressed="${v===o[0]}"><span>${esc(o[1])}</span><span class="chips">${xpChips(o[2])}${heart(o[3])}</span></button>`).join('')}</div></div>`;
+ const dis=(x.satOnly&&!isSat(d))||(x.wdOnly&&isWknd(d)),neg=sumX(x.xp)<0;
+ const nm=`<div class="rname"><b>${esc(x.name)}</b>${x.note||dis?`<small>${dis?(x.satOnly?'Откроется в субботу':'Выходной: работы нет'):esc(x.note)}</small>`:''}<span class="chips">${xpChips(x.xp)}${heart(x.hp)}</span></div>`;
+ if(x.kind==='count')return `<div class="row ${dis?'off':''}">${nm}<div class="ctl"><button class="step" id="m-${esc(x.id)}" data-act="dec" data-id="${esc(x.id)}" aria-label="Убавить: ${esc(x.name)}" ${v?'':'disabled'}>−</button><output aria-live="polite">${v||0}</output><button class="step plus" id="p-${esc(x.id)}" data-act="inc" data-id="${esc(x.id)}" aria-label="Добавить: ${esc(x.name)}" ${dis?'disabled':''}>+</button></div></div>`;
+ return `<div class="row ${dis?'off':''}">${nm}<div class="ctl"><button class="tick ${neg?'badt':''}" id="t-${esc(x.id)}" data-act="toggle" data-id="${esc(x.id)}" aria-pressed="${!!v}" aria-label="${esc(x.name)}" ${dis?'disabled':''}>${v?(neg?'×':'✓'):''}</button></div></div>`;
+}
+function oathPanel(r,isToday){
+ if(!r.os.length)return '';
+ const n=r.os.filter(x=>x.done).length;
+ let foot;
+ if(r.type!=='normal')foot=r.type==='off'?'Отгул: сегодня клятвы не обязательны, серия не прервётся.':'Больничный: клятвы не обязательны, здоровье восстанавливается.';
+ else if(r.all)foot='Все клятвы исполнены: +3 ВОЛ, +10 золота, +10 здоровья, серия растёт.';
+ else if(r.miss)foot=`Нарушено клятв: ${r.miss}. Это стоило воли и здоровья.`;
+ else foot=`Клятвы отмечаются сами, по делам ниже. ${isToday?'В полночь':'За каждую'} нарушенная: −${S.pen.xp} ВОЛ и −${S.pen.hp} ♥.`;
+ return `<section class="win pad"><div class="tophead"><h2 class="h">Клятвы дня</h2><span class="px" style="font-size:12px;color:${r.all?'var(--ok)':'var(--muted)'}">${n}/${r.os.length}</span></div>
+  <ul class="oathlist">${r.os.map(x=>`<li class="${x.done?'done':''}"><span class="gem"><span>${x.done?'✓':''}</span></span><span><b>${esc(x.o.name)}</b><small>${esc(x.o.how)}</small></span></li>`).join('')}</ul>
+  <div class="small">${foot}</div></section>`;
+}
+function heroCard(C){
+ return `<section class="win pad"><div class="hc"><div class="stage sm">${stageSVG()}${heroArt(C.sxp,'sprite')}</div><div><div class="h">${esc(heroClass(C.sxp))}</div><div class="small">Ур. ${C.lvl+1} · ${esc(RANKS[C.lvl][0])} · ${RANKS[C.lvl][1]}</div></div></div>
+  <div class="mini8">${STATS.map(s=>{const xp=C.sxp[s.k]||0,l=C.sl[s.k],a=needXP(l),b=needXP(l+1);return `<div class="m8" style="--c:${s.col}" title="${esc(s.name)}: ${xp} опыта"><span class="px ab">${s.ab}</span><div class="bar sm"><i style="width:${(xp-a)/(b-a)*100}%"></i></div><span class="px lv">${l}</span></div>`}).join('')}</div>
+  <button class="linkbtn" data-act="tab" data-v="hero">Характеристики и таланты</button></section>`;
+}
+function lootCard(r){
+ const e=STATS.filter(s=>r.xp[s.k]);
+ return `<section class="win pad"><h2 class="h">Добыча дня</h2>
+  <div class="loot"><div><b style="color:var(--xp)">${sg(r.xpT)||'0'}</b><small>опыта</small></div><div><b class="gold">${coinArt}${sg(r.gold)||'0'}</b><small>золота</small></div><div><b class="hpc">${sg(r.hpD)||'0'}</b><small>здоровья</small></div></div>
+  ${e.length?`<div class="chips big">${e.map(s=>`<span class="chip" style="--c:${s.col}">${esc(s.name)} ${sg(r.xp[s.k])}</span>`).join('')}</div>`:`<div class="small">Отметь первое дело, и здесь появится опыт по характеристикам.</div>`}</section>`;
+}
+function todayView(C){
+ const d=view,now=today(),L=log(d),r=C.days[d]||calcDay(d,0,now,S.start,C.sl),isToday=d===now;
+ const offUsed=Object.keys(S.days).some(k=>k!==d&&monday(k)===monday(d)&&S.days[k].type==='off');
+ const groups=Object.keys(GROUPS).map(g=>{const items=allActions().filter(x=>x.group===g&&!S.hidden[x.id]);if(!items.length)return '';
+  return `<section class="win block"><div class="ghead ${g==='bad'?'bad':''}">${iconArt(GICON[g],'gico')}<h2 class="h">${GROUPS[g]}</h2></div>${items.map(x=>rowHTML(x,d,L)).join('')}</section>`}).join('');
+ const B=bossState(monday(d),C.days),BZ=beastOf(monday(d));
+ return `<div class="today">
+  <div class="dayhead"><div class="daynav"><button class="iconbtn" id="prevday" data-act="day" data-v="-1" aria-label="Предыдущий день">‹</button>
+    <button class="iconbtn" id="nextday" data-act="day" data-v="1" aria-label="Следующий день" ${isToday?'disabled':''}>›</button>
+    <h1 class="daytitle">${esc(longDate(d))}</h1>${isToday?'':`<button class="todaybtn" data-act="gotoday">к сегодня</button>`}</div>
+   <div class="seg" role="group" aria-label="Тип дня">
+    <button id="ty-n" data-act="type" data-v="normal" aria-pressed="${r.type==='normal'}">Обычный</button>
+    <button id="ty-o" data-act="type" data-v="off" aria-pressed="${r.type==='off'}" ${offUsed&&r.type!=='off'?'disabled title="Отгул на этой неделе уже взят"':''}>Отгул</button>
+    <button id="ty-s" data-act="type" data-v="sick" aria-pressed="${r.type==='sick'}">Болею</button></div></div>
+  <div class="mainc">${oathPanel(r,isToday)}<div class="blocks">${groups}</div></div>
+  <div class="side">
+   ${heroCard(C)}${lootCard(r)}${advBrief(d)}${firstsCard(d,false)}${topicBrief('day',d)}${topicBrief('week',d)}
+   ${r.chestOk?(r.chestOn?`<div class="chest" role="status">Сундук открыт<b>+${r.chestV} зол.</b></div>`:`<button class="chest wiggle" id="chest" data-act="chest">Открыть сундук дня<b>?</b></button>`):`<div class="chest" style="opacity:.7">Сундук откроется от ${CHEST_AT} опыта за день<b>${Math.max(0,r.xpT)}/${CHEST_AT}</b></div>`}
+   <section class="win pad bosswin ${B.win?'slain':''}"><div class="eyebrow">Босс недели</div><div class="boss">${beastArt(BZ,'beast',BZ.name)}<div><h2 class="h">${esc(BZ.name)}</h2><div class="small">${esc(BZ.title)}</div>
+    <div class="hpb ${B.win?'dead':''}" role="progressbar" aria-label="Здоровье босса" aria-valuenow="${B.win?0:Math.round((1-B.prog)*100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${B.win?100:(1-B.prog)*100}%"></i></div><div class="stmeta"><span>${B.win?'Повержен':'HP '+Math.round((1-B.prog)*100)+'/100'}</span><span>до воскресенья</span></div></div></div>
+    <p class="lore">${esc(BZ.lore)}</p>
+    ${B.parts.map(p=>`<div class="goal"><span>${p[0]}</span><span>${p[1]}/${p[2]}</span><div class="gbar"><i style="width:${Math.min(100,p[1]/Math.max(1,p[2])*100)}%"></i></div></div>`).join('')}
+    <div class="small" style="margin-top:9px">${B.win?`Повержен. Добыча: +${bossGold()} золота, +20 ВОЛ, +10 ИНТ`:`Закрой все цели до воскресенья: +${bossGold()} золота, +20 ВОЛ, +10 ИНТ`}</div></section>
+   <section class="win pad"><h2 class="h" style="margin-bottom:8px">Летопись дня</h2>
+    ${r.lines.length?`<ul class="lines">${r.lines.map(l=>`<li><span>${esc(l.t)}</span><span class="chips">${xpChips(l.x)}${coin(l.g)}${heart(l.h)}</span></li>`).join('')}</ul>`:`<div class="small">Здесь по строчкам появится всё, что принёс день: опыт, золото и здоровье.</div>`}
+    <div class="total"><span style="color:var(--xp)">${sg(r.xpT)||'0'} XP</span><span class="gold">${sg(r.gold)||'0'} зол.</span><span class="hpc">${sg(r.hpD)||'0'} HP</span></div></section>
+  </div></div>`;
+}
+function topicXP(kind){const o={},k=(curLv.int||1)>=TAL_LVL?2:1;addTo(o,kind==='day'?{cur:4,int:3}:{int:12,cur:12},k);return o}
+function topicState(kind,d){
+ if(kind==='day'){const L=log(d);return{t:dayTopic(d),done:!!L.tdone,note:L.tnote||'',label:'Свиток дня'}}
+ const m=monday(d),W=(S.weeks||{})[m]||{};return{t:weekTopic(m),done:!!W.day,note:W.note||'',label:'Фолиант недели'};
+}
+function topicBrief(kind,d){
+ const s=topicState(kind,d);
+ return `<section class="win pad topic"><div class="tophead"><h2 class="h">${s.label}</h2><span class="tag ${s.t.cat}">${CATS[s.t.cat]}</span></div>
+  <div class="quest ${s.done?'done':''}"><span class="mark">${s.done?'✓':''}</span><span><b>${esc(s.t.title)}</b><span class="chips">${xpChips(topicXP(kind))}</span></span></div>
+  <p class="hook">${esc(s.t.hook)}</p>
+  <div class="tbtns"><button class="btn ${s.done?'ghost':''}" id="brief-${kind}" data-act="${kind==='day'?'tdone':'wdone'}">${s.done?'Отменить отметку':'Изучила'}</button><button class="linkbtn" data-act="tab" data-v="topics">${kind==='day'?'Вопрос и ссылки':'Вопросы и ссылки'}</button></div></section>`;
+}
+function topicFull(kind,d){
+ const s=topicState(kind,d),t=s.t,enc=encodeURIComponent;
+ const [qw,qv]=t.q.split('|'),wiki=`https://ru.wikipedia.org/w/index.php?search=${enc(qw)}`,yt=`https://www.youtube.com/results?search_query=${enc((qv||qw)+' простыми словами')}`;
+ return `<section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">${s.label}</h2><span class="tag ${t.cat}">${CATS[t.cat]}</span></div>
+  <h3 class="ttl">${esc(t.title)}</h3><p class="hook">${esc(t.hook)}</p>
+  ${kind==='day'?`<div class="ask">Выясни: ${esc(t.ask)}</div>`:`<div class="ask">Разберись:</div><ol class="rulelist">${t.qs.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`}
+  <div class="small">${kind==='day'?'На 5–10 минут.':'На 30–40 минут, можно частями в течение недели.'}</div>
+  <div class="chips">${xpChips(topicXP(kind))}</div>
+  <div class="tbtns"><a class="ext" href="${esc(wiki)}" target="_blank" rel="noopener noreferrer">Читать в Википедии ↗</a><a class="ext" href="${esc(yt)}" target="_blank" rel="noopener noreferrer">Найти видео ↗</a></div>
+  <label class="small" for="note-${kind}">Что запомнила</label><textarea class="tnote" id="note-${kind}" data-chg="${kind==='day'?'tnote':'wnote'}" placeholder="Пара строк своими словами">${esc(s.note)}</textarea>
+  <div class="tbtns"><button class="btn ${s.done?'ghost':''}" id="full-${kind}" data-act="${kind==='day'?'tdone':'wdone'}">${s.done?'Отменить отметку':'Изучила'}</button>${s.done?'':`<button class="btn ghost" id="swap-${kind}" data-act="${kind==='day'?'tswap':'wswap'}">Другая тема</button>`}</div></section>`;
+}
+const qChips=x=>`<span class="chips">${xpChips(qXP(x))}</span>`;
+function qCard(x,slot,doneDay,swap,extra){const done=!!doneDay;
+ return `<div class="aq ${x.kind==='ql'?'legend':''}"><div class="quest ${done?'done':''}"><span class="mark">${done?'✓':''}</span><span><b>${esc(x.title)}</b>${x.hint?`<small>${esc(x.hint)}</small>`:''}${qChips(x)}</span></div>
+  <div class="tbtns"><button class="btn ${done?'ghost':''}" id="qd-${slot}-${esc(x.id)}" data-act="qtoggle" data-id="${esc(x.id)}" data-slot="${slot}" data-d="${doneDay||''}">${done?'Отменить':'Выполнено'}</button>${!done&&swap?`<button class="linkbtn" id="qs-${slot}" data-act="qswap" data-slot="${slot}" data-id="${esc(x.id)}">Другой квест</button>`:''}${extra||''}</div></div>`}
+const lockedEve=`<div class="quest locked"><span class="mark">?</span><span><b>Вечерний квест ещё запечатан</b><small>Откроется в ${EVENING_H}:00. Загляни после работы.</small></span></div>`;
+
+function rollCard(d,sfx){
+ const L=log(d),cur=L.qr&&AQ[L.qr]?AQ[L.qr]:null,done=!!cur&&(L.q||[]).includes(cur.id),left=ROLLS_PER_DAY-(L.rolls||0);
+ const btn=left>0?`<button class="btn ${cur&&!done?'ghost':''}" id="roll-${sfx}" data-act="roll">${cur?'Развернуть другой':'Развернуть свиток'} · ${left} из ${ROLLS_PER_DAY}</button>`:`<span class="small">Свитки на сегодня закончились, завтра будут новые.</span>`;
+ if(!cur)return `<div class="scroll"><p class="hook">Разверни свиток, и случай подкинет маленькое приключение на 15 минут.</p><div class="tbtns">${btn}</div></div>`;
+ return `<div class="scroll"><div class="quest ${done?'done':''}"><span class="mark">${done?'✓':'⚂'}</span><span><b>${esc(cur.title)}</b><small>${esc(cur.hint)}</small>${qChips(cur)}</span></div>
+  <div class="tbtns">${done?'':`<button class="btn" id="qd-r-${sfx}" data-act="qtoggle" data-id="${cur.id}" data-slot="r" data-d="">Выполнено</button>`}${btn}</div></div>`;
+}
+function chainCard(c){
+ const dm=doneDays(),n=c.steps.filter(s=>dm[s.id]).length,next=c.steps.find(s=>!dm[s.id]),last=c.steps.slice().reverse().find(s=>dm[s.id]);
+ return `<div class="chain ${next?'':'legend'}"><div class="tophead"><b>${esc(c.name)}</b><span class="dots" aria-label="Пройдено шагов: ${n} из ${c.steps.length}">${c.steps.map(s=>`<i class="${dm[s.id]?'on':''}"></i>`).join('')}</span></div>
+  ${next?`<div class="small">Шаг ${n+1} из ${c.steps.length}${n+1===c.steps.length?', финал':''}</div>${qCard(next,'h',null,false)}`:`<p class="hook">Сказание завершено. Ты прошла весь путь.</p>`}
+  ${last?`<button class="linkbtn" style="color:var(--hp);font-size:13px" data-act="qtoggle" data-id="${last.id}" data-d="${dm[last.id]}">Отменить последний шаг</button>`:''}</div>`;
+}
+function firstsCard(d,full){
+ const sfx=full?'q':'s',list=(S.firsts||[]).filter(f=>full||f.d===d).slice().sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+ return `<section class="win pad topic"><div class="tophead"><h2 class="${full?'sec':'h'}" style="margin:0">Книга первых разов</h2><span class="chips" style="margin:0">${xpChips({cur:6,cre:2})}</span></div>
+  <p class="hook">${full?`Всё, что ты сделала впервые: ${(S.firsts||[]).length} ${plural((S.firsts||[]).length,'запись','записи','записей')}. Каждая даёт +6 ЛЮБ и +2 ТВО.`:'Сделала сегодня что-то впервые? Новое блюдо, новая улица, новое слово. Запиши.'}</p>
+  <div class="inline"><input type="text" id="first-${sfx}" maxlength="120" placeholder="Например, впервые попробовала маракуйю" aria-label="Что ты сделала впервые"><button class="btn" id="fadd-${sfx}" data-act="fadd" data-v="first-${sfx}">Записать</button></div>
+  ${list.length?`<ul class="found">${list.map(f=>`<li><div class="tophead"><span>✦ ${esc(f.text)}</span><span class="tbtns">${full?`<button class="linkbtn" data-act="openday" data-v="${f.d}">${esc(shortDate(f.d))}</button>`:''}<button class="linkbtn" style="color:var(--hp)" data-act="fdel" data-id="${esc(f.id)}">Убрать</button></span></div></li>`).join('')}</ul>`:''}</section>`;
+}
+function advBrief(d){
+ const L=log(d),eo=eveningOpen(d);
+ const row=(x,slot)=>{const done=(L.q||[]).includes(x.id);return `<div class="quest ${done?'done':''}"><button class="mark" id="qb-${slot}" data-act="qtoggle" data-id="${x.id}" data-slot="${slot}" data-d="${done?d:''}" aria-pressed="${done}" aria-label="${done?'Отменить':'Отметить'}: ${esc(x.title)}">${done?'✓':''}</button><span><b>${esc(x.title)}</b><small>${QKIND[x.kind]}</small>${qChips(x)}</span></div>`};
+ return `<section class="win pad topic ${legendOn(d)?'legend':''}"><div class="tophead"><h2 class="h">Квесты дня</h2><button class="linkbtn" data-act="tab" data-v="quests">Доска квестов</button></div>
+  ${row(dayQ(d,'m'),'m')}${eo?row(dayQ(d,'e'),'e'):lockedEve}${legendOn(d)?row(dayQ(d,'l'),'l'):''}
+  <div class="divider"></div><div class="tophead"><h3 class="h" style="font-size:10px">Свиток случая</h3></div>${rollCard(d,'s')}</section>`;
+}
+function ownQuests(d){
+ const L=log(d),dm=doneDays();
+ const list=(S.cq||[]).filter(c=>!c.gone).map(c=>AQ[c.id]).filter(Boolean);
+ const cards=list.filter(x=>x.rep||!dm[x.id]).map(x=>qCard(x,'c',x.rep&&(L.q||[]).includes(x.id)?d:null,false,`<button class="linkbtn" style="color:var(--hp)" data-act="cqdel" data-id="${esc(x.id)}">Убрать</button>${x.rep?'<span class="small">каждый день</span>':''}`)).join('');
+ return `<section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Свои квесты</h2><span class="tag math">${list.length}</span></div>
+  <p class="hook">Придумай квест сама: сходить на йогу, дочитать книгу, позвонить бабушке. Выбери, что он качает.</p>
+  ${cards?`<div class="board">${cards}</div>`:''}
+  <div style="display:grid;gap:8px">
+   <input type="text" id="cq-name" placeholder="Например, сходить на бачату" aria-label="Название квеста">
+   <div class="inline"><select id="cq-stat" aria-label="Что качает">${STATS.map(s=>`<option value="${s.k}">${esc(s.name)}</option>`).join('')}</select>
+    <input type="number" id="cq-pts" min="1" max="200" aria-label="Опыт за квест" value="15"></div>
+   <div class="inline"><label class="chk"><input type="checkbox" id="cq-rep"> Повторять каждый день</label><button class="btn" id="cq-add" data-act="cqadd">Добавить квест</button></div>
+  </div></section>`;
+}
+function questsView(C){
+ const d=view,L=log(d),m=monday(d),eo=eveningOpen(d);
+ const dq=x=>(L.q||[]).includes(x.id)?d:null;
+ const qm=dayQ(d,'m'),qe=dayQ(d,'e'),ql=dayQ(d,'l'),W=weekQ(m),B=boardQ();
+ const all=[];Object.keys(S.days).forEach(k=>(S.days[k].q||[]).forEach(id=>{if(AQ[id])all.push({d:k,x:AQ[id]})}));
+ all.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+ return `<div class="page">
+  ${d!==today()?`<div class="alert">Квесты за ${esc(longDate(d))}. <button class="linkbtn" data-act="gotoday">К сегодня</button></div>`:''}
+  <p class="small" style="margin:0;max-width:70ch">Квест даёт опыт характеристикам, которые подписаны на карточке: первая получает его целиком, остальные половину. Золото приходит вместе с опытом.</p>
+  <div class="two">
+   <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Утренний квест</h2><span class="tag space">на весь день</span></div>${qCard(qm,'m',dq(qm),true)}</section>
+   <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Вечерний квест</h2><span class="tag phys">с ${EVENING_H}:00</span></div>${eo?qCard(qe,'e',dq(qe),true):lockedEve}</section>
+  </div>
+  <section class="win pad topic ${legendOn(d)?'legend':''}"><div class="tophead"><h2 class="sec" style="margin:0">Легендарный квест</h2><span class="tag gold">редкий</span></div>
+   ${legendOn(d)?qCard(ql,'l',dq(ql),true):`<p class="hook">Сегодня не выпал. Легендарный квест появляется примерно в ${(curLv.cur||1)>=TAL_LVL?LEGEND_P_TAL:LEGEND_P}% дней и даёт много опыта сразу нескольким характеристикам.</p>`}</section>
+  <div class="two">
+   <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Свиток случая</h2><span class="tag phys">до 15 минут</span></div>
+    <p class="small" style="margin:0">Маленькие спонтанные приключения. Можно развернуть до ${ROLLS_PER_DAY} свитков в день.</p>${rollCard(d,'q')}</section>
+   ${firstsCard(d,true)}
+  </div>
+  <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Сюжетные цепочки</h2><span class="tag gold">${CHAINS.filter(c=>c.steps.every(s=>doneDays()[s.id])).length} из ${CHAINS.length}</span></div>
+   <p class="hook">Истории из пяти шагов, от простого к большому. Следующий шаг открывается, когда сделан предыдущий. Финал даёт +70.</p>
+   <div class="chains">${CHAINS.map(chainCard).join('')}</div></section>
+  <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Квесты недели</h2><span class="tag math">до воскресенья</span></div>
+   <div class="qlist">${W.map((x,i)=>qCard(x,'w'+i,weekDoneDay(m,x.id),true)).join('')}</div>
+   <div class="small">Большие дела на несколько дней. Отметь в тот день, когда закончишь.</div></section>
+  <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Доска объявлений</h2><span class="tag space">${B.done} из ${QB.length}</span></div>
+   <p class="hook">Висят без срока. Выполненный снимается с доски, на его место приходит новый.</p>
+   ${B.open.length?`<div class="board">${B.open.map(x=>qCard(x,'b',null,false)).join('')}</div>`:'<p class="ask">Доска пуста: ты сделала всё!</p>'}</section>
+  ${ownQuests(d)}
+  <section class="win pad"><h2 class="sec">Журнал приключений</h2>
+   ${all.length?`<ul class="found">${all.map(e=>`<li><div class="tophead"><b>${esc(e.x.title)}</b>${qChips(e.x)}</div><div class="tbtns"><span class="small">${QKIND[e.x.kind]}</span><button class="linkbtn" data-act="openday" data-v="${e.d}">${esc(shortDate(e.d))}</button><button class="linkbtn" style="color:var(--hp)" data-act="qtoggle" data-id="${esc(e.x.id)}" data-d="${e.d}">Отменить</button></div></li>`).join('')}</ul>`:`<p class="small" style="margin:0">Здесь соберётся всё новое, что ты попробовала. Начни с утреннего квеста.</p>`}
+  </section></div>`;
+}
+function radarSVG(sl){
+ const N=STATS.length,cx=170,cy=150,R=100,max=Math.max(5,...STATS.map(s=>sl[s.k]));
+ const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/N;return[cx+Math.cos(a)*R*v/max,cy+Math.sin(a)*R*v/max]};
+ let g='';const step=max>10?5:max>5?2:1;
+ for(let v=step;v<=max;v+=step)g+=`<polygon class="rring" points="${STATS.map((_,i)=>pt(i,v).join(',')).join(' ')}"/>`;
+ g+=STATS.map((_,i)=>{const p=pt(i,max);return `<line class="raxis" x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}"/>`}).join('');
+ const poly=STATS.map((s,i)=>pt(i,sl[s.k]).join(',')).join(' ');
+ const labs=STATS.map((s,i)=>{const a=-Math.PI/2+i*2*Math.PI/N,x=cx+Math.cos(a)*(R+20),y=cy+Math.sin(a)*(R+20)+4,an=Math.abs(Math.cos(a))<.2?'middle':Math.cos(a)>0?'start':'end';return `<text x="${x}" y="${y}" text-anchor="${an}">${s.ab} ${sl[s.k]}</text>`}).join('');
+ const dots=STATS.map((s,i)=>{const p=pt(i,sl[s.k]);return `<circle class="rdot" cx="${p[0]}" cy="${p[1]}" r="3.5"/>`}).join('');
+ return `<svg class="radar" viewBox="0 0 340 300" role="img" aria-label="Характеристики: ${STATS.map(s=>s.name+' '+sl[s.k]).join(', ')}">${g}<polygon class="rpoly" points="${poly}"/>${dots}${labs}</svg>`;
+}
+function heroView(C){
+ const sl=C.sl,sxp=C.sxp,r=RANKS[C.lvl],L=log(view);
+ const low=STATS.slice().sort((a,b)=>(sxp[a.k]||0)-(sxp[b.k]||0))[0];
+ const seen=qSeen(),pick=QB.concat(QE,QM).filter(x=>!seen.has(x.id)&&x.st[0]===low.k).sort((a,b)=>hash(view+a.id)-hash(view+b.id)).slice(0,3);
+ const cards=STATS.map(s=>{const xp=sxp[s.k]||0,l=sl[s.k],a=needXP(l),b=needXP(l+1),t=TAL[s.k],open=l>=TAL_LVL;
+  return `<div class="win statc" style="--c:${s.col}"><div class="sthead"><span class="stab">${s.ab}</span><div><b>${esc(s.name)}</b><small>${esc(s.src)}</small></div><span class="stlv">${l}</span></div>
+   <div class="bar sm"><i style="width:${(xp-a)/(b-a)*100}%"></i></div><div class="stmeta"><span>${xp} опыта</span><span>до ${l+1} ур.: ${b-xp}</span></div>
+   <div class="talent ${open?'on':''}"><b>${open?'★':'☆'} ${esc(t[0])}</b><small>${open?esc(t[1]):`С ${TAL_LVL} уровня: ${esc(t[1].charAt(0).toLowerCase()+t[1].slice(1))}`}</small></div></div>`}).join('');
+ return `<div class="page">
+  <div class="herotop">
+   <section class="win pad heroid"><div class="stage big">${stageSVG()}${heroArt(sxp,'sprite')}</div><div><div class="small">Персонаж</div><h1 class="heroname">${esc(heroClass(sxp))}</h1>
+    <div class="small">Уровень ${C.lvl+1} · ${esc(r[0])} (${r[1]})</div>
+    <div class="chips"><span class="chip hp">${C.hp}/${C.maxHp} ♥</span><span class="chip gd">${fmt(C.balance)} зол.</span><span class="chip" style="--c:var(--xp)">${C.totalXP} XP</span></div>
+    <p class="hook" style="margin-top:10px">Класс складывается из двух самых прокачанных характеристик, а в руках у героини появляется предмет главной. Делай разное, и она будет меняться.</p></div>
+    ${radarSVG(sl)}</section>
+   <section class="win pad topic"><div class="tophead"><h2 class="sec" style="margin:0">Совет наставницы</h2><span class="chip" style="--c:${low.col}">${low.ab}</span></div>
+    <p class="hook">Слабее всего сейчас <b>${esc(low.name.toLowerCase())}</b>. ${esc(low.src)}. Вот что подтянет эту характеристику:</p>
+    ${pick.length?pick.map(x=>qCard(x,'b',(L.q||[]).includes(x.id)?view:null,false)).join(''):'<p class="small">Все квесты на эту характеристику уже пройдены. Придумай свой во вкладке «Квесты».</p>'}
+   </section></div>
+  <section><h2 class="sec">Характеристики</h2><div class="stats8">${cards}</div></section>
+  <section class="win pad"><h2 class="sec">Как растёт героиня</h2><ol class="rulelist">
+   <li><b>Опыт.</b> Каждое дело и квест дают опыт своим характеристикам: он подписан прямо на деле, например «+6 ИНТ».</li>
+   <li><b>Уровни характеристик.</b> До 2 уровня нужно 30 опыта, до 3 уже 90, до 5 300, до 10 1350.</li>
+   <li><b>Таланты.</b> На ${TAL_LVL} уровне у характеристики открывается талант, который меняет правила.</li>
+   <li><b>Уровень героини</b> растёт от суммы всего опыта, по лестнице масштабов: от кварка до Вселенной.</li>
+   <li><b>Здоровье.</b> Сон, еда, исполненные клятвы и больничный лечат, нарушенные клятвы и залипание в телефоне ранят. Каждый уровень выносливости добавляет +5 к максимуму. При нуле героиня падает в обморок и теряет 50 золота.</li>
+  </ol></section>
+ </div>`;
+}
+function topicsView(C){
+ const d=view,done=[];
+ Object.keys(S.days).forEach(k=>{const L=S.days[k];if(L.tdone&&L.tpick){const t=TOPICS.find(x=>x.id===L.tpick);if(t)done.push({d:k,t,note:L.tnote,w:0})}});
+ Object.keys(S.weeks||{}).forEach(m=>{const W=S.weeks[m];if(W.day&&W.pick){const t=WEEKLY.find(x=>x.id===W.pick);if(t)done.push({d:W.day,t,note:W.note,w:1})}});
+ done.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+ const seenD=seenDays(),seenW=seenWeeks();
+ const prog=Object.keys(CATS).map(c=>{const all=TOPICS.concat(WEEKLY).filter(t=>t.cat===c),n=all.filter(t=>seenD.has(t.id)||seenW.has(t.id)).length;return `<div class="goal"><span>${CATS[c]}</span><span>${n}/${all.length}</span><div class="gbar"><i style="width:${n/all.length*100}%"></i></div></div>`}).join('');
+ return `<div class="page">
+  ${d!==today()?`<div class="alert">Библиотека за ${esc(longDate(d))}. <button class="linkbtn" data-act="gotoday">К сегодня</button></div>`:''}
+  <div class="two">${topicFull('day',d)}${topicFull('week',d)}</div>
+  <section class="win pad"><h2 class="sec">Прочитанные свитки</h2>${prog}
+   ${done.length?`<ul class="found">${done.map(x=>`<li><div class="tophead"><b>${esc(x.t.title)}</b><span class="tag ${x.t.cat}">${x.w?'Неделя · ':''}${CATS[x.t.cat]}</span></div><button class="linkbtn" data-act="openday" data-v="${x.d}">${esc(shortDate(x.d))}</button>${x.note?`<p class="fnote">${esc(x.note)}</p>`:''}</li>`).join('')}</ul>`:`<p class="small" style="margin:12px 0 0">Здесь соберутся изученные темы и твои заметки к ним. Начни со свитка дня: это всего 5–10 минут.</p>`}
+  </section></div>`;
+}
+function chartSVG(C){
+ const now=today(),N=30,W=640,H=210,L=34,R=8,T=12,B=26,ds=[];
+ for(let i=N-1;i>=0;i--)ds.push(addDays(now,-i));
+ const vals=ds.map(d=>C.days[d]?C.days[d].xpT:0);
+ const maxA=Math.max(50,...vals.map(Math.abs));const step=maxA>200?100:maxA>100?50:25;
+ const top=Math.ceil(Math.max(50,...vals)/step)*step,bot=Math.floor(Math.min(0,...vals)/step)*step;
+ const y=v=>T+(top-v)/(top-bot)*(H-T-B),bw=(W-L-R)/N;
+ let g='';for(let v=bot;v<=top;v+=step)g+=`<line class="gridl" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(v)}</text>`;
+ const bars=ds.map((d,i)=>{const v=vals[i],x=L+i*bw,bh=Math.abs(y(v)-y(0));
+  const m=v?`<rect class="${v>0?'up':'dn'}" x="${x+1.5}" y="${v>0?y(v):y(0)}" width="${Math.max(2,bw-3)}" height="${Math.max(1,bh)}" rx="1"/>`:'';
+  const lab=(N-1-i)%5===0?`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${parse(d).getDate()}.${pad(parse(d).getMonth()+1)}</text>`:'';
+  return m+lab+`<rect class="hit" x="${x}" y="${T}" width="${bw}" height="${H-T-B}" data-act="openday" data-v="${d}" data-tip="${esc(shortDate(d))}: ${sg(v)||'0'} опыта"/>`}).join('');
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Опыт по дням за последние 30 дней">${g}<line class="base" x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}"/>${bars}</svg>`;
+}
+function journalView(C){
+ const T=C.T,rows=C.order.slice().reverse().slice(0,21);
+ const last7=C.order.slice(-7).reduce((s,d)=>s+C.days[d].xpT,0);
+ return `<div class="page">
+  <div class="win tiles">
+   ${[['Лекции',T.lecture],['Задачи',T.tasks],['Тренировки',T.workout],['Поездки',T.rides],['Дни с чтением',T.read],['Дни с языком',T.lang],['Походы на работу',T.work],['Дни всех клятв',T.oathDays],['Квесты',T.adv],['Лучшая серия',T.maxStreak],['Обмороки',T.faint],['Опыт за 7 дней',sg(last7)||'0']].map(x=>`<div class="tile"><b>${x[1]}</b><small>${x[0]}</small></div>`).join('')}
+  </div>
+  <section class="win pad"><h2 class="sec">Опыт за 30 дней</h2><div class="chartwrap">${chartSVG(C)}</div>
+   <div class="small">Столбик вниз: день, когда проклятия и нарушенные клятвы перевесили. Нажми на столбик, чтобы открыть день.</div></section>
+  <section class="win pad"><h2 class="sec">Дни</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th class="n">Опыт</th><th class="n">Золото</th><th class="n">Клятвы</th><th class="n">HP</th></tr></thead><tbody>
+   ${rows.map(d=>{const r=C.days[d];return `<tr><td><button class="linkbtn" data-act="openday" data-v="${d}">${esc(longDate(d))}</button></td><td class="n">${sg(r.xpT)||'0'}</td><td class="n">${sg(r.gold)||'0'}</td><td class="n">${r.os.filter(x=>x.done).length}/${r.os.length}</td><td class="n">${r.hpEnd}${r.faint?' ✕':''}</td></tr>`}).join('')}
+   </tbody></table></div><div class="small" style="margin-top:8px">Забыла отметить день? Открой его и заполни: клятвы, здоровье и серия пересчитаются сами.</div></section>
+ </div>`;
+}
+function achView(C){
+ const got=ACH.filter(a=>a[3](C.T)>=a[4]).length;
+ return `<div class="page">
+  <section><h2 class="sec">Трофеи: ${got} из ${ACH.length}</h2><div class="ach">
+   ${ACH.map(a=>{const v=a[3](C.T),ok=v>=a[4];return `<div class="badge ${ok?'got':''}"><span class="sym" aria-hidden="true"><span>${a[0]}</span></span><div><b>${esc(a[1])}</b><small>${esc(a[2])}</small>${ok?'':`<div class="prog"><i style="width:${Math.min(100,v/a[4]*100)}%"></i></div><small style="margin-top:2px">${v} из ${a[4]}</small>`}</div></div>`}).join('')}
+  </div></section>
+  <section class="win pad"><h2 class="sec">Бестиарий</h2><p class="small" style="margin:0 0 12px;max-width:65ch">Каждую неделю приходит новый босс. Закрой недельные цели, и он падёт.</p>
+   <div class="bestiary">${BEASTS.map(b=>{const n=C.T.kills[b.id]||0,cur=beastOf(monday(today())).id===b.id;return `<div class="beastcard ${n?'got':''}">${beastArt(b,'beast sm',b.name)}<div><b>${esc(b.name)}</b><small>${esc(b.title)}</small><small>${n?'Повержен: '+n+' '+plural(n,'раз','раза','раз'):cur?'Бродит на этой неделе':'Ещё не встречен'}</small></div></div>`}).join('')}</div></section>
+  <section class="win pad"><h2 class="sec">Лестница масштабов</h2><p class="small" style="margin:0 0 8px;max-width:65ch">Уровень героини растёт от суммы опыта всех характеристик. Покупки в лавке его не снижают. Размеры настоящие.</p>
+   <ol class="ladder">${RANKS.map((r,i)=>`<li class="${i===C.lvl?'cur':i>C.lvl?'lk':''}"><span>${i+1}</span><span>${esc(r[0])}</span><span class="sz">${r[1]}</span><span class="thr">${r[2]} XP</span></li>`).join('')}</ol></section>
+ </div>`;
+}
+function shopView(C){
+ const buys=(S.buys||[]).slice().reverse().slice(0,12);
+ return `<div class="page">
+  <section><div class="tophead"><h2 class="sec" style="margin:0">Лавка странствующего торговца</h2><span class="purse">${coinArt}${fmt(C.balance)}</span></div>
+  <p class="small" style="margin:8px 0 14px;max-width:65ch">Каждый предмет здесь — настоящая награда для тебя. Редкость зависит от цены. Золото приходит вместе с опытом: каждое очко опыта приносит монету. Ещё золото дают клятвы, серия, сундуки и босс. Названия и цены ниже можно менять.</p>
+  <div class="shop">${S.rewards.map(r=>{const can=C.balance>=r.cost,ra=rarityOf(r.cost),it=ICONS[r.icon]||ICONS.chest;return `<div class="win card ${can?'':'poor'}" style="--r:${ra[2]}"><div class="slot">${iconArt(r.icon,'ico')}</div><div class="cardtxt"><span class="rar">${ra[1]}</span><b class="itn">${esc(it.name)}</b><span class="real">${esc(r.name)}</span></div><div class="buyrow"><span class="pr">${coinArt}${r.cost}</span><button class="btn" id="buy-${esc(r.id)}" data-act="buy" data-id="${esc(r.id)}" ${can?'':'disabled'}>${can?'Купить':'Ещё '+(r.cost-C.balance)}</button></div></div>`}).join('')}</div></section>
+  ${buys.length?`<section class="win pad"><h2 class="sec">Покупки</h2><div class="tablewrap"><table><tbody>${buys.map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(shortDate(b.date))}</td><td class="n">−${b.cost}</td><td class="n"><button class="linkbtn" data-act="refund" data-v="${b.ts}">Вернуть</button></td></tr>`).join('')}</tbody></table></div></section>`:''}
+  <section class="win pad"><h2 class="sec">Изменить товары</h2><p class="small" style="margin:0 0 10px">Слева твоя настоящая награда, справа цена и предмет, которым она выглядит в лавке.</p>
+   ${S.rewards.map(r=>`<div class="inline" style="margin-bottom:8px"><input type="text" id="rn-${esc(r.id)}" aria-label="Название награды" data-chg="rname" data-id="${esc(r.id)}" value="${esc(r.name)}"><input type="number" style="flex:0 0 90px" id="rc-${esc(r.id)}" aria-label="Цена" data-chg="rcost" data-id="${esc(r.id)}" value="${r.cost}" min="1"><select style="flex:0 0 190px" id="ri-${esc(r.id)}" aria-label="Предмет" data-chg="ricon" data-id="${esc(r.id)}">${Object.keys(ICONS).map(k=>`<option value="${k}" ${r.icon===k?'selected':''}>${esc(ICONS[k].name)}</option>`).join('')}</select><button class="btn red" id="rd-${esc(r.id)}" data-act="rdel" data-id="${esc(r.id)}">Убрать</button></div>`).join('')}
+   <div class="inline" style="margin-top:12px"><input type="text" id="newr-name" placeholder="Новая награда" aria-label="Название новой награды"><input type="number" style="flex:0 0 90px" id="newr-cost" placeholder="Цена" aria-label="Цена новой награды" min="1"><select style="flex:0 0 190px" id="newr-icon" aria-label="Предмет">${Object.keys(ICONS).map(k=>`<option value="${k}">${esc(ICONS[k].name)}</option>`).join('')}</select><button class="btn" id="newr-add" data-act="radd">Добавить</button></div>
+  </section></div>`;
+}
+function rulesView(C){
+ const acts=allActions().map(x=>{const custom=!ACTIONS.includes(x),fx=x.kind==='choice'?x.options.map(o=>xpChips(o[2])+heart(o[3])).join(''):xpChips(x.xp)+heart(x.hp);
+  return `<div class="setrow"><label for="vis-${esc(x.id)}"><b>${esc(x.name)}</b> <span class="small">${GROUPS[x.group]||''}</span><span class="chips">${fx}</span>${custom?`<button class="linkbtn" data-act="cdel" data-id="${esc(x.id)}" style="color:var(--hp);font-size:13px">Удалить</button>`:''}</label><input type="checkbox" id="vis-${esc(x.id)}" data-chg="vis" data-id="${esc(x.id)}" aria-label="Показывать: ${esc(x.name)}" ${S.hidden[x.id]?'':'checked'}></div>`}).join('');
+ return `<div class="page">
+  <section class="win pad"><h2 class="sec">Свод правил</h2><ol class="rulelist">
+   <li><b>Опыт вместо баллов.</b> Каждое дело качает свои характеристики, это подписано на нём: лекция +6 ИНТ +1 ВОЛ, тренировка +6 СИЛ +2 ВЫН, поездка на скейте +5 ЛОВ +1 СИЛ.</li>
+   <li><b>Клятвы.</b> Обязательные дела дня: учёба, движение, чтение, вода, а по субботам допзанятие. Отмечаются сами по делам. Все исполнены: +3 ВОЛ, +10 золота, +10 здоровья. Каждая нарушенная к полуночи: −${S.pen.xp} ВОЛ и −${S.pen.hp} здоровья.</li>
+   <li><b>Серия.</b> Дни подряд со всеми клятвами. Она увеличивает золото за день: от 3 дней +10%, от 7 +25%, от 14 +40%, от 30 +50%.</li>
+   <li><b>Золото.</b> Каждое очко опыта приносит монету. Тратится в лавке, уровень от покупок не падает.</li>
+   <li><b>Здоровье.</b> Хороший сон +10, правильное питание +5, все клятвы +10, больничный +15. Плохой сон и срыв в еде −10, залипание в телефоне −5. При нуле обморок: −50 золота, здоровье восстанавливается наполовину.</li>
+   <li><b>Квесты.</b> Утренний, вечерний с ${EVENING_H}:00, два на неделю, доска без срока, свои и легендарный, который выпадает примерно в ${LEGEND_P}% дней.</li>
+   <li><b>Новое.</b> Свиток случая даёт маленькое приключение прямо сейчас, до трёх в день. Сюжетные цепочки ведут от простого шага к большому финалу. Каждая запись в книге первых разов приносит +6 ЛЮБ и +2 ТВО.</li>
+   <li><b>Библиотека.</b> Свиток дня +4 ЛЮБ +3 ИНТ, фолиант недели +12 ИНТ +12 ЛЮБ.</li>
+   <li><b>Сундук.</b> Открывается от ${CHEST_AT} опыта за день, внутри от 10 до 30 золота, редко 60.</li>
+   <li><b>Босс недели.</b> Закрой пять недельных целей и забери +${bossGold()} золота, +20 ВОЛ и +10 ИНТ.</li>
+   <li><b>Отгул и болезнь.</b> Один отгул в неделю и «Болею» снимают обязательность клятв и не прерывают серию.</li>
+  </ol></section>
+  <div class="two">
+   <section class="win pad"><h2 class="sec">Дела и что они качают</h2><div class="small" style="margin-bottom:6px">Галочка справа: показывать дело на главной.</div>${acts}</section>
+   <div style="display:grid;gap:18px;align-content:start">
+   <section class="win pad"><h2 class="sec">Своё дело или проклятие</h2>
+    <div style="display:grid;gap:8px"><input type="text" id="c-name" placeholder="Например, медитация" aria-label="Название дела">
+    <div class="inline"><select id="c-group" aria-label="Раздел">${Object.keys(GROUPS).map(g=>`<option value="${g}">${GROUPS[g]}</option>`).join('')}</select><select id="c-kind" aria-label="Как отмечать"><option value="toggle">Сделано или нет</option><option value="count">Считать штуки</option></select></div>
+    <div class="inline"><select id="c-stat" aria-label="Что качает">${STATS.map(s=>`<option value="${s.k}">${esc(s.name)}</option>`).join('')}</select><input type="number" id="c-xp" placeholder="Опыт, минус для проклятия" aria-label="Опыт" value="3"></div>
+    <div class="inline"><button class="btn" id="c-add" data-act="cadd">Добавить дело</button></div></div></section>
+   <section class="win pad"><h2 class="sec">Клятвы</h2>
+    ${OATHS.map(o=>`<label class="chk"><input type="checkbox" id="oath-${o.id}" data-chg="oath" data-id="${o.id}" ${S.oathOff[o.id]?'':'checked'}> ${esc(o.name)}: ${esc(o.how.toLowerCase())}</label>`).join('')}
+    <div class="field"><label for="pen-xp">Нарушенная клятва, минус ВОЛ</label><input type="number" min="0" id="pen-xp" data-chg="pen" data-id="xp" value="${S.pen.xp}"></div>
+    <div class="field"><label for="pen-hp">Нарушенная клятва, минус здоровья</label><input type="number" min="0" id="pen-hp" data-chg="pen" data-id="hp" value="${S.pen.hp}"></div></section>
+   <section class="win pad"><h2 class="sec">Цели босса</h2>
+    <div class="field"><label for="g-lecture">Лекций в неделю</label><input type="number" min="1" id="g-lecture" data-chg="goal" data-id="lecture" value="${S.goals.lecture}"></div>
+    <div class="field"><label for="g-tasks">Задач в неделю</label><input type="number" min="1" id="g-tasks" data-chg="goal" data-id="tasks" value="${S.goals.tasks}"></div>
+    <div class="field"><label for="g-move">Тренировок и поездок</label><input type="number" min="1" id="g-move" data-chg="goal" data-id="move" value="${S.goals.move}"></div>
+    <div class="field"><label for="g-oathDays">Дней со всеми клятвами</label><input type="number" min="1" max="7" id="g-oathDays" data-chg="goal" data-id="oathDays" value="${S.goals.oathDays}"></div>
+    <label class="chk" style="margin-top:6px"><input type="checkbox" id="s-sound" data-chg="sound" ${S.sound?'checked':''}> Звук при отметках</label></section>
+   <section class="win pad"><h2 class="sec">Сохранение</h2>
+    <p class="small" style="margin:0 0 8px">${saveMode==='account'?'Сохраняется в твоём аккаунте, другим не видно. Откроется и на других устройствах.':'Сохраняется только в этом браузере. Сделай копию, чтобы не потерять.'}</p>
+    <p class="small" style="margin:0 0 8px">Копию из «Квантового скачка» тоже можно вставить сюда: дни, квесты и темы перенесутся.</p>
+    <div class="inline"><button class="btn ghost" id="exp" data-act="export">${showExport?'Скрыть копию':'Показать копию данных'}</button></div>
+    ${showExport?`<textarea id="exptext" readonly aria-label="Копия данных" style="margin-top:8px">${esc(JSON.stringify(S))}</textarea><div class="inline" style="margin-top:6px"><button class="btn ghost" id="copy" data-act="copy">Скопировать</button></div>`:''}
+    <textarea id="imp" placeholder="Вставь сюда копию, чтобы восстановить" aria-label="Восстановить из копии" style="margin-top:8px"></textarea>
+    <div class="inline" style="margin-top:6px"><button class="btn ghost" id="impb" data-act="import">Восстановить</button></div>
+    ${importMsg?`<p class="small" role="status" style="margin:6px 0 0">${esc(importMsg)}</p>`:''}
+    <div class="inline" style="margin-top:12px">${confirmReset?`<button class="btn red" id="res2" data-act="reset2">Да, стереть всё</button><button class="btn ghost" id="res0" data-act="reset0">Отмена</button>`:`<button class="btn red" id="res1" data-act="reset1">Начать сагу заново</button>`}</div></section>
+   </div></div></div>`;
+}
+function render(){
+ const fid=document.activeElement&&document.activeElement.id;
+ const C=computeAll();
+ const v={today:todayView,hero:heroView,quests:questsView,topics:topicsView,journal:journalView,ach:achView,shop:shopView,rules:rulesView}[tab](C);
+ $('#app').innerHTML=header(C)+'<main>'+v+'</main>';
+ if(fid){const el=document.getElementById(fid);if(el)try{el.focus({preventScroll:true})}catch(e){}}
+ return C;
+}
+
+/* ---------- Обратная связь ---------- */
+let actx=null;
+function beep(up){if(!S.sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=up?660:200;if(up)o.frequency.setValueAtTime(990,actx.currentTime+.07);g.gain.value=.03;g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.18);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.19)}catch(e){}}
+function floatAt(ev,txt,neg){const el=document.createElement('div');el.className='fl'+(neg?' neg':'');el.textContent=txt;el.style.left=Math.min(innerWidth-140,Math.max(8,(ev.clientX||innerWidth/2)-20))+'px';el.style.top=Math.max(8,(ev.clientY||innerHeight/2)-26)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),950)}
+function toast(t,s){const el=document.createElement('div');el.className='toast';el.innerHTML=`<b>${esc(t)}</b>${s?esc(s):''}`;$('#toasts').appendChild(el);setTimeout(()=>el.remove(),3800)}
+function levelUp(i){const r=RANKS[i],o=$('#lvl');o.innerHTML=`<div class="inner"><div class="px" style="font-size:11px;color:var(--gold)">Level up!</div><h2>${esc(r[0])}</h2><div class="sz">${r[1]}</div><div class="small">Уровень героини ${i+1}</div><button class="btn" id="lvlok" data-act="lvlok">Дальше</button></div>`;o.hidden=false;const b=$('#lvlok');if(b)b.focus()}
+const achSet=C=>new Set(ACH.filter(a=>a[3](C.T)>=a[4]).map(a=>a[1]));
+function commit(fn,ev){
+ const b=computeAll();
+ fn();persist();
+ const a=render();
+ if(ev){const diff={};STATS.forEach(s=>{const v=(a.sxp[s.k]||0)-(b.sxp[s.k]||0);if(v)diff[s.k]=v});const ks=Object.keys(diff);
+  if(ks.length){const txt=ks.slice(0,2).map(k=>sg(diff[k])+' '+SN[k].ab).join(' ');floatAt(ev,txt,sumX(diff)<0);beep(sumX(diff)>0)}}
+ const s1=achSet(b),s2=achSet(a);s2.forEach(n=>{if(!s1.has(n))toast('Трофей',n)});
+ STATS.forEach(s=>{if(a.sl[s.k]>b.sl[s.k])toast(s.name+': уровень '+a.sl[s.k],a.sl[s.k]>=TAL_LVL&&b.sl[s.k]<TAL_LVL?'Открыт талант «'+TAL[s.k][0]+'»':'')});
+ const r1=b.days[view],r2=a.days[view];if(r1&&r2&&!r1.all&&r2.all)toast('Клятвы исполнены','+10 золота, +10 здоровья');
+ if(a.lvl>b.lvl)levelUp(a.lvl);
+ if(a.T.boss>b.T.boss)toast(beastOf(monday(view)).name+' повержен','+'+bossGold()+' золота, +20 ВОЛ, +10 ИНТ');
+}
+function dayLog(d){if(!S.days[d])S.days[d]={a:{},type:'normal'};if(!S.days[d].a)S.days[d].a={};return S.days[d]}
+function cleanup(d){const L=S.days[d];if(L&&!Object.keys(L.a||{}).length&&(L.type||'normal')==='normal'&&!L.chest&&!L.tdone&&!L.tpick&&!L.tnote&&!L.wk&&!L.qm&&!L.qe&&!L.ql&&!L.qr&&!L.rolls&&!(L.q&&L.q.length))delete S.days[d]}
+function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36)}
+
+/* ---------- События ---------- */
+document.addEventListener('click',ev=>{
+ const t=ev.target.closest('[data-act]');if(!t)return;
+ const act=t.dataset.act,id=t.dataset.id,val=t.dataset.v;
+ const simple={
+  tab(){tab=val;confirmReset=false;importMsg='';render();scrollTo(0,0)},
+  day(){const n=addDays(view,+val);if(n<=today()){view=n;render()}},
+  gotoday(){view=today();render()},
+  openday(){view=val;tab='today';hideTip();render();scrollTo(0,0)},
+  lvlok(){$('#lvl').hidden=true},
+  export(){showExport=!showExport;render()},
+  copy(){const x=$('#exptext');const done=()=>toast('Скопировано');if(navigator.clipboard)navigator.clipboard.writeText(x.value).then(done).catch(()=>{x.select()});else x.select()},
+  theme(){toggleTheme()},
+  reset1(){confirmReset=true;render()},reset0(){confirmReset=false;render()},
+ };
+ if(simple[act])return simple[act]();
+ const mut={
+  inc(){const L=dayLog(view);L.a[id]=(L.a[id]||0)+1},
+  dec(){const L=dayLog(view);L.a[id]=Math.max(0,(L.a[id]||0)-1);if(!L.a[id])delete L.a[id];cleanup(view)},
+  toggle(){const L=dayLog(view);if(L.a[id])delete L.a[id];else L.a[id]=1;cleanup(view)},
+  choice(){const L=dayLog(view);if(L.a[id]===val)delete L.a[id];else L.a[id]=val;cleanup(view)},
+  type(){const L=dayLog(view);L.type=val;cleanup(view)},
+  chest(){dayLog(view).chest=true},
+  tdone(){const L=dayLog(view);if(L.tdone){delete L.tdone}else{L.tpick=dayTopic(view).id;L.tdone=1;toast('Свиток прочитан',dayTopic(view).title)}},
+  tswap(){const cur=dayTopic(view),L=dayLog(view);delete L.tnote;L.tpick=nextTopic(TOPICS,TOPICS.indexOf(cur)+1,seenDays(),cur.id).id},
+  wdone(){const m=monday(view),W=weekRec(m);if(W.day){const L=S.days[W.day];if(L){delete L.wk;cleanup(W.day)}delete W.day}else{W.pick=weekTopic(m).id;W.day=view;dayLog(view).wk=1;toast('Фолиант изучен',weekTopic(m).title)}},
+  wswap(){const m=monday(view),cur=weekTopic(m),W=weekRec(m);delete W.note;W.pick=nextTopic(WEEKLY,WEEKLY.indexOf(cur)+1,seenWeeks(),cur.id).id},
+  qtoggle(){const slot=t.dataset.slot||'',dd=t.dataset.d;
+   if(dd){const L=S.days[dd];if(L&&L.q){L.q=L.q.filter(x=>x!==id);if(!L.q.length)delete L.q;cleanup(dd)}return}
+   const L=dayLog(view);if(slot==='m')L.qm=id;if(slot==='e')L.qe=id;if(slot==='l')L.ql=id;
+   if(slot[0]==='w'){const m=monday(view);weekRec(m).qp=weekQ(m).map(x=>x.id)}
+   L.q=(L.q||[]).concat(id);toast('Квест выполнен',AQ[id]?AQ[id].title:'')},
+  qswap(){const slot=t.dataset.slot,s=qSeen();
+   if(QLIST[slot]){const list=QLIST[slot].filter(x=>x.id===id||!(x.work&&isWknd(view))),cur=AQ[id],L=dayLog(view);L['q'+slot]=nextTopic(list,list.indexOf(cur)+1,s,cur.id).id;return}
+   const m=monday(view),cur=weekQ(m),i=+slot[1],other=cur[1-i];s.add(other.id);
+   const n=nextTopic(QW,QW.indexOf(cur[i])+1,s,cur[i].id);if(n.id===other.id||n.id===cur[i].id)return;
+   cur[i]=n;weekRec(m).qp=cur.map(x=>x.id)},
+  buy(){const r=S.rewards.find(x=>x.id===id);if(!r)return;S.buys.push({name:r.name,cost:r.cost,date:today(),ts:Date.now()});toast('Куплено',r.name+' за '+r.cost+' золота')},
+  refund(){S.buys=S.buys.filter(b=>String(b.ts)!==val);toast('Золото вернулось в кошелёк')},
+  rdel(){S.rewards=S.rewards.filter(x=>x.id!==id)},
+  radd(){const n=$('#newr-name').value.trim(),c=parseInt($('#newr-cost').value,10);if(!n||!(c>0)){toast('Нужны название и цена больше нуля');return}S.rewards.push({id:uid('r'),name:n.slice(0,80),cost:c,icon:$('#newr-icon').value})},
+  cadd(){const n=$('#c-name').value.trim(),p=parseInt($('#c-xp').value,10);if(!n||!Number.isFinite(p)||p===0){toast('Нужны название и опыт, не ноль');return}S.custom.push({id:uid('c'),group:$('#c-group').value,kind:$('#c-kind').value,name:n.slice(0,80),note:'',xp:{[$('#c-stat').value]:Math.max(-50,Math.min(50,p))}});toast('Дело добавлено',n.slice(0,80))},
+  cdel(){S.custom=S.custom.filter(x=>x.id!==id)},
+  cqadd(){const n=$('#cq-name').value.trim(),p=parseInt($('#cq-pts').value,10);if(!n||!(p>0)){toast('Нужны название и опыт больше нуля');return}S.cq.push({id:uid('qc'),title:n.slice(0,80),stat:$('#cq-stat').value,pts:Math.min(200,p),rep:$('#cq-rep').checked});toast('Квест добавлен',n.slice(0,80))},
+  cqdel(){const c=(S.cq||[]).find(x=>x.id===id);if(c)c.gone=1},
+  roll(){const L=dayLog(view);if((L.rolls||0)>=ROLLS_PER_DAY)return;const s=qSeen(),pool=QR.filter(x=>!s.has(x.id)&&x.id!==L.qr),P=pool.length?pool:QR.filter(x=>x.id!==L.qr);L.qr=P[Math.floor(Math.random()*P.length)].id;L.rolls=(L.rolls||0)+1;toast('Свиток развёрнут',AQ[L.qr].title)},
+  fadd(){const inp=$('#'+val),v=inp?inp.value.trim():'';if(!v){toast('Напиши, что было впервые');return}if(!S.firsts)S.firsts=[];S.firsts.push({id:uid('f'),d:view,text:v.slice(0,120)});toast('Записано в книгу первых разов','+6 ЛЮБ, +2 ТВО')},
+  fdel(){S.firsts=(S.firsts||[]).filter(f=>f.id!==id)},
+  import(){try{const o=JSON.parse($('#imp').value);if(!o||typeof o.days!=='object')throw 0;S=normalize(o);importMsg='Данные восстановлены.'}catch(e){importMsg='Текст не похож на копию данных. Вставь его целиком.'}},
+  reset2(){S=fresh();view=today();confirmReset=false},
+ };
+ if(mut[act])commit(mut[act],ev);
+});
+document.addEventListener('change',ev=>{
+ const t=ev.target,k=t.dataset&&t.dataset.chg;if(!k)return;const id=t.dataset.id;
+ const n=parseInt(t.value,10);
+ commit(()=>{
+  if(k==='vis'){if(t.checked)delete S.hidden[id];else S.hidden[id]=1}
+  if(k==='oath'){if(t.checked)delete S.oathOff[id];else S.oathOff[id]=1}
+  if(k==='pen'&&n>=0)S.pen[id]=Math.min(99,n);
+  if(k==='goal'&&n>0)S.goals[id]=Math.min(9999,n);
+  if(k==='sound')S.sound=t.checked;
+  if(k==='tnote'){const v=t.value.trim().slice(0,600),L=dayLog(view);if(v){L.tnote=v;if(!L.tpick)L.tpick=dayTopic(view).id}else{delete L.tnote;cleanup(view)}}
+  if(k==='wnote'){const m=monday(view),W=weekRec(m),v=t.value.trim().slice(0,1500);if(v){W.note=v;if(!W.pick)W.pick=weekTopic(m).id}else delete W.note}
+  if(k==='rname'&&t.value.trim()){const r=S.rewards.find(x=>x.id===id);if(r)r.name=t.value.trim().slice(0,80)}
+  if(k==='ricon'&&ICONS[t.value]){const r=S.rewards.find(x=>x.id===id);if(r)r.icon=t.value}
+  if(k==='rcost'&&n>0){const r=S.rewards.find(x=>x.id===id);if(r)r.cost=n}
+ });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('first-')){e.preventDefault();const b=document.getElementById('fadd-'+e.target.id.slice(6));if(b)b.click()}});
+const tip=$('#tip');function hideTip(){tip.hidden=true}
+document.addEventListener('pointermove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){hideTip();return}tip.textContent=t.dataset.tip;tip.hidden=false;tip.style.left=Math.min(innerWidth-150,e.clientX+12)+'px';tip.style.top=Math.max(4,e.clientY-34)+'px'});
+
+let lastDay=today(),lastH=new Date().getHours();
+setInterval(()=>{const n=today(),h=new Date().getHours();
+ if(n!==lastDay){if(view===lastDay)view=n;lastDay=n;render()}
+ else if(lastH<EVENING_H&&h>=EVENING_H){render();toast('Открылся вечерний квест',dayQ(n,'e').title)}
+ lastH=h},60000);
+try{matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(!document.documentElement.dataset.theme)render()})}catch(e){}
+render();
+connect();
+</script>
+
+</body></html>

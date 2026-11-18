@@ -1,0 +1,17 @@
+{
+  "name": "Звёздный конспект",
+  "short_name": "Конспект",
+  "description": "Учёба, быт и квесты как ролевая игра: характеристики, ветки развития, наставница и лавка наград.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1c1b20",
+  "theme_color": "#1c1b20",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
